@@ -1,0 +1,14 @@
+@FC.CodeFlix.Catalog.API_HostAddress = http://localhost:5164
+
+GET {{FC.CodeFlix.Catalog.API_HostAddress}}/api/categories
+Accept: application/json
+
+###
+POST {{FC.CodeFlix.Catalog.API_HostAddress}}/api/categories
+Accept: application/json
+{
+  "name": "Test",
+  "description": "Test",
+  "isactive": true
+}
+###

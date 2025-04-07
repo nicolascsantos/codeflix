@@ -1,0 +1,79 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35312.102
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{C565938B-52E9-41D0-A939-E101333373D7}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{E594CD5D-2384-47EC-89B1-9E46768580A7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FC.CodeFlix.Catalog.Domain", "src\FC.CodeFlix.Catalog.Domain\FC.CodeFlix.Catalog.Domain.csproj", "{49A63347-4807-44AA-8509-5FD4F996DD50}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FC.CodeFlix.Catalog.UnitTests", "tests\FC.CodeFlix.Catalog.UnitTests\FC.CodeFlix.Catalog.UnitTests.csproj", "{5FE9EA48-A62B-F260-4C81-0844DCD7B491}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FC.CodeFlix.Catalog.Application", "src\FC.CodeFlix.Catalog.Application\FC.CodeFlix.Catalog.Application.csproj", "{DF530F50-D335-C503-7696-8D043DC34346}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FC.Codeflix.Catalog.IntegrationTests", "tests\FC.Codeflix.Catalog.IntegrationTests\FC.Codeflix.Catalog.IntegrationTests.csproj", "{A2361DB1-5DD1-46B8-A58D-E498C9D0F298}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FC.Codeflix.Catalog.Infra.Data.EF", "src\FC.Codeflix.Catalog.Infra.Data.EF\FC.Codeflix.Catalog.Infra.Data.EF.csproj", "{75DF2B51-A00E-4698-B80E-D826BB41B328}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FC.CodeFlix.Catalog.API", "src\FC.CodeFlix.Catalog.API\FC.CodeFlix.Catalog.API.csproj", "{1FF80392-D344-4F2F-8A04-46B053B556E8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "env", "env", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+	ProjectSection(SolutionItems) = preProject
+		docker-compose.yml = docker-compose.yml
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FC.CodeFlix.Catalog.EndToEndTests", "tests\FC.CodeFlix.Catalog.EndToEndTests\FC.CodeFlix.Catalog.EndToEndTests.csproj", "{31DCFFBC-A46D-4B8D-B86A-37A701E23F12}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{49A63347-4807-44AA-8509-5FD4F996DD50}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{49A63347-4807-44AA-8509-5FD4F996DD50}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49A63347-4807-44AA-8509-5FD4F996DD50}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{49A63347-4807-44AA-8509-5FD4F996DD50}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5FE9EA48-A62B-F260-4C81-0844DCD7B491}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5FE9EA48-A62B-F260-4C81-0844DCD7B491}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5FE9EA48-A62B-F260-4C81-0844DCD7B491}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5FE9EA48-A62B-F260-4C81-0844DCD7B491}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DF530F50-D335-C503-7696-8D043DC34346}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF530F50-D335-C503-7696-8D043DC34346}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF530F50-D335-C503-7696-8D043DC34346}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF530F50-D335-C503-7696-8D043DC34346}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A2361DB1-5DD1-46B8-A58D-E498C9D0F298}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A2361DB1-5DD1-46B8-A58D-E498C9D0F298}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A2361DB1-5DD1-46B8-A58D-E498C9D0F298}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A2361DB1-5DD1-46B8-A58D-E498C9D0F298}.Release|Any CPU.Build.0 = Release|Any CPU
+		{75DF2B51-A00E-4698-B80E-D826BB41B328}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{75DF2B51-A00E-4698-B80E-D826BB41B328}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75DF2B51-A00E-4698-B80E-D826BB41B328}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{75DF2B51-A00E-4698-B80E-D826BB41B328}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1FF80392-D344-4F2F-8A04-46B053B556E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1FF80392-D344-4F2F-8A04-46B053B556E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1FF80392-D344-4F2F-8A04-46B053B556E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1FF80392-D344-4F2F-8A04-46B053B556E8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{31DCFFBC-A46D-4B8D-B86A-37A701E23F12}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{31DCFFBC-A46D-4B8D-B86A-37A701E23F12}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{31DCFFBC-A46D-4B8D-B86A-37A701E23F12}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{31DCFFBC-A46D-4B8D-B86A-37A701E23F12}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{49A63347-4807-44AA-8509-5FD4F996DD50} = {C565938B-52E9-41D0-A939-E101333373D7}
+		{5FE9EA48-A62B-F260-4C81-0844DCD7B491} = {E594CD5D-2384-47EC-89B1-9E46768580A7}
+		{DF530F50-D335-C503-7696-8D043DC34346} = {C565938B-52E9-41D0-A939-E101333373D7}
+		{A2361DB1-5DD1-46B8-A58D-E498C9D0F298} = {E594CD5D-2384-47EC-89B1-9E46768580A7}
+		{75DF2B51-A00E-4698-B80E-D826BB41B328} = {C565938B-52E9-41D0-A939-E101333373D7}
+		{1FF80392-D344-4F2F-8A04-46B053B556E8} = {C565938B-52E9-41D0-A939-E101333373D7}
+		{31DCFFBC-A46D-4B8D-B86A-37A701E23F12} = {E594CD5D-2384-47EC-89B1-9E46768580A7}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2B34CFC6-5B8D-4A94-A0EF-09637A994811}
+	EndGlobalSection
+EndGlobal
