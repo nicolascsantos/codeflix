@@ -5,15 +5,21 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Genre.UpdateGenre
 {
     public class UpdateGenreInput : IRequest<GenreModelOutput>
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
 
         public string Name { get; set; }
 
         public bool? IsActive { get; set; }
-        public UpdateGenreInput(string name, bool? isActive = null)
+
+        public List<Guid>? CategoriesIds { get; set; }
+
+
+        public UpdateGenreInput(Guid id, string name, bool? isActive = null, List<Guid>? categoriesIds = null)
         {
+            Id = id;
             Name = name;
             IsActive = isActive;
+            CategoriesIds = categoriesIds;
         }
     }
 }
