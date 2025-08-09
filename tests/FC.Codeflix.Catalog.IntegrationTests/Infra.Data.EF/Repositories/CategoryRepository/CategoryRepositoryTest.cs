@@ -135,7 +135,7 @@ namespace FC.Codeflix.Catalog.IntegrationTests.Infra.Data.EF.Repositories.Catego
 
             var searchInput = new SearchInput(
                 page: 1,
-                perPage: 20, 
+                perPage: 20,
                 search: "",
                 orderBy: "",
                 searchOrder: SearchOrder.Asc
@@ -299,7 +299,7 @@ namespace FC.Codeflix.Catalog.IntegrationTests.Infra.Data.EF.Repositories.Catego
         [InlineData("createdat", "asc")]
         [InlineData("createdat", "desc")]
         [InlineData("", "asc")]
-        public async Task SearchOrdered(string orderBy,string order)
+        public async Task SearchOrdered(string orderBy, string order)
         {
             Context.CodeflixCatalogDbContext dbContext = _fixture.CreateDbContext();
             var exampleCategoriesList = _fixture.GetExampleCategoriesList();
