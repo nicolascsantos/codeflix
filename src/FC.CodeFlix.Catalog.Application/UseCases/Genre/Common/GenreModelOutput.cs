@@ -9,7 +9,7 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Genre.Common
             string name,
             bool isActive,
             DateTime createdAt,
-            IReadOnlyList<Guid> categories
+            IReadOnlyList<GenreModelOuputCategory> categories
         )
         {
             Id = id;
@@ -27,9 +27,22 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Genre.Common
 
         public DateTime CreatedAt { get; set; }
 
-        public IReadOnlyList<Guid> Categories { get; set; }
+        public IReadOnlyList<GenreModelOuputCategory> Categories { get; set; }
 
         public static GenreModelOutput FromGenre(DomainEntity.Genre genre)
-            => new GenreModelOutput(genre.Id, genre.Name, genre.IsActive, genre.CreatedAt, genre.Categories);
+            => new GenreModelOutput(genre.Id, genre.Name, genre.IsActive, genre.CreatedAt, genre.Categories.Select(
+                categoryId => new GenreModelOuputCategory(categoryId)
+            ).ToList()
+            .AsReadOnly());
+    }
+
+    public class GenreModelOuputCategory
+    {
+        public GenreModelOuputCategory(Guid id, string? name = null)
+            => (Id, Name) = (id, name);
+
+        public Guid Id { get; set; }
+
+        public string? Name { get; set; }
     }
 }

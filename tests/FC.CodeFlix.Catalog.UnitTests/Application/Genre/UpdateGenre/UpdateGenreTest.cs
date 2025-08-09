@@ -153,7 +153,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Genre.UpdateGenre
             output.Categories.Should().HaveCount(exampleCategoriesIdsList.Count);
             exampleCategoriesIdsList.ForEach
             (
-                expectedId => output.Categories.Should().Contain(expectedId)
+                expectedId => output.Categories.Should().Contain(relation => relation.Id == expectedId)
             );
             genreRepositoryMock.Verify(repository =>
                 repository.Update(It.Is<DomainEntity.Genre>(x => x.Id == exampleGenre.Id), It.IsAny<CancellationToken>()
@@ -189,7 +189,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Genre.UpdateGenre
             output.Categories.Should().HaveCount(exampleCategoriesIdsList.Count);
             exampleCategoriesIdsList.ForEach
             (
-                expectedId => output.Categories.Should().Contain(expectedId)
+                expectedId => output.Categories.Should().Contain(relation => relation.Id == expectedId)
             );
             genreRepositoryMock.Verify(repository =>
                 repository.Update(It.Is<DomainEntity.Genre>(x => x.Id == exampleGenre.Id), It.IsAny<CancellationToken>()
@@ -251,7 +251,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Genre.UpdateGenre
             output.Categories.Should().HaveCount(exampleCategoriesIdsList.Count);
             exampleCategoriesIdsList.ForEach
             (
-                expectedId => output.Categories.Should().Contain(expectedId)
+                expectedId => output.Categories.Should().Contain(relation => relation.Id == expectedId)
             );
             genreRepositoryMock.Verify(repository =>
                 repository.Update(It.Is<DomainEntity.Genre>(x => x.Id == exampleGenre.Id), It.IsAny<CancellationToken>()

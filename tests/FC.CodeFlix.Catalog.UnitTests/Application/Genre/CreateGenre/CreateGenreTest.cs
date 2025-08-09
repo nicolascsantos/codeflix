@@ -72,7 +72,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Genre.CreateGenre
             output.Name.Should().Be(input.Name);
             output.Categories.Should().HaveCount(input.CategoriesIds?.Count ?? 0);
             input.CategoriesIds!.ForEach(id =>
-                output.Categories.Should().Contain(id)
+                output.Categories.Should().Contain(relationId => relationId.Id == id)
             );
             output.CreatedAt.Should().NotBeSameDateAs(default);
         }
