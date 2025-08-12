@@ -25,5 +25,13 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Genre.ListGenres
                 .Select(GenreModelOutput.FromGenre)
                 .ToList());
         }
+
+        public void FillWithCategoriesNames(IReadOnlyList<DomainEntity.Category> categories)
+        {
+            foreach (GenreModelOutput item in Items) 
+                foreach (GenreModelOuputCategory categoryOutput in item.Categories)
+                    categoryOutput.Name = categories?
+                        .FirstOrDefault(category => category.Id == categoryOutput.Id)?.Name;
+        }
     }
 }

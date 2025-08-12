@@ -18,9 +18,10 @@ namespace FC.Codeflix.Catalog.IntegrationTests.Application.UseCases.Genre.GetGen
         [Trait("Integration/Application", "GetGenre - Use Cases")]
         public async Task GetGenre()
         {
-            var exampleGenre = _fixture.GetExampleGenre();
+            var genresExampleList = _fixture.GetExampleListGenres();
+            var exampleGenre = genresExampleList[5];
             var dbContext = _fixture.CreateDbContext();
-            await dbContext.Genres.AddAsync(exampleGenre);
+            await dbContext.Genres.AddRangeAsync(genresExampleList);
             await dbContext.SaveChangesAsync();
 
             var genreRepository = new GenreRepository(dbContext);

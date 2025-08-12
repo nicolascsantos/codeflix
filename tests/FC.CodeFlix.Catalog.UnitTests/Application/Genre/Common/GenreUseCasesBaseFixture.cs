@@ -69,6 +69,9 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Genre.Common
         public Mock<IGenreRepository> GetGenreRepositoryMock()
             => new();
 
+        public Mock<ICategoryRepository> GetCategoryRepositoryMock()
+            => new();
+
         public Mock<IUnitOfWork> GetGenreUnitOfWorkMock()
             => new();
     }

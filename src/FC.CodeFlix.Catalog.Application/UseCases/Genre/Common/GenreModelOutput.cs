@@ -30,7 +30,12 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Genre.Common
         public IReadOnlyList<GenreModelOuputCategory> Categories { get; set; }
 
         public static GenreModelOutput FromGenre(DomainEntity.Genre genre)
-            => new GenreModelOutput(genre.Id, genre.Name, genre.IsActive, genre.CreatedAt, genre.Categories.Select(
+            => new GenreModelOutput(
+                genre.Id,
+                genre.Name,
+                genre.IsActive,
+                genre.CreatedAt,
+                genre.Categories.Select(
                 categoryId => new GenreModelOuputCategory(categoryId)
             ).ToList()
             .AsReadOnly());

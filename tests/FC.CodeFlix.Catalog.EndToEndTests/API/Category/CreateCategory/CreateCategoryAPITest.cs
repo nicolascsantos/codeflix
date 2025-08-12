@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
-namespace FC.Codeflix.Catalog.EndToEndTests.API.Category.CreateCategory
+namespace FC.CodeFlix.Catalog.EndToEndTests.API.Category.CreateCategory
 {
     [Collection(nameof(CreateCategoryAPITestFixture))]
     public class CreateCategoryAPITest

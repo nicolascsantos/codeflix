@@ -2,7 +2,7 @@
 using FC.CodeFlix.Catalog.Application.UseCases.Category.CreateCategory;
 using FC.CodeFlix.Catalog.EndToEndTests.API.Category.Common;
 
-namespace FC.Codeflix.Catalog.EndToEndTests.API.Category.CreateCategory
+namespace FC.CodeFlix.Catalog.EndToEndTests.API.Category.CreateCategory
 {
     [CollectionDefinition(nameof(CreateCategoryAPITestFixture))]
     public class CreateCategoryAPITestFixtureCollection : ICollectionFixture<CreateCategoryAPITestFixture> { }

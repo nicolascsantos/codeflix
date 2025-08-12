@@ -159,6 +159,41 @@ namespace FC.Codeflix.Catalog.IntegrationTests.Infra.Data.EF.Repositories.Catego
             }
         }
 
+        [Fact(DisplayName = nameof(ListByIds))]
+        [Trait("Integration/Infra.Data", "CategoryRepository - Repositories")]
+        public async Task ListByIds()
+        {
+            Context.CodeflixCatalogDbContext dbContext = _fixture.CreateDbContext();
+            var exampleCategory = _fixture.GetExampleCategory();
+            var exampleCategoriesList = _fixture.GetExampleCategoriesList(15);
+            List<Guid> categoriesIdsToGet = Enumerable.Range(1, 3).Select(_ =>
+            {
+                int indexToGet = (new Random()).Next(0, exampleCategoriesList.Count - 1);
+                return exampleCategoriesList[indexToGet].Id;
+            }).Distinct().ToList();
+            exampleCategoriesList.Add(exampleCategory);
+            await dbContext.AddRangeAsync(exampleCategoriesList);
+            await dbContext.SaveChangesAsync();
+            var categoryRepository = new Repository.CategoryRepository(dbContext);
+
+
+
+            IReadOnlyList<Category> categoriesList = await categoryRepository.GetListByIds(categoriesIdsToGet, CancellationToken.None);
+
+            categoriesList.Should().NotBeNull();
+            categoriesList.Should().HaveCount(categoriesIdsToGet.Count);
+            
+            foreach (Category outputItem in categoriesList)
+            {
+                var exampleItem = exampleCategoriesList.Find(i => i.Id == outputItem.Id);
+                exampleItem.Should().NotBeNull();
+                outputItem.Name.Should().Be(exampleItem.Name);
+                outputItem.Description.Should().Be(exampleItem.Description);
+                outputItem.IsActive.Should().Be(exampleItem.IsActive);
+                outputItem.CreatedAt.Should().Be(exampleItem.CreatedAt);
+            }
+        }
+
         [Fact(DisplayName = nameof(SearchReturnsEmptyWhenPersistenceIsEmpty))]
         [Trait("Integration/Infra.Data", "CategoryRepository - Repositories")]
         public async Task SearchReturnsEmptyWhenPersistenceIsEmpty()
