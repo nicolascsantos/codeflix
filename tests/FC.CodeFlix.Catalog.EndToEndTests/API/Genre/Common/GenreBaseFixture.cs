@@ -1,4 +1,5 @@
 ﻿using FC.Codeflix.Catalog.Infra.Data.EF.Models;
+using FC.CodeFlix.Catalog.Domain.SeedWork.SearchableRepository;
 using FC.CodeFlix.Catalog.EndToEndTests.API.Category.Common;
 using FC.CodeFlix.Catalog.EndToEndTests.Base;
 using DomainEntity = FC.CodeFlix.Catalog.Domain.Entity;
@@ -96,6 +97,25 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Genre.Common
             await fixture.Persistence.InsertList(genresList);
             await fixture.CategoryPersistence.InsertList(categoriesList);
             await fixture.Persistence.InsertGenresCategoriesRelationsList(genresCategoriesList);
+        }
+
+        public List<DomainEntity.Genre> GetExampleListGenresByNames(List<string> names)
+            => names.Select(name => GetExampleGenre(name: name)).ToList();
+
+        public List<DomainEntity.Genre> CloneGenreListOrdered(List<DomainEntity.Genre> genresList, string orderBy, SearchOrder order)
+        {
+            var listClone = new List<DomainEntity.Genre>(genresList);
+            var orderedEnumerable = (orderBy.ToLower(), order) switch
+            {
+                ("name", SearchOrder.Asc) => listClone.OrderBy(x => x.Name),
+                ("name", SearchOrder.Desc) => listClone.OrderByDescending(x => x.Name),
+                ("id", SearchOrder.Asc) => listClone.OrderBy(x => x.Id),
+                ("id", SearchOrder.Desc) => listClone.OrderByDescending(x => x.Id),
+                ("createdat", SearchOrder.Asc) => listClone.OrderBy(x => x.CreatedAt),
+                ("createdat", SearchOrder.Desc) => listClone.OrderByDescending(x => x.CreatedAt),
+                _ => listClone.OrderBy(x => x.Name)
+            };
+            return orderedEnumerable.ToList();
         }
     }
 }
