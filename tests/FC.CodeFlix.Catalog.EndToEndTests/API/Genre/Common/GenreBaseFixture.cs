@@ -1,6 +1,7 @@
-﻿using DomainEntity = FC.CodeFlix.Catalog.Domain.Entity;
-using FC.CodeFlix.Catalog.EndToEndTests.Base;
+﻿using FC.Codeflix.Catalog.Infra.Data.EF.Models;
 using FC.CodeFlix.Catalog.EndToEndTests.API.Category.Common;
+using FC.CodeFlix.Catalog.EndToEndTests.Base;
+using DomainEntity = FC.CodeFlix.Catalog.Domain.Entity;
 
 namespace FC.CodeFlix.Catalog.EndToEndTests.API.Genre.Common
 {
@@ -61,6 +62,40 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Genre.Common
             while (categoryDescription.Length > 10_000)
                 categoryDescription = categoryDescription[..10_000];
             return categoryDescription;
+        }
+
+        public async Task GenresListWithCategoriesRelations(
+            List<DomainEntity.Genre> genresList,
+            List<DomainEntity.Category> categoriesList,
+            List<GenresCategories> genresCategoriesList,
+            GenreBaseFixture fixture
+        )
+        {
+            var random = new Random();
+
+            genresList.ForEach(genre =>
+            {
+                int relationsCount = random.Next(2, categoriesList.Count - 1);
+                for (int i = 0; i < relationsCount; i++)
+                {
+                    var selectedCategoryIndex = random.Next(0, categoriesList.Count - 1);
+                    var selectedCategory = categoriesList[selectedCategoryIndex];
+                    if (!genre.Categories.Contains(selectedCategory.Id))
+                        genre.AddCategory(selectedCategory.Id);
+                }
+            });
+
+            genresList.ForEach(
+                genre => genre.Categories.ToList().ForEach(
+                    categoryId => genresCategoriesList.Add(
+                        new GenresCategories(categoryId, genre.Id)
+                    )
+                )
+            );
+
+            await fixture.Persistence.InsertList(genresList);
+            await fixture.CategoryPersistence.InsertList(categoriesList);
+            await fixture.Persistence.InsertGenresCategoriesRelationsList(genresCategoriesList);
         }
     }
 }

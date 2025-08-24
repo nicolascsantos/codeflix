@@ -1,8 +1,10 @@
-﻿using FC.CodeFlix.Catalog.API.APIModels.Response;
+﻿using FC.CodeFlix.Catalog.API.APIModels.Genre;
+using FC.CodeFlix.Catalog.API.APIModels.Response;
 using FC.CodeFlix.Catalog.Application.UseCases.Genre.Common;
 using FC.CodeFlix.Catalog.Application.UseCases.Genre.CreateGenre;
 using FC.CodeFlix.Catalog.Application.UseCases.Genre.DeleteGenre;
 using FC.CodeFlix.Catalog.Application.UseCases.Genre.GetGenre;
+using FC.CodeFlix.Catalog.Application.UseCases.Genre.UpdateGenre;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -46,6 +48,27 @@ namespace FC.CodeFlix.Catalog.API.Controllers
         {
             var output = await _mediator.Send(input, cancellationToken);
             return CreatedAtAction(nameof(Create), new { output.Id }, new APIResponse<GenreModelOutput>(output));
+        }
+
+        [HttpPut("{id::guid}")]
+        [ProducesResponseType(200, StatusCode = StatusCodes.Status200OK, Type = typeof(APIResponse<GenreModelOutput>))]
+        [ProducesResponseType(400, StatusCode = StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
+        [ProducesResponseType(422, StatusCode = StatusCodes.Status422UnprocessableEntity, Type = typeof(GenreModelOutput))]
+        public async Task<IActionResult> Update(
+            [FromBody] UpdateGenreAPIInput input,
+            [FromRoute] Guid id,
+            CancellationToken cancellationToken
+        )
+        {
+            var output = await _mediator.Send(
+                new UpdateGenreInput(id,
+                input.Name,
+                input.IsActive,
+                input.CategoriesIds),
+                cancellationToken
+            );
+
+            return Ok(new APIResponse<GenreModelOutput>(output));
         }
     }
 }

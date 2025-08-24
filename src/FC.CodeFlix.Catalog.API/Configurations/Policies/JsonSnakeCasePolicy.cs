@@ -9,3 +9,4 @@ namespace FC.CodeFlix.Catalog.API.Configurations.Policies
             => name.ToSnakeCase();
     }
 }
+    
