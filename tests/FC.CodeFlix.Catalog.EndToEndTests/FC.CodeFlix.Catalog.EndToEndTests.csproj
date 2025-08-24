@@ -40,4 +40,8 @@
 	  </None>
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="API\Genre\NewFolder\" />
+	</ItemGroup>
+
 </Project>

@@ -13,6 +13,7 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Category.Common
             Persistence = new CategoryPersistence(CreateDbContext());
         }
 
+
         public string GetValidCategoryName()
         {
             var categoryName = "";

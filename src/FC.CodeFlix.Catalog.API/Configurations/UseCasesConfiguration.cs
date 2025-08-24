@@ -5,6 +5,7 @@ using FC.CodeFlix.Catalog.Application.Interfaces;
 using FC.Codeflix.Catalog.Infra.Data.EF;
 using FC.CodeFlix.Catalog.Application.UseCases.Category.GetCategory;
 using FC.CodeFlix.Catalog.Application.UseCases.Category.DeleteCategory;
+using FC.CodeFlix.Catalog.Application.UseCases.Genre.GetGenre;
 
 namespace FC.CodeFlix.Catalog.API.Configurations
 {
@@ -15,6 +16,7 @@ namespace FC.CodeFlix.Catalog.API.Configurations
             services.AddMediatR(x => x.RegisterServicesFromAssembly(typeof(CreateCategory).Assembly));
             services.AddMediatR(x => x.RegisterServicesFromAssembly(typeof(DeleteCategory).Assembly));
             services.AddMediatR(x => x.RegisterServicesFromAssembly(typeof(GetCategory).Assembly));
+            services.AddMediatR(x => x.RegisterServicesFromAssembly(typeof(GetGenre).Assembly));
             services.AddRepositories();
             return services;
         }
@@ -22,6 +24,7 @@ namespace FC.CodeFlix.Catalog.API.Configurations
         private static IServiceCollection AddRepositories(this IServiceCollection services)
         {
             services.AddTransient<ICategoryRepository, CategoryRepository>();
+            services.AddTransient<IGenreRepository, GenreRepository>();
             services.AddTransient<IUnitOfWork, UnitOfWork>();
             return services;
         }

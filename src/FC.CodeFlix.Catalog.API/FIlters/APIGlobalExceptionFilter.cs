@@ -35,6 +35,14 @@ namespace FC.CodeFlix.Catalog.API.FIlters
                 details.Detail = ex!.Message;
                 details.Type = "NotFound";
             }
+            else if (exception is RelatedAggregateException)
+            {
+                var ex = exception as RelatedAggregateException;
+                details.Title = "Invalid Related Aggregate.";
+                details.Status = StatusCodes.Status422UnprocessableEntity;
+                details.Detail = ex!.Message;
+                details.Type = "RelatedAggregate";
+            }
             else
             {
                 details.Title = "An unexpected error occured.";
