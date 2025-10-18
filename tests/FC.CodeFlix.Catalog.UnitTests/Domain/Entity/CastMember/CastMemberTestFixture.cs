@@ -5,7 +5,7 @@ using DomainEntity = FC.CodeFlix.Catalog.Domain.Entity;
 namespace FC.CodeFlix.Catalog.UnitTests.Domain.Entity.CastMember
 {
     [CollectionDefinition(nameof(CastMemberTestFixture))]
-    public class CastMemberTestFixtureCollection : IClassFixture<CastMemberTestFixture> { }
+    public class CastMemberTestFixtureCollection : ICollectionFixture<CastMemberTestFixture> { }
 
     public class CastMemberTestFixture : BaseFixture
     {
