@@ -1,4 +1,5 @@
-﻿using FC.CodeFlix.Catalog.Application.UseCases.CastMember.GetCastMember;
+﻿using FC.CodeFlix.Catalog.Application.Exceptions;
+using FC.CodeFlix.Catalog.Application.UseCases.CastMember.GetCastMember;
 using FluentAssertions;
 using Moq;
 using UseCases = FC.CodeFlix.Catalog.Application.UseCases.CastMember.GetCastMember;
@@ -36,6 +37,25 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.CastMember.GetCastMember
             repositoryMock.Verify(x => x.Get(It.Is<Guid>(x => x == validCastMember.Id), It.IsAny<CancellationToken>()));
         }
 
+        [Fact(DisplayName = nameof(ThrowWhenNotFound))]
+        [Trait("Application", "CreateCastMember - Use Cases")]
+        public async Task ThrowWhenNotFound()
+        {
+            var validCastMember = _fixture.GetExampleCastMember();
+            var repositoryMock = _fixture.GetRepositoryMock();
+            var input = new GetCastMemberInput(validCastMember.Id);
+            repositoryMock.Setup(x => x.Get(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new NotFoundException($"Cast member '{validCastMember.Id}' not found."));
+            var useCase = new UseCases.GetCastMember
+            (
+                repositoryMock.Object
+            );
 
+            var action = async () => await useCase.Handle(input, CancellationToken.None);
+
+            await action.Should()
+                .ThrowAsync<NotFoundException>()
+                .WithMessage($"Cast member '{validCastMember.Id}' not found.");
+        }
     }
 }
