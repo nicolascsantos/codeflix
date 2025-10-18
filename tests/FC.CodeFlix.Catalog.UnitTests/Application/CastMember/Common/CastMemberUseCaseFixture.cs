@@ -1,4 +1,5 @@
 ﻿using FC.CodeFlix.Catalog.Application.Interfaces;
+using FC.CodeFlix.Catalog.Domain.Repository;
 using Moq;
 
 namespace FC.CodeFlix.Catalog.UnitTests.Application.CastMember.Common
@@ -14,7 +15,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.CastMember.Common
 
         public string GetValidCastMemberName()
         {
-
+            throw new NotImplementedException();
         }
     }
 }

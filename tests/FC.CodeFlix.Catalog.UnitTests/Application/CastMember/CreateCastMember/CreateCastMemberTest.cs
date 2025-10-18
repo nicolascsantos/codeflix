@@ -1,5 +1,6 @@
 ﻿using FC.CodeFlix.Catalog.Application.Interfaces;
-using FC.CodeFlix.Catalog.Domain.Enum;
+using FC.CodeFlix.Catalog.Application.UseCases.CastMember.CreateCastMember;
+using FC.CodeFlix.Catalog.Domain.Repository;
 using FluentAssertions;
 using Moq;
 using DomainEntity = FC.CodeFlix.Catalog.Domain.Entity;
@@ -21,14 +22,14 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.CastMember.CreateCastMember
         {
             var input = new CreateCastMemberInput
             (
-                "Jorge Lucas",
-                CastMemberType.Director
+                _fixture.GetValidName(),
+                _fixture.GetRandomCastMemberType()
             );
 
             var repositoryMock = new Mock<ICastMemberRepository>();
             var unitOfWorkMock = new Mock<IUnitOfWork>();
 
-            var useCase = UseCases.CreateCastMember
+            var useCase = new UseCases.CreateCastMember
             (
                 repositoryMock.Object,
                 unitOfWorkMock.Object
@@ -48,8 +49,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.CastMember.CreateCastMember
             );
             repositoryMock.Verify
             (
-                x => x.Insert(It.Is<DomainEntity.CastMember>(x => x.Name == input.Name && x.Type == input.Type),
-                Times.Once)
+                x => x.Insert(It.Is<DomainEntity.CastMember>(x => x.Name == input.Name && x.Type == input.Type), It.IsAny<CancellationToken>()), Times.Once
             );
         }
     }

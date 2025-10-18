@@ -1,4 +1,5 @@
-﻿using FC.CodeFlix.Catalog.UnitTests.Domain.Entity.CastMember;
+﻿using FC.CodeFlix.Catalog.Domain.Enum;
+using FC.CodeFlix.Catalog.UnitTests.Domain.Entity.CastMember;
 
 namespace FC.CodeFlix.Catalog.UnitTests.Application.CastMember.CreateCastMember
 {
@@ -7,6 +8,5 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.CastMember.CreateCastMember
         
     public class CreateCastMemberTestFixture : CastMemberTestFixture
     {
-        public 
     }
 }
