@@ -15,7 +15,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.CastMember.GetCastMember
             => _fixture = fixture;
 
         [Fact(DisplayName = nameof(GetCastMember))]
-        [Trait("Application", "CreateCastMember - Use Cases")]
+        [Trait("Application", "GetCastMember - Use Cases")]
         public async Task GetCastMember()
         {
             var validCastMember = _fixture.GetExampleCastMember();
@@ -38,7 +38,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.CastMember.GetCastMember
         }
 
         [Fact(DisplayName = nameof(ThrowWhenNotFound))]
-        [Trait("Application", "CreateCastMember - Use Cases")]
+        [Trait("Application", "GetCastMember - Use Cases")]
         public async Task ThrowWhenNotFound()
         {
             var validCastMember = _fixture.GetExampleCastMember();
