@@ -1,5 +1,6 @@
 ﻿using FC.Codeflix.Catalog.Infra.Data.EF;
 using FC.CodeFlix.Catalog.Application.Exceptions;
+using FC.CodeFlix.Catalog.Domain.SeedWork.SearchableRepository;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Repository = FC.Codeflix.Catalog.Infra.Data.EF.Repositories;
@@ -116,6 +117,35 @@ namespace FC.Codeflix.Catalog.IntegrationTests.Infra.Data.EF.Repositories.CastMe
             updatedCastMember.Should().NotBeNull();
             updatedCastMember.Name.Should().Be(newValues.Name);
             updatedCastMember.Type.Should().Be(newValues.Type);
+        }
+
+        [Fact(DisplayName = nameof(Search))]
+        [Trait("Integration/Infra.Data", "CastMemberRepository - Repositories")]
+        public async Task Search()
+        {
+            
+            var arrangeDbContext = _fixture.CreateDbContext();
+            var castMemberExampleList = _fixture.GetCastMembersListExample(10);
+            await arrangeDbContext.AddRangeAsync(castMemberExampleList);
+            await arrangeDbContext.SaveChangesAsync();
+            var repository = new Repository.CastMemberRepository(arrangeDbContext);
+
+            var searchInput = new SearchInput(1, 20, "", "", SearchOrder.Asc);
+
+            var search = await repository.Search(searchInput, CancellationToken.None);
+
+            search.Should().NotBeNull();
+            search.CurrentPage.Should().Be(searchInput.Page);
+            search.PerPage.Should().Be(searchInput.PerPage);
+            search.Total.Should().Be(castMemberExampleList.Count);
+            search.Items.Should().HaveCount(castMemberExampleList.Count);
+            search.Items.ToList().ForEach(item =>
+            {
+                var castMemberExample = castMemberExampleList.Find(x => x.Id == item.Id);
+                castMemberExample.Should().NotBeNull();
+                castMemberExample.Name.Should().Be(item.Name);
+                castMemberExample.Type.Should().Be(item.Type);
+            });
         }
     }
 }
