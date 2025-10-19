@@ -70,5 +70,52 @@ namespace FC.Codeflix.Catalog.IntegrationTests.Infra.Data.EF.Repositories.CastMe
                 .ThrowAsync<NotFoundException>()
                 .WithMessage($"Cast member '{randomGuid}' not found.");
         }
+
+        [Fact(DisplayName = nameof(Delete))]
+        [Trait("Integration/Infra.Data", "CastMemberRepository - Repositories")]
+        public async Task Delete()
+        {
+            var castMemberExampleList = _fixture.GetCastMembersListExample(5);
+            var castMemberExample = castMemberExampleList[3];
+            CodeflixCatalogDbContext arrangeDbContext = _fixture.CreateDbContext();
+            await arrangeDbContext.AddRangeAsync(castMemberExampleList);
+            await arrangeDbContext.SaveChangesAsync();
+
+            var repository = new Repository.CastMemberRepository(_fixture.CreateDbContext(true));
+            await repository.Delete(castMemberExample, CancellationToken.None);
+            await arrangeDbContext.SaveChangesAsync();
+
+            var deletedCastMember = await (_fixture.CreateDbContext()).CastMembers
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == castMemberExample.Id);
+            deletedCastMember.Should().BeNull();
+        }
+
+        [Fact(DisplayName = nameof(Update))]
+        [Trait("Integration/Infra.Data", "CastMemberRepository - Repositories")]
+        public async Task Update()
+        {
+            var castMemberExample = _fixture.GetExampleCastMember();
+            var newValues = _fixture.GetExampleCastMember();
+            var arrangeDbContext = _fixture.CreateDbContext();
+
+            await arrangeDbContext.AddAsync(castMemberExample);
+            await arrangeDbContext.SaveChangesAsync();
+
+            castMemberExample.Update(newValues.Name, newValues.Type);
+
+            var repository = new Repository.CastMemberRepository(arrangeDbContext);
+
+            await repository.Update(castMemberExample, CancellationToken.None);
+            await arrangeDbContext.SaveChangesAsync();
+
+            var updatedCastMember = await (_fixture.CreateDbContext(true)).CastMembers
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == castMemberExample.Id);
+
+            updatedCastMember.Should().NotBeNull();
+            updatedCastMember.Name.Should().Be(newValues.Name);
+            updatedCastMember.Type.Should().Be(newValues.Type);
+        }
     }
 }

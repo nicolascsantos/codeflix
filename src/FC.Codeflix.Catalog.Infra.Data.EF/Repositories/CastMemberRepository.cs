@@ -16,10 +16,8 @@ namespace FC.Codeflix.Catalog.Infra.Data.EF.Repositories
             => _context = context;
         
 
-        public Task Delete(CastMember aggregate, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
+        public  Task Delete(CastMember aggregate, CancellationToken cancellationToken)
+            => Task.FromResult(_castMembers.Remove(aggregate));
 
         public async Task<CastMember> Get(Guid id, CancellationToken cancellationToken)
             => await _castMembers
@@ -35,8 +33,6 @@ namespace FC.Codeflix.Catalog.Infra.Data.EF.Repositories
         }
 
         public Task Update(CastMember aggregate, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
+            => Task.FromResult(_castMembers.Update(aggregate));
     }
 }
