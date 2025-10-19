@@ -13,6 +13,8 @@ namespace FC.Codeflix.Catalog.Infra.Data.EF
 
         public DbSet<GenresCategories> GenresCategories => Set<GenresCategories>();
 
+        public DbSet<CastMember> CastMembers { get; set; }
+
 
         public CodeflixCatalogDbContext(DbContextOptions<CodeflixCatalogDbContext> options) : base(options)
         {
