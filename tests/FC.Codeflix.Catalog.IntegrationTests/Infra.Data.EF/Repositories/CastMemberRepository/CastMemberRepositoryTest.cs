@@ -164,5 +164,41 @@ namespace FC.Codeflix.Catalog.IntegrationTests.Infra.Data.EF.Repositories.CastMe
             search.Total.Should().Be(0);
             search.Items.Should().HaveCount(0);
         }
+
+        [Theory(DisplayName = nameof(SearchReturnsPaginated))]
+        [Trait("Integration/Infra.Data", "CastMemberRepository - Repositories")]
+        [InlineData(10, 1, 5, 5)]
+        [InlineData(10, 2, 5, 5)]
+        [InlineData(7, 2, 5, 2)]
+        [InlineData(7, 3, 5, 0)]
+        public async Task SearchReturnsPaginated(
+            int amountOfCastMembersToGenerate,
+            int page,
+            int perPage,
+            int expectedQuantityItems)
+        {
+            var context = _fixture.CreateDbContext();
+            var repository = new Repository.CastMemberRepository(context);
+            var castMembersExampleList = _fixture.GetCastMembersListExample(amountOfCastMembersToGenerate);
+            await context.AddRangeAsync(castMembersExampleList);
+            await context.SaveChangesAsync();
+
+            var input = new SearchInput(page, perPage, "", "", SearchOrder.Asc);
+
+            var output = await repository.Search(input, CancellationToken.None);
+
+            output.Should().NotBeNull();
+            output.CurrentPage.Should().Be(input.Page);
+            output.PerPage.Should().Be(input.PerPage);
+            output.Total.Should().Be(amountOfCastMembersToGenerate);
+            output.Items.Should().HaveCount(expectedQuantityItems);
+            output.Items.ToList().ForEach(item =>
+            {
+                var exampleCastMember = castMembersExampleList.Find(x => x.Id == item.Id);
+                exampleCastMember.Should().NotBeNull();
+                exampleCastMember.Name.Should().Be(item.Name);
+                exampleCastMember.Type.Should().Be(item.Type);
+            });
+        }
     }
 }
