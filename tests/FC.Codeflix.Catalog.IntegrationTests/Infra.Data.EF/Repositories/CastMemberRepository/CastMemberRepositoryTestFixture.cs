@@ -23,5 +23,13 @@ namespace FC.Codeflix.Catalog.IntegrationTests.Infra.Data.EF.Repositories.CastMe
 
         public CastMemberType GetRandomCastMemberType()
             => (CastMemberType)(new Random().Next(1, 2));
+
+        public List<DomainEntity.CastMember> GetExampleCastMembersListByNames(List<string> names)
+            => names.Select(name =>
+            {
+                var example = GetExampleCastMember();
+                example.Update(name, example.Type);
+                return example;
+            }).ToList();
     }
 }

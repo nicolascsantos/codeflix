@@ -1,5 +1,6 @@
 ﻿using FC.Codeflix.Catalog.Infra.Data.EF;
 using FC.CodeFlix.Catalog.Application.Exceptions;
+using FC.CodeFlix.Catalog.Domain.Entity;
 using FC.CodeFlix.Catalog.Domain.SeedWork.SearchableRepository;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
@@ -17,7 +18,7 @@ namespace FC.Codeflix.Catalog.IntegrationTests.Infra.Data.EF.Repositories.CastMe
 
         [Fact(DisplayName = nameof(Insert))]
         [Trait("Integration/Infra.Data", "CastMemberRepository - Repositories")]
-        public async Task Insert()  
+        public async Task Insert()
         {
             var castMemberExample = _fixture.GetExampleCastMember();
             CodeflixCatalogDbContext context = _fixture.CreateDbContext();
@@ -123,7 +124,7 @@ namespace FC.Codeflix.Catalog.IntegrationTests.Infra.Data.EF.Repositories.CastMe
         [Trait("Integration/Infra.Data", "CastMemberRepository - Repositories")]
         public async Task Search()
         {
-            
+
             var arrangeDbContext = _fixture.CreateDbContext();
             var castMemberExampleList = _fixture.GetCastMembersListExample(10);
             await arrangeDbContext.AddRangeAsync(castMemberExampleList);
@@ -199,6 +200,68 @@ namespace FC.Codeflix.Catalog.IntegrationTests.Infra.Data.EF.Repositories.CastMe
                 exampleCastMember.Name.Should().Be(item.Name);
                 exampleCastMember.Type.Should().Be(item.Type);
             });
+        }
+
+        [Theory(DisplayName = nameof(SearchByText))]
+        [Trait("Integration/Infra.Data", "CastMemberRepository - Repositories")]
+        [InlineData("Action", 1, 5, 1, 1)]
+        [InlineData("Horror", 1, 5, 3, 3)]
+        [InlineData("Horror", 2, 5, 0, 3)]
+        [InlineData("Sci-fi", 1, 5, 4, 4)]
+        [InlineData("Sci-fi", 1, 2, 2, 4)]
+        [InlineData("Sci-fi", 2, 3, 1, 4)]
+        [InlineData("Sci-fi Other", 1, 3, 0, 0)]
+        [InlineData("Robots", 1, 5, 2, 2)]
+        public async Task SearchByText(
+            string search,
+            int page,
+            int perPage,
+            int expectedQuantityItemsReturned,
+            int expectedQuantityTotalItems
+        )
+        {
+            var dbContext = _fixture.CreateDbContext();
+            var castMemberExample = _fixture.GetExampleCastMember();
+            var exampleCastMembersList = _fixture.GetExampleCastMembersListByNames(new List<string>()
+            {
+                "Action",
+                "Horror",
+                "Horror - Robots",
+                "Horror - Based on Real Facts",
+                "Drama",
+                "Sci-fi AI",
+                "Sci-fi Space",
+                "Sci-fi Robots",
+                "Sci-fi Future"
+            });
+            exampleCastMembersList.Add(castMemberExample);
+            await dbContext.AddRangeAsync(exampleCastMembersList);
+            await dbContext.SaveChangesAsync();
+            var castMemberRepository = new Repository.CastMemberRepository(dbContext);
+
+            var searchInput = new SearchInput(
+                page: page,
+                perPage: perPage,
+                search: search,
+                orderBy: "",
+                searchOrder: SearchOrder.Asc
+            );
+
+            var output = await castMemberRepository.Search(searchInput, CancellationToken.None);
+
+            output.Should().NotBeNull();
+            output.CurrentPage.Should().Be(searchInput.Page);
+            output.PerPage.Should().Be(searchInput.PerPage);
+            output.Total.Should().Be(expectedQuantityTotalItems);
+            output.Items.Should().HaveCount(expectedQuantityItemsReturned);
+            foreach (CastMember outputItem in output.Items)
+            {
+                var exampleItem = exampleCastMembersList.Find(i => i.Id == outputItem.Id);
+                exampleItem.Should().NotBeNull();
+                outputItem.Name.Should().Be(exampleItem.Name);
+                outputItem.Type.Should().Be(exampleItem.Type);
+                outputItem.CreatedAt.Should().Be(exampleItem.CreatedAt);
+            }
         }
     }
 }
