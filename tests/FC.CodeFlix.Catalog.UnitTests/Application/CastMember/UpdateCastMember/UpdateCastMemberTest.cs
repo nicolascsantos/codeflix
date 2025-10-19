@@ -4,7 +4,6 @@ using FC.CodeFlix.Catalog.Application.UseCases.CastMember.UpdateCastMember;
 using FC.CodeFlix.Catalog.Domain.Exceptions;
 using FluentAssertions;
 using Moq;
-using DomainEntity = FC.CodeFlix.Catalog.Domain.Entity;
 using UseCases = FC.CodeFlix.Catalog.Application.UseCases.CastMember.UpdateCastMember;
 
 namespace FC.CodeFlix.Catalog.UnitTests.Application.CastMember.UpdateCastMember
@@ -62,7 +61,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.CastMember.UpdateCastMember
             );
             var useCase = new UseCases.UpdateCastMember(repositoryMock.Object, unitOfWorkMock.Object);
 
-            var action = async () =>  await useCase.Handle(input, CancellationToken.None);
+            var action = async () => await useCase.Handle(input, CancellationToken.None);
 
             await action.Should().ThrowAsync<NotFoundException>().WithMessage($"Cast member '{randomGuid}' not found.");
         }
