@@ -147,5 +147,22 @@ namespace FC.Codeflix.Catalog.IntegrationTests.Infra.Data.EF.Repositories.CastMe
                 castMemberExample.Type.Should().Be(item.Type);
             });
         }
+
+        [Fact(DisplayName = nameof(SearchReturnsEmpty))]
+        [Trait("Integration/Infra.Data", "CastMemberRepository - Repositories")]
+        public async Task SearchReturnsEmpty()
+        {
+            var arrangeDbContext = _fixture.CreateDbContext();
+            var repository = new Repository.CastMemberRepository(arrangeDbContext);
+
+            var searchInput = new SearchInput(1, 20, "", "", SearchOrder.Asc);
+            var search = await repository.Search(searchInput, CancellationToken.None);
+
+            search.Should().NotBeNull();
+            search.CurrentPage.Should().Be(1);
+            search.PerPage.Should().Be(20);
+            search.Total.Should().Be(0);
+            search.Items.Should().HaveCount(0);
+        }
     }
 }
