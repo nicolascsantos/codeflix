@@ -1,5 +1,7 @@
 ﻿using FC.Codeflix.Catalog.IntegrationTests.Base;
+using FC.CodeFlix.Catalog.Domain.Entity;
 using FC.CodeFlix.Catalog.Domain.Enum;
+using FC.CodeFlix.Catalog.Domain.SeedWork.SearchableRepository;
 using DomainEntity = FC.CodeFlix.Catalog.Domain.Entity;
 
 namespace FC.Codeflix.Catalog.IntegrationTests.Infra.Data.EF.Repositories.CastMemberRepository
@@ -31,5 +33,21 @@ namespace FC.Codeflix.Catalog.IntegrationTests.Infra.Data.EF.Repositories.CastMe
                 example.Update(name, example.Type);
                 return example;
             }).ToList();
+
+        public List<CastMember> CloneCategoriesListOrdered(List<CastMember> castMembersList, string orderBy, SearchOrder order)
+        {
+            var listClone = new List<CastMember>(castMembersList);
+            var orderedEnumerable = (orderBy.ToLower(), order) switch
+            {
+                ("name", SearchOrder.Asc) => listClone.OrderBy(x => x.Name),
+                ("name", SearchOrder.Desc) => listClone.OrderByDescending(x => x.Name),
+                ("id", SearchOrder.Asc) => listClone.OrderBy(x => x.Id),
+                ("id", SearchOrder.Desc) => listClone.OrderByDescending(x => x.Id),
+                ("createdat", SearchOrder.Asc) => listClone.OrderBy(x => x.CreatedAt),
+                ("createdat", SearchOrder.Desc) => listClone.OrderByDescending(x => x.CreatedAt),
+                _ => listClone.OrderBy(x => x.Name)
+            };
+            return orderedEnumerable.ToList();
+        }
     }
 }

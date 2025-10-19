@@ -263,5 +263,58 @@ namespace FC.Codeflix.Catalog.IntegrationTests.Infra.Data.EF.Repositories.CastMe
                 outputItem.CreatedAt.Should().Be(exampleItem.CreatedAt);
             }
         }
+
+        [Theory(DisplayName = nameof(OrderedSearch))]
+        [Trait("Integration/Infra.Data", "CastMemberRepository - Repositories")]
+        [InlineData("name", "asc")]
+        [InlineData("name", "desc")]
+        [InlineData("id", "asc")]
+        [InlineData("id", "desc")]
+        [InlineData("createdat", "asc")]
+        [InlineData("createdat", "desc")]
+        [InlineData("", "asc")]
+        public async Task OrderedSearch(string orderBy, string order)
+        {
+            CodeflixCatalogDbContext dbContext = _fixture.CreateDbContext();
+            var exampleCastMembersList = _fixture.GetCastMembersListExample(10);
+            var searchOrder = order == "asc" ? SearchOrder.Asc : SearchOrder.Desc;
+            await dbContext.AddRangeAsync(exampleCastMembersList);
+            await dbContext.SaveChangesAsync(CancellationToken.None);
+            var castMemberRepository = new Repository.CastMemberRepository(dbContext);
+
+            var searchInput = new SearchInput(
+                page: 1,
+                perPage: 20,
+                search: "",
+                orderBy: orderBy,
+                searchOrder: searchOrder
+            );
+
+            var output = await castMemberRepository.Search(searchInput, CancellationToken.None);
+
+            var expectedOrderedList = _fixture.CloneCategoriesListOrdered(
+                exampleCastMembersList,
+                orderBy,
+                searchOrder
+            );
+
+
+            output.Should().NotBeNull();
+            output.CurrentPage.Should().Be(searchInput.Page);
+            output.PerPage.Should().Be(searchInput.PerPage);
+            output.Total.Should().Be(exampleCastMembersList.Count);
+            output.Items.Should().HaveCount(exampleCastMembersList.Count);
+            for (int indice = 0; indice < expectedOrderedList.Count; indice++)
+            {
+                var expectedItem = expectedOrderedList[indice];
+                var outputItem = output.Items[indice];
+                expectedItem.Should().NotBeNull();
+                outputItem.Should().NotBeNull();
+                outputItem.Id.Should().Be(expectedItem.Id);
+                outputItem.Name.Should().Be(expectedItem!.Name);
+                outputItem.Type.Should().Be(expectedItem!.Type);
+                outputItem.CreatedAt.Should().Be(expectedItem.CreatedAt);
+            }
+        }
     }
 }
