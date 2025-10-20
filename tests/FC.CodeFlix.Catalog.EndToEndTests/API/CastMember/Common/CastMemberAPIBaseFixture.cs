@@ -5,11 +5,14 @@ using DomainEntity = FC.CodeFlix.Catalog.Domain.Entity;
 
 namespace FC.CodeFlix.Catalog.EndToEndTests.API.CastMember.Common
 {
-    public class CastMemberBaseFixture : BaseFixture
+    [CollectionDefinition(nameof(CastMemberAPIBaseFixture))]
+    public class CastMemberBaseFixtureCollection : ICollectionFixture<CastMemberAPIBaseFixture> { }
+
+    public class CastMemberAPIBaseFixture : BaseFixture
     {
         public CastMemberPersistence Persistence { get; set; }
 
-        public CastMemberBaseFixture() : base()
+        public CastMemberAPIBaseFixture() : base()
         {
             Persistence = new CastMemberPersistence(CreateDbContext());
         }
