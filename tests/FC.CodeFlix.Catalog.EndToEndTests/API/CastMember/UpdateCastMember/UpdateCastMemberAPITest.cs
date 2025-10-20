@@ -96,7 +96,7 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.CastMember.UpdateCastMember
             output.Should().NotBeNull();
             output.Title.Should().Be("One or more validation errors occurred.");
             output.Type.Should().Be("UnprocessableEntity");
-            output.Detail.Should().Be("Name should not be null or empty.");
+            output.Detail.Should().Be("Name should not be empty or null.");
             output.Status.Should().Be(StatusCodes.Status422UnprocessableEntity);
         }
     }
