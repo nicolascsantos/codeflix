@@ -5,6 +5,9 @@ using DomainEntity = FC.CodeFlix.Catalog.Domain.Entity;
 
 namespace FC.Codeflix.Catalog.IntegrationTests.Application.UseCases.CastMember.Common
 {
+    [CollectionDefinition(nameof(CastMemberUseCasesTestFixture))]
+    public class CastMemberUseCasesTestFixtureCollection: ICollectionFixture<CastMemberUseCasesTestFixture> { }
+
     public class CastMemberUseCasesTestFixture : BaseFixture
     {
         public List<DomainEntity.CastMember> GetCastMembersListExample(int quantity)
