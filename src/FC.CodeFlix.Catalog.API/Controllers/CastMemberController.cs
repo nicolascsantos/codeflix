@@ -1,5 +1,6 @@
 ﻿using FC.CodeFlix.Catalog.API.APIModels.Response;
 using FC.CodeFlix.Catalog.Application.UseCases.CastMember.Common;
+using FC.CodeFlix.Catalog.Application.UseCases.CastMember.CreateCastMember;
 using FC.CodeFlix.Catalog.Application.UseCases.CastMember.DeleteCastMember;
 using FC.CodeFlix.Catalog.Application.UseCases.CastMember.GetCastMember;
 using MediatR;
@@ -32,6 +33,16 @@ namespace FC.CodeFlix.Catalog.API.Controllers
         {
             var output = await _mediator.Send(new DeleteCastMemberInput(id), cancellationToken);
             return NoContent();
+        }
+
+        [HttpPost]
+        [ProducesResponseType(201, StatusCode = StatusCodes.Status201Created, Type = typeof(APIResponse<CastMemberModelOutput>))]
+        [ProducesResponseType(400, StatusCode = StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
+        [ProducesResponseType(422, StatusCode = StatusCodes.Status422UnprocessableEntity, Type = typeof(CastMemberModelOutput))]
+        public async Task<IActionResult> Create([FromBody] CreateCastMemberInput input, CancellationToken cancellationToken)
+        {
+            var output = await _mediator.Send(input, cancellationToken);
+            return CreatedAtAction(nameof(Create), new { output.Id }, new APIResponse<CastMemberModelOutput>(output));
         }
     }
 }
