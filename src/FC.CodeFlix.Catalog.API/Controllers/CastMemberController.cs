@@ -51,6 +51,7 @@ namespace FC.CodeFlix.Catalog.API.Controllers
         [ProducesResponseType(200, StatusCode = StatusCodes.Status200OK, Type = typeof(APIResponse<CastMemberModelOutput>))]
         [ProducesResponseType(400, StatusCode = StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
         [ProducesResponseType(404, StatusCode = StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
+        [ProducesResponseType(423, StatusCode = StatusCodes.Status422UnprocessableEntity, Type = typeof(ProblemDetails))]
         public async Task<IActionResult> Update([FromBody] UpdateCastMemberAPIInput input, [FromRoute] Guid id, CancellationToken cancellationToken)
         {
             var output = await _mediator.Send(new UpdateCastMemberInput(id, input.Name, input.Type), cancellationToken);

@@ -72,5 +72,32 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.CastMember.UpdateCastMember
             output.Type.Should().Be("NotFound");
             output.Detail.Should().Be($"Cast member '{randomGuid}' not found."); ;
         }
+
+        [Fact(DisplayName = nameof(Returns422IfThereAreValidationErrors))]
+        [Trait("EndToEnd/API", "CastMember/UpdateCastMember")]
+        public async Task Returns422IfThereAreValidationErrors()
+        {
+            var castMemberExampleList = _fixture.GetExampleCastMembersList(10);
+            var castMemberToUpdate = castMemberExampleList[4];
+            await _fixture.Persistence.InsertList(castMemberExampleList);
+
+            var input = new UpdateCastMemberInput
+            (
+                castMemberToUpdate.Id,
+                string.Empty,
+                _fixture.GetRandomCastMemberType()
+            );
+            var (response, output) = await _fixture.APIClient
+                .Put<ProblemDetails>($"/api/CastMember/{castMemberToUpdate.Id}", input);
+
+
+            response.Should().NotBeNull();
+            response.StatusCode.Should().Be((HttpStatusCode)StatusCodes.Status422UnprocessableEntity);
+            output.Should().NotBeNull();
+            output.Title.Should().Be("One or more validation errors occurred.");
+            output.Type.Should().Be("UnprocessableEntity");
+            output.Detail.Should().Be("Name should not be null or empty.");
+            output.Status.Should().Be(StatusCodes.Status422UnprocessableEntity);
+        }
     }
 }
