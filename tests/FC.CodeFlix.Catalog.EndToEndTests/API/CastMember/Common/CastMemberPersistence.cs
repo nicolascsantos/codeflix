@@ -14,7 +14,7 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.CastMember.Common
         public async Task InsertList(List<DomainEntity.CastMember> castMembers)
         {
             await _context.CastMembers.AddRangeAsync(castMembers);
-            var test = await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
         }
 
         public async Task<DomainEntity.CastMember?> GetById(Guid id)
