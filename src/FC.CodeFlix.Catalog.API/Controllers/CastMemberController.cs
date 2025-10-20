@@ -4,7 +4,9 @@ using FC.CodeFlix.Catalog.Application.UseCases.CastMember.Common;
 using FC.CodeFlix.Catalog.Application.UseCases.CastMember.CreateCastMember;
 using FC.CodeFlix.Catalog.Application.UseCases.CastMember.DeleteCastMember;
 using FC.CodeFlix.Catalog.Application.UseCases.CastMember.GetCastMember;
+using FC.CodeFlix.Catalog.Application.UseCases.CastMember.ListCastMembers;
 using FC.CodeFlix.Catalog.Application.UseCases.CastMember.UpdateCastMember;
+using FC.CodeFlix.Catalog.Domain.SeedWork.SearchableRepository;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -56,6 +58,28 @@ namespace FC.CodeFlix.Catalog.API.Controllers
         {
             var output = await _mediator.Send(new UpdateCastMemberInput(id, input.Name, input.Type), cancellationToken);
             return Ok(new APIResponse<CastMemberModelOutput>(output));
+        }
+
+        [HttpGet]
+        [ProducesResponseType(200, StatusCode = StatusCodes.Status200OK, Type = typeof(APIResponseList<CastMemberModelOutput>))]
+        public async Task<IActionResult> List(
+            CancellationToken cancellationToken,
+            [FromQuery] int? page = null,
+            [FromQuery(Name = "per_page")] int? perPage = null,
+            [FromQuery] string? search = "",
+            [FromQuery] string? sort = "",
+            [FromQuery] SearchOrder? dir = null
+        )
+        {
+            var input = new ListCastMembersInput();
+            if (page is not null) input.Page = page.Value;
+            if (perPage is not null) input.PerPage = perPage.Value;
+            if (!string.IsNullOrEmpty(search)) input.Search = search;
+            if (!string.IsNullOrEmpty(sort)) input.Sort = sort;
+            if (dir is not null) input.Dir = dir.Value;
+
+            var output = await _mediator.Send(input, cancellationToken);
+            return Ok(new APIResponseList<CastMemberModelOutput>(output));
         }
     }
 }
