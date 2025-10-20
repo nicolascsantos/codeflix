@@ -4,6 +4,7 @@ using FC.CodeFlix.Catalog.Application.UseCases.CastMember.UpdateCastMember;
 using FC.CodeFlix.Catalog.EndToEndTests.API.CastMember.Common;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
 namespace FC.CodeFlix.Catalog.EndToEndTests.API.CastMember.UpdateCastMember
@@ -44,6 +45,32 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.CastMember.UpdateCastMember
             castMemberFromDb.Should().NotBeNull();
             castMemberFromDb.Name.Should().Be(input.Name);
             castMemberFromDb.Type.Should().Be(input.Type);
+        }
+
+        [Fact(DisplayName = nameof(ThrowWhenCastMemberNotFound))]
+        [Trait("EndToEnd/API", "CastMember/UpdateCastMember")]
+        public async Task ThrowWhenCastMemberNotFound()
+        {
+            var castMemberExampleList = _fixture.GetExampleCastMembersList(10);
+            var randomGuid = Guid.NewGuid();
+            await _fixture.Persistence.InsertList(castMemberExampleList);
+
+            var input = new UpdateCastMemberInput
+            (
+                randomGuid,
+                _fixture.GetValidName(),
+                _fixture.GetRandomCastMemberType()
+            );
+            var (response, output) = await _fixture.APIClient
+                .Put<ProblemDetails>($"/api/CastMember/{randomGuid}", input);
+
+            response.Should().NotBeNull();
+            response.StatusCode.Should().Be((HttpStatusCode)StatusCodes.Status404NotFound);
+            output.Should().NotBeNull();
+            output.Title = "One or more validation errors occurred.";
+            output.Status = (int)StatusCodes.Status404NotFound;
+            output.Type.Should().Be("NotFound");
+            output.Detail.Should().Be($"Cast member '{randomGuid}' not found."); ;
         }
     }
 }
