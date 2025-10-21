@@ -1,4 +1,5 @@
-﻿using FC.CodeFlix.Catalog.Domain.SeedWork;
+﻿using FC.CodeFlix.Catalog.Domain.Enum;
+using FC.CodeFlix.Catalog.Domain.SeedWork;
 using FC.CodeFlix.Catalog.Domain.Validation;
 
 namespace FC.CodeFlix.Catalog.Domain.Entity
@@ -18,13 +19,17 @@ namespace FC.CodeFlix.Catalog.Domain.Entity
         public int Duration { get; set; }
 
         public DateTime CreatedAt { get; set; }
+
+        public Rating Rating { get; set; }
+
         public Video(
             string title,
             string description,
             int yearLaunched,
             bool opened,
             bool published,
-            int duration
+            int duration,
+            Rating rating
         )
         {
             Title = title;
@@ -33,6 +38,7 @@ namespace FC.CodeFlix.Catalog.Domain.Entity
             Opened = opened;
             Published = published;
             Duration = duration;
+            Rating = Rating;
             CreatedAt = DateTime.Now;
         }
 

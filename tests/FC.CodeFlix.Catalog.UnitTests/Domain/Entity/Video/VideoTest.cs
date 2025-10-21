@@ -1,4 +1,4 @@
-﻿using FC.CodeFlix.Catalog.Domain.Exceptions;
+﻿using FC.CodeFlix.Catalog.Domain.Enum;
 using FC.CodeFlix.Catalog.Domain.Validation;
 using FluentAssertions;
 using DomainEntity = FC.CodeFlix.Catalog.Domain.Entity;
@@ -17,26 +17,34 @@ namespace FC.CodeFlix.Catalog.UnitTests.Domain.Entity.Video
         [Trait("Domain", "Video - Aggregates")]
         public void Instantiate()
         {
-            var validVideo = _fixture.GetValidVideo();
-            var expectedCreatedDate = DateTime.Now;
+            var expectedTitle = _fixture.GetValidTitle();
+            var expectedDescription = _fixture.GetValidDescription();
+            var expectedYearLaunched = _fixture.GetValidYearLaunched();
+            var expectedOpened = _fixture.GetRandomBoolean();
+            var expectedPublished = _fixture.GetRandomBoolean();
+            var expectedDuration = _fixture.GetValidDuration();
+            var expectedCreatedAt = DateTime.Now;
+            var expectedRating = Rating.ER;
+
             var video = new DomainEntity.Video
             (
-                validVideo.Title,
-                validVideo.Description,
-                validVideo.YearLaunched,
-                validVideo.Opened, 
-                validVideo.Published,
-                validVideo.Duration
+                expectedTitle,
+                expectedDescription,
+                expectedYearLaunched,
+                expectedOpened,
+                expectedPublished,
+                expectedDuration,
+                expectedRating
             );
 
-            video.Title.Should().Be(validVideo.Title);
-            video.Description.Should().Be(validVideo.Description);
-            video.Opened.Should().Be(validVideo.Opened);
-            video.Published.Should().Be(validVideo.Published);
-            video.YearLaunched.Should().Be(validVideo.YearLaunched);
-            video.Duration.Should().Be(validVideo.Duration);
+            video.Title.Should().Be(expectedTitle);
+            video.Description.Should().Be(expectedDescription);
+            video.Opened.Should().Be(expectedOpened);
+            video.Published.Should().Be(expectedPublished);
+            video.YearLaunched.Should().Be(expectedYearLaunched);
+            video.Duration.Should().Be(expectedDuration);
             video.CreatedAt.Should()
-                .BeCloseTo(validVideo.CreatedAt, TimeSpan.FromSeconds(10));
+                .BeCloseTo(expectedCreatedAt, TimeSpan.FromSeconds(10));
         }
 
         [Fact(DisplayName = nameof(ValidateWhenValidState))]
@@ -65,7 +73,8 @@ namespace FC.CodeFlix.Catalog.UnitTests.Domain.Entity.Video
                 validVideo.YearLaunched,
                 validVideo.Opened,
                 validVideo.Published,
-                validVideo.Duration
+                validVideo.Duration,
+                validVideo.Rating
             );
 
             var notificationHandler = new NotificationValidationHandler();
