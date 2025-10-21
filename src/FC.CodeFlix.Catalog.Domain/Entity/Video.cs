@@ -38,5 +38,22 @@ namespace FC.CodeFlix.Catalog.Domain.Entity
 
         public void Validate(ValidationHandler notificationHandler)
             => (new VideoValidator(this, notificationHandler)).Validate();
+
+        public void Update(
+            string title,
+            string description,
+            int yearLaunched,
+            bool opened,
+            bool published,
+            int duration
+        )
+        {
+            Title = title;
+            Description = description;
+            YearLaunched = yearLaunched;
+            Opened = opened;
+            Published = published;
+            Duration = duration;
+        }
     }
 }
