@@ -1,4 +1,5 @@
 ﻿using FC.CodeFlix.Catalog.Domain.Exceptions;
+using FC.CodeFlix.Catalog.Domain.Validation;
 using FluentAssertions;
 using DomainEntity = FC.CodeFlix.Catalog.Domain.Entity;
 
@@ -28,23 +29,36 @@ namespace FC.CodeFlix.Catalog.UnitTests.Domain.Entity.Video
                 validVideo.Duration
             );
 
-            video.Title.Should().Be("Title");
-            video.Description.Should().Be("Description");
-            video.Opened.Should().Be(true);
-            video.Published.Should().Be(true);
-            video.YearLaunched.Should().Be(2001);
-            video.Duration.Should().Be(180);
+            video.Title.Should().Be(validVideo.Title);
+            video.Description.Should().Be(validVideo.Description);
+            video.Opened.Should().Be(validVideo.Opened);
+            video.Published.Should().Be(validVideo.Published);
+            video.YearLaunched.Should().Be(validVideo.YearLaunched);
+            video.Duration.Should().Be(validVideo.Duration);
             video.CreatedAt.Should()
                 .BeCloseTo(validVideo.CreatedAt, TimeSpan.FromSeconds(10));
         }
 
-        [Fact(DisplayName = nameof(InstantiateThrowsWhenNotValid))]
+        [Fact(DisplayName = nameof(ValidateWhenValidState))]
         [Trait("Domain", "Video - Aggregates")]
-        public void InstantiateThrowsWhenNotValid()
+        public void ValidateWhenValidState()
         {
             var validVideo = _fixture.GetValidVideo();
-            var expectedCreatedDate = DateTime.Now;
-            var action = () => new DomainEntity.Video
+            var notificationHandler = new NotificationValidationHandler();
+            var validator = new VideoValidator(validVideo, notificationHandler);
+
+            validVideo.Validate(notificationHandler);
+
+            notificationHandler.HasErrors().Should().BeFalse();
+
+        }
+
+        [Fact(DisplayName = nameof(ValidateWhenInvalidState))]
+        [Trait("Domain", "Video - Aggregates")]
+        public void ValidateWhenInvalidState()
+        {
+            var validVideo = _fixture.GetValidVideo();
+            var invalidVideo = new DomainEntity.Video
             (
                 _fixture.GetTooLongTitle(),
                 _fixture.GetTooLongDescription(),
@@ -54,9 +68,16 @@ namespace FC.CodeFlix.Catalog.UnitTests.Domain.Entity.Video
                 validVideo.Duration
             );
 
-            action.Should()
-                .Throw<EntityValidationException>()
-                .WithMessage("Validation errors.");
+            var notificationHandler = new NotificationValidationHandler();
+
+            invalidVideo.Validate(notificationHandler);
+
+            notificationHandler.HasErrors().Should().BeTrue();
+            notificationHandler.Errors.Should().BeEquivalentTo(new List<ValidationError>()
+            {
+                new ValidationError("Title should be less or equal 255 characters long."),
+                new ValidationError("Description should be less or equal 4000 characters long.")
+            });
         }
     }
 }
