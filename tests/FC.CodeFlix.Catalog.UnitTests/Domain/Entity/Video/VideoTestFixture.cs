@@ -9,7 +9,29 @@ namespace FC.CodeFlix.Catalog.UnitTests.Domain.Entity.Video
     public class VideoTestFixture : BaseFixture
     {
         public DomainEntity.Video GetValidVideo()
-            => new("Title", "Description", 2001, true, true, 180);
-        
+            => new(GetValidTitle(), GetValidDescription(), GetValidYearLaunched(), true, true, GetValidDuration());
+
+        public string GetValidTitle()
+            => Faker.Lorem.Letter(100);
+
+        public string GetTooLongTitle()
+            => Faker.Lorem.Letter(400);
+
+        public string GetTooLongDescription()
+            => Faker.Lorem.Letter(4001);
+
+
+        public string GetValidDescription()
+            => Faker.Commerce.ProductDescription();
+
+        public int GetValidYearLaunched()
+            => Faker.Date.BetweenDateOnly
+            (
+                new DateOnly(1960, 1, 1),
+                new DateOnly(2025, 12, 31)
+            ).Year;
+
+        public int GetValidDuration()
+            => (new Random()).Next(100, 300);
     }
 }
