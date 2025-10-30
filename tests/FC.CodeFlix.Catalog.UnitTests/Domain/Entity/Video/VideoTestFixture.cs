@@ -44,5 +44,25 @@ namespace FC.CodeFlix.Catalog.UnitTests.Domain.Entity.Video
 
         public string GetValidImagePath()
             => Faker.Image.PicsumUrl();
+
+        public string GetValidMediaPath()
+        {
+            var exampleMedias = new string[]
+            {
+                "www.googlestorage.com/file-example.mp4",
+                "www.storage.com/file-example.mp4",
+                "www.S3.com.br/file-example.mp4",
+                "www.glg.com/video.mp4",
+                "www.azure.com/example.mp4",
+            };
+
+            var random = new Random();
+
+            return exampleMedias[random.Next(exampleMedias.Length)];
+        }
+
+        public DomainEntity.Media GetValidMedia() 
+            => new(GetValidMediaPath());
+        
     }
 }
