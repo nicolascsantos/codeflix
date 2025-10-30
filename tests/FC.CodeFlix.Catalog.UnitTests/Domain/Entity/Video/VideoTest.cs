@@ -1,4 +1,5 @@
 ﻿using FC.CodeFlix.Catalog.Domain.Enum;
+using FC.CodeFlix.Catalog.Domain.Exceptions;
 using FC.CodeFlix.Catalog.Domain.Validation;
 using FluentAssertions;
 using DomainEntity = FC.CodeFlix.Catalog.Domain.Entity;
@@ -48,6 +49,8 @@ namespace FC.CodeFlix.Catalog.UnitTests.Domain.Entity.Video
             video.Thumb.Should().BeNull();
             video.ThumbHalf.Should().BeNull();
             video.Banner.Should().BeNull();
+            video.Media.Should().BeNull();
+            video.Trailer.Should().BeNull();
         }
 
         [Fact(DisplayName = nameof(ValidateWhenValidState))]
@@ -218,8 +221,122 @@ namespace FC.CodeFlix.Catalog.UnitTests.Domain.Entity.Video
 
             validVideo.UpdateBanner(validImagePath);
 
-            validVideo.Should().NotBeNull();
+            validVideo.Banner.Should().NotBeNull();
             validVideo.Banner!.Path.Should().Be(validImagePath);
+        }
+
+        [Fact(DisplayName = nameof(UpdateMedia))]
+        [Trait("Domain", "Video - Aggregates")]
+        public void UpdateMedia()
+        {
+            var validVideo = _fixture.GetValidVideo();
+            var validMediaPath = _fixture.GetValidImagePath();
+
+            validVideo.UpdateMedia(validMediaPath);
+
+            validVideo.Media.Should().NotBeNull();
+            validVideo.Media!.FilePath.Should().Be(validMediaPath);
+        }
+
+        [Fact(DisplayName = nameof(UpdateTrailer))]
+        [Trait("Domain", "Video - Aggregates")]
+        public void UpdateTrailer()
+        {
+            var validVideo = _fixture.GetValidVideo();
+            var validTrailerPath = _fixture.GetValidImagePath();
+
+            validVideo.UpdateTrailer(validTrailerPath);
+
+            validVideo.Trailer.Should().NotBeNull();
+            validVideo.Trailer!.FilePath.Should().Be(validTrailerPath);
+        }
+
+        [Fact(DisplayName = nameof(UpdateAsSentToEncodeThrowsWhenThereIsNoMedia))]
+        [Trait("Domain", "Video - Aggregates")]
+        public void UpdateAsSentToEncodeThrowsWhenThereIsNoMedia()
+        {
+            var validVideo = _fixture.GetValidVideo();
+            var action = () => validVideo.UpdateAsSentToEncode();
+
+            action.Should()
+                .Throw<EntityValidationException>()
+                .WithMessage("There is no media.");
+        }
+
+        [Fact(DisplayName = nameof(UpdateAsEncoded))]
+        [Trait("Domain", "Video - Aggregates")]
+        public void UpdateAsEncoded()
+        {
+            var validVideo = _fixture.GetValidVideo();
+
+            var validMediaPath = _fixture.GetValidImagePath();
+
+            validVideo.UpdateMedia(validMediaPath);
+
+            validVideo.UpdateAsEncoded(validMediaPath);
+
+            validVideo.Media.Should().NotBeNull();
+            validVideo.Media.Status.Should().Be(MediaStatus.COMPLETED);
+            validVideo.Media.EncodedPath.Should().Be(validMediaPath);
+        }
+
+        [Fact(DisplayName = nameof(UpdateAsEncodedThrowsWhenThereIsNoMedia))]
+        [Trait("Domain", "Video - Aggregates")]
+        public void UpdateAsEncodedThrowsWhenThereIsNoMedia()
+        {
+            var validVideo = _fixture.GetValidVideo();
+            var validEncodedPath = _fixture.GetValidImagePath();
+            var action = () => validVideo.UpdateAsEncoded(validEncodedPath);
+
+            action.Should()
+                .Throw<EntityValidationException>()
+                .WithMessage("There is no media.");
+        }
+
+        [Fact(DisplayName = nameof(AddCategory))]
+        [Trait("Domain", "Video - Aggregates")]
+        public void AddCategory()
+        {
+            var validVideo = _fixture.GetValidVideo();
+            var categoryIdExample = Guid.NewGuid();
+
+            validVideo.AddCategory(categoryIdExample);
+
+            validVideo.Categories.Should().HaveCount(1);
+            validVideo.Categories[0].Should().Be(categoryIdExample);
+        }
+
+        [Fact(DisplayName = nameof(RemoveCategory))]
+        [Trait("Domain", "Video - Aggregates")]
+        public void RemoveCategory()
+        {
+            var validVideo = _fixture.GetValidVideo();
+            var categoryIdExample = Guid.NewGuid();
+            var categoryIdExample2 = Guid.NewGuid();
+            validVideo.AddCategory(categoryIdExample);
+            validVideo.AddCategory(categoryIdExample2);
+
+            validVideo.RemoveCategory(categoryIdExample);
+
+
+            validVideo.Categories.Should().HaveCount(1);
+            validVideo.Categories[0].Should().Be(categoryIdExample2);
+        }
+
+        [Fact(DisplayName = nameof(RemoveAllCategories))]
+        [Trait("Domain", "Video - Aggregates")]
+        public void RemoveAllCategories()
+        {
+            var validVideo = _fixture.GetValidVideo();
+            var categoryIdExample = Guid.NewGuid();
+            var categoryIdExample2 = Guid.NewGuid();
+            validVideo.AddCategory(categoryIdExample);
+            validVideo.AddCategory(categoryIdExample2);
+
+            validVideo.RemoveAllCategories();
+
+
+            validVideo.Categories.Should().HaveCount(0);
         }
     }
 }

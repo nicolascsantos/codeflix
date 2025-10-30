@@ -1,4 +1,5 @@
 ﻿using FC.CodeFlix.Catalog.Domain.Enum;
+using FC.CodeFlix.Catalog.Domain.Exceptions;
 using FC.CodeFlix.Catalog.Domain.SeedWork;
 using FC.CodeFlix.Catalog.Domain.Validation;
 using FC.CodeFlix.Catalog.Domain.ValueObject;
@@ -26,6 +27,11 @@ namespace FC.CodeFlix.Catalog.Domain.Entity
         public Image? Thumb { get; private set; }
         public Image? ThumbHalf { get; private set; }
         public Image? Banner { get; private set; }
+        public Media? Media { get; set; }
+        public Media? Trailer { get; private set; }
+
+        private List<Guid> _categories;
+        public IReadOnlyList<Guid> Categories => _categories.AsReadOnly();
 
         public Video(
             string title,
@@ -45,6 +51,7 @@ namespace FC.CodeFlix.Catalog.Domain.Entity
             Duration = duration;
             Rating = Rating;
             CreatedAt = DateTime.Now;
+            _categories = new();
         }
 
         public void Validate(ValidationHandler notificationHandler)
@@ -72,5 +79,33 @@ namespace FC.CodeFlix.Catalog.Domain.Entity
         public void UpdateThumbHalf(string path) => ThumbHalf = new Image(path);
 
         public void UpdateBanner(string path) => Banner = new Image(path);
+
+        public void UpdateMedia(string validMediaPath) => Media = new Media(validMediaPath);
+
+        public void UpdateTrailer(string validTrailerPath) => Trailer = new Media(validTrailerPath);
+
+        public void UpdateAsSentToEncode()
+        {
+            if (Media is null) 
+                throw new EntityValidationException("There is no media.");
+
+            Media.UpdateAsSentToEncode();
+        }
+
+        public void UpdateAsEncoded(string encodedExamplePath)
+        {
+            if (Media is null)
+                throw new EntityValidationException("There is no media.");
+            Media.UpdateAsEncoded(encodedExamplePath);
+        }
+
+        public void AddCategory(Guid categoryIdExample)
+            => _categories.Add(categoryIdExample);
+
+        public void RemoveCategory(Guid categoryIdExample)
+            => _categories.Remove(categoryIdExample);
+
+        public void RemoveAllCategories()
+            => _categories = new();
     }
 }
