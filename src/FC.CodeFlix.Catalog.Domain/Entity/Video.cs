@@ -1,6 +1,7 @@
 ﻿using FC.CodeFlix.Catalog.Domain.Enum;
 using FC.CodeFlix.Catalog.Domain.SeedWork;
 using FC.CodeFlix.Catalog.Domain.Validation;
+using FC.CodeFlix.Catalog.Domain.ValueObject;
 
 namespace FC.CodeFlix.Catalog.Domain.Entity
 {
@@ -21,6 +22,10 @@ namespace FC.CodeFlix.Catalog.Domain.Entity
         public DateTime CreatedAt { get; set; }
 
         public Rating Rating { get; set; }
+
+        public Image? Thumb { get; private set; }
+        public Image? ThumbHalf { get; private set; }
+        public Image? Banner { get; private set; }
 
         public Video(
             string title,
@@ -61,5 +66,11 @@ namespace FC.CodeFlix.Catalog.Domain.Entity
             Published = published;
             Duration = duration;
         }
+
+        public void UpdateThumb(string path) => Thumb = new Image(path);
+
+        public void UpdateThumbHalf(string path) => ThumbHalf = new Image(path);
+
+        public void UpdateBanner(string path) => Banner = new Image(path);
     }
 }

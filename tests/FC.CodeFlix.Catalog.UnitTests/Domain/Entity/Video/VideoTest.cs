@@ -45,6 +45,9 @@ namespace FC.CodeFlix.Catalog.UnitTests.Domain.Entity.Video
             video.Duration.Should().Be(expectedDuration);
             video.CreatedAt.Should()
                 .BeCloseTo(expectedCreatedAt, TimeSpan.FromSeconds(10));
+            video.Thumb.Should().BeNull();
+            video.ThumbHalf.Should().BeNull();
+            video.Banner.Should().BeNull();
         }
 
         [Fact(DisplayName = nameof(ValidateWhenValidState))]
@@ -178,6 +181,45 @@ namespace FC.CodeFlix.Catalog.UnitTests.Domain.Entity.Video
                 new ValidationError("Title should be less or equal 255 characters long."),
                 new ValidationError("Description should be less or equal 4000 characters long.")
             });
+        }
+
+        [Fact(DisplayName = nameof(UpdateThumb))]
+        [Trait("Domain", "Video - Aggregates")]
+        public void UpdateThumb()
+        {
+            var validVideo = _fixture.GetValidVideo();
+            var validImagePath = _fixture.GetValidImagePath();
+            
+            validVideo.UpdateThumb(validImagePath);
+
+            validVideo.Should().NotBeNull();
+            validVideo.Thumb!.Path.Should().Be(validImagePath);
+        }
+
+        [Fact(DisplayName = nameof(UpdateThumbHalf))]
+        [Trait("Domain", "Video - Aggregates")]
+        public void UpdateThumbHalf()
+        {
+            var validVideo = _fixture.GetValidVideo();
+            var validImagePath = _fixture.GetValidImagePath();
+
+            validVideo.UpdateThumbHalf(validImagePath);
+
+            validVideo.Should().NotBeNull();
+            validVideo.ThumbHalf!.Path.Should().Be(validImagePath);
+        }
+
+        [Fact(DisplayName = nameof(UpdateBanner))]
+        [Trait("Domain", "Video - Aggregates")]
+        public void UpdateBanner()
+        {
+            var validVideo = _fixture.GetValidVideo();
+            var validImagePath = _fixture.GetValidImagePath();
+
+            validVideo.UpdateBanner(validImagePath);
+
+            validVideo.Should().NotBeNull();
+            validVideo.Banner!.Path.Should().Be(validImagePath);
         }
     }
 }
