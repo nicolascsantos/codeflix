@@ -34,8 +34,12 @@ namespace FC.CodeFlix.Catalog.Domain.Entity
         public IReadOnlyList<Guid> Categories => _categories.AsReadOnly();
 
         private List<Guid> _genres;
-
         public IReadOnlyList<Guid> Genres => _genres.AsReadOnly();
+
+        private List<Guid> _castMembers;
+        public IReadOnlyList<Guid> CastMembers 
+            => _castMembers.AsReadOnly();
+
 
         public Video(
             string title,
@@ -57,6 +61,7 @@ namespace FC.CodeFlix.Catalog.Domain.Entity
             CreatedAt = DateTime.Now;
             _categories = new();
             _genres = new();
+            _castMembers = new();
         }
 
         public void Validate(ValidationHandler notificationHandler)
@@ -122,5 +127,13 @@ namespace FC.CodeFlix.Catalog.Domain.Entity
         public void RemoveAllGenres()
             => _genres = new();
 
+        public void AddCastMember(Guid castMemberId)
+            => _castMembers.Add(castMemberId);
+
+        public void RemoveCastMember(Guid castMemberId)
+            => _castMembers.Remove(castMemberId);
+
+        public void RemoveAllCastMembers()
+            => _castMembers = new();
     }
 }

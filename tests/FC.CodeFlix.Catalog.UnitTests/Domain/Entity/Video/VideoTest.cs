@@ -192,7 +192,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Domain.Entity.Video
         {
             var validVideo = _fixture.GetValidVideo();
             var validImagePath = _fixture.GetValidImagePath();
-            
+
             validVideo.UpdateThumb(validImagePath);
 
             validVideo.Should().NotBeNull();
@@ -346,7 +346,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Domain.Entity.Video
             var validVideo = _fixture.GetValidVideo();
             var exampleId = Guid.NewGuid();
 
-            validVideo.AddGenre(exampleId);
+            validVideo.AddCastMember(exampleId);
 
             validVideo.Genres.Should().HaveCount(1);
             validVideo.Genres[0].Should().Be(exampleId);
@@ -371,13 +371,55 @@ namespace FC.CodeFlix.Catalog.UnitTests.Domain.Entity.Video
             var validVideo = _fixture.GetValidVideo();
             var genreIdExample = Guid.NewGuid();
             var genreIdExample2 = Guid.NewGuid();
-            validVideo.AddGenre(genreIdExample);
-            validVideo.AddGenre(genreIdExample2);
+            validVideo.AddCastMember(genreIdExample);
+            validVideo.AddCastMember(genreIdExample2);
 
             validVideo.RemoveAllGenres();
 
 
             validVideo.Genres.Should().HaveCount(0);
+        }
+
+        [Fact(DisplayName = nameof(AddCastMember))]
+        [Trait("Domain", "Video - Aggregates")]
+        public void AddCastMember()
+        {
+            var validVideo = _fixture.GetValidVideo();
+            var exampleId = Guid.NewGuid();
+
+            validVideo.AddCastMember(exampleId);
+
+            validVideo.CastMembers.Should().HaveCount(1);
+            validVideo.CastMembers[0].Should().Be(exampleId);
+        }
+
+        [Fact(DisplayName = nameof(RemoveCastMember))]
+        [Trait("Domain", "Video - Aggregates")]
+        public void RemoveCastMember()
+        {
+            var validVideo = _fixture.GetValidVideo();
+            var exampleId = Guid.NewGuid();
+
+            validVideo.RemoveCastMember(exampleId);
+
+            validVideo.CastMembers.Should().HaveCount(0);
+        }
+
+
+        [Fact(DisplayName = nameof(RemoveAllCastMembers))]
+        [Trait("Domain", "Video - Aggregates")]
+        public void RemoveAllCastMembers()
+        {
+            var validVideo = _fixture.GetValidVideo();
+            var castMemberIdExample = Guid.NewGuid();
+            var castMemberIdExample2 = Guid.NewGuid();
+            validVideo.AddCastMember(castMemberIdExample);
+            validVideo.AddCastMember(castMemberIdExample2);
+
+            validVideo.RemoveAllCastMembers();
+
+
+            validVideo.CastMembers.Should().HaveCount(0);
         }
     }
 }
