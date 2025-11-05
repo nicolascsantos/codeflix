@@ -346,7 +346,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Domain.Entity.Video
             var validVideo = _fixture.GetValidVideo();
             var exampleId = Guid.NewGuid();
 
-            validVideo.AddCastMember(exampleId);
+            validVideo.AddGenre(exampleId);
 
             validVideo.Genres.Should().HaveCount(1);
             validVideo.Genres[0].Should().Be(exampleId);
