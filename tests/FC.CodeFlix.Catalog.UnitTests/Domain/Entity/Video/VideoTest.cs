@@ -338,5 +338,46 @@ namespace FC.CodeFlix.Catalog.UnitTests.Domain.Entity.Video
 
             validVideo.Categories.Should().HaveCount(0);
         }
+
+        [Fact(DisplayName = nameof(AddGenre))]
+        [Trait("Domain", "Video - Aggregates")]
+        public void AddGenre()
+        {
+            var validVideo = _fixture.GetValidVideo();
+            var exampleId = Guid.NewGuid();
+
+            validVideo.AddGenre(exampleId);
+
+            validVideo.Genres.Should().HaveCount(1);
+            validVideo.Genres[0].Should().Be(exampleId);
+        }
+
+        [Fact(DisplayName = nameof(RemoveGenre))]
+        [Trait("Domain", "Video - Aggregates")]
+        public void RemoveGenre()
+        {
+            var validVideo = _fixture.GetValidVideo();
+            var exampleId = Guid.NewGuid();
+
+            validVideo.RemoveGenre(exampleId);
+
+            validVideo.Genres.Should().HaveCount(0);
+        }
+
+        [Fact(DisplayName = nameof(RemoveAllGenres))]
+        [Trait("Domain", "Video - Aggregates")]
+        public void RemoveAllGenres()
+        {
+            var validVideo = _fixture.GetValidVideo();
+            var genreIdExample = Guid.NewGuid();
+            var genreIdExample2 = Guid.NewGuid();
+            validVideo.AddGenre(genreIdExample);
+            validVideo.AddGenre(genreIdExample2);
+
+            validVideo.RemoveAllGenres();
+
+
+            validVideo.Genres.Should().HaveCount(0);
+        }
     }
 }

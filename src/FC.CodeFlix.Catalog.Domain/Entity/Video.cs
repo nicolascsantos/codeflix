@@ -33,6 +33,10 @@ namespace FC.CodeFlix.Catalog.Domain.Entity
         private List<Guid> _categories;
         public IReadOnlyList<Guid> Categories => _categories.AsReadOnly();
 
+        private List<Guid> _genres;
+
+        public IReadOnlyList<Guid> Genres => _genres.AsReadOnly();
+
         public Video(
             string title,
             string description,
@@ -52,6 +56,7 @@ namespace FC.CodeFlix.Catalog.Domain.Entity
             Rating = Rating;
             CreatedAt = DateTime.Now;
             _categories = new();
+            _genres = new();
         }
 
         public void Validate(ValidationHandler notificationHandler)
@@ -86,7 +91,7 @@ namespace FC.CodeFlix.Catalog.Domain.Entity
 
         public void UpdateAsSentToEncode()
         {
-            if (Media is null) 
+            if (Media is null)
                 throw new EntityValidationException("There is no media.");
 
             Media.UpdateAsSentToEncode();
@@ -107,5 +112,15 @@ namespace FC.CodeFlix.Catalog.Domain.Entity
 
         public void RemoveAllCategories()
             => _categories = new();
+
+        public void AddGenre(Guid genreId)
+            => _genres.Add(genreId);
+
+        public void RemoveGenre(Guid genreId)
+            => _genres.Remove(genreId);
+
+        public void RemoveAllGenres()
+            => _genres = new();
+
     }
 }
