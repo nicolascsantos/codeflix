@@ -6,22 +6,26 @@ using DomainEntity = FC.CodeFlix.Catalog.Domain.Entity;
 namespace FC.CodeFlix.Catalog.Application.UseCases.Video.CreateVideo
 {
     public record CreateVideoOutput(
+        Guid Id,
         string Title,
         string Description,
         int YearLaunched,
         bool Opened,
         bool Published,
         int Duration,
-        Rating Rating
+        Rating Rating,
+        DateTime CreatedAt
     ) : IRequest<VideoModelOutput>
     {
         public static CreateVideoOutput FromVideo(DomainEntity.Video video)
-            => new(video.Title,
+            => new(video.Id,
+                   video.Title,
                    video.Description,
                    video.YearLaunched,
                    video.Opened,
                    video.Published,
                    video.Duration,
-                   video.Rating);
+                   video.Rating,
+                   video.CreatedAt);
     }
 }
