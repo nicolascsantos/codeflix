@@ -43,17 +43,19 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
 
             var output = await useCase.Handle(input, CancellationToken.None);
 
-            repositoryMock.Verify(
-                x => x.Insert(It.IsAny<DomainEntity.Video>(
-                    video => video.Title == input.Title &&
-                    video.Description == input.Description &&
-                    video.YearLaunched == input.YearLaunched &&
-                    video.Opened == input.Opened &&
-                    video.Published == input.Published &&
-                    video.Duration == input.Duration &&
-                    video.Rating == input.Rating &&
-                    video.Id != Guid.Empty
-            ), It.IsAny<CancellationToken>()), Times.Once);
+            repositoryMock.Verify(x => x.Insert(It.Is<DomainEntity.Video>(
+                video =>
+                video.Id != Guid.Empty &&
+                video.Title == input.Title &&
+                video.Description == input.Description &&
+                video.Duration == input.Duration &&
+                video.Rating == input.Rating &&
+                video.YearLaunched == input.YearLaunched &&
+                video.Opened == input.Opened &&
+                video.Published == input.Published
+                ), 
+                It.IsAny<CancellationToken>())
+            );
 
             unitOfWorkMock.Verify(x => x.Commit(It.IsAny<CancellationToken>()), Times.Once);
 
