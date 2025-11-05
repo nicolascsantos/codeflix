@@ -1,0 +1,15 @@
+﻿using FC.CodeFlix.Catalog.Domain.Enum;
+using MediatR;
+
+namespace FC.CodeFlix.Catalog.Application.UseCases.Video.CreateVideo
+{
+    public record CreateVideoInput(
+        string Title,
+        string Description,
+        int YearLaunched,
+        bool Opened,
+        bool Published,
+        int Duration,
+        Rating Rating
+    ) : IRequest<CreateVideoOutput>;
+}
