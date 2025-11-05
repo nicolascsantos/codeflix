@@ -1,4 +1,6 @@
 ﻿using FC.CodeFlix.Catalog.Application.Interfaces;
+using FC.CodeFlix.Catalog.Application.UseCases.Video.CreateVideo;
+using FC.CodeFlix.Catalog.Domain.Repository;
 using FluentAssertions;
 using Moq;
 using DomainEntity = FC.CodeFlix.Catalog.Domain.Entity;
@@ -21,10 +23,9 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
             var repositoryMock = new Mock<IVideoRepository>();
             var unitOfWorkMock = new Mock<IUnitOfWork>();
 
-            var useCase = UseCases.CreateVideo();
-            (
-                repositoryMock.Object,
-                unitOfWorkMock.Object
+            var useCase = new UseCases.CreateVideo(
+                unitOfWorkMock.Object,
+                repositoryMock.Object
             );
 
             var input = new CreateVideoInput
@@ -65,7 +66,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
             output.Published.Should().Be(input.Published);
             output.Duration.Should().Be(input.Duration);
             output.Rating.Should().Be(input.Rating);
-            output.CreatedAt.Should().NotBeNull();
+            output.CreatedAt.Should().NotBeSameDateAs(default);
         }
     }
 }
