@@ -1,6 +1,9 @@
 ﻿
 using FC.CodeFlix.Catalog.Application.Interfaces;
+using FC.CodeFlix.Catalog.Domain.Exceptions;
 using FC.CodeFlix.Catalog.Domain.Repository;
+using FC.CodeFlix.Catalog.Domain.Validation;
+using MediatR;
 using DomainEntity = FC.CodeFlix.Catalog.Domain.Entity;
 
 
@@ -26,6 +29,14 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.CreateVideo
                 request.Duration,
                 request.Rating
             );
+
+            var validationHandler = new NotificationValidationHandler();
+
+            video.Validate(validationHandler);
+
+            if (validationHandler.HasErrors())
+                throw new EntityValidationException("There are validation errors", validationHandler.Errors);
+            
 
             await _videoRepository.Insert(video, cancellationToken);
             await _unitOfWork.Commit(cancellationToken);
