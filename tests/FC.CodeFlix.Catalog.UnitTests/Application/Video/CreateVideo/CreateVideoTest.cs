@@ -25,12 +25,13 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
             var repositoryMock = new Mock<IVideoRepository>();
             var unitOfWorkMock = new Mock<IUnitOfWork>();
             var categoryRepositoryMock = new Mock<ICategoryRepository>();
-
+            var genreRepositoryMock = new Mock<IGenreRepository>();
 
             var useCase = new UseCases.CreateVideo(
                 unitOfWorkMock.Object,
                 repositoryMock.Object,
-                categoryRepositoryMock.Object
+                categoryRepositoryMock.Object,
+                genreRepositoryMock.Object
             );
 
             var input = _fixture.GetValidInput();
@@ -63,12 +64,14 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
             var repositoryMock = new Mock<IVideoRepository>();
             var unitOfWorkMock = new Mock<IUnitOfWork>();
             var categoryRepositoryMock = new Mock<ICategoryRepository>();
+            var genreRepositoryMock = new Mock<IGenreRepository>();
 
 
             var useCase = new UseCases.CreateVideo(
                 unitOfWorkMock.Object,
                 repositoryMock.Object,
-                categoryRepositoryMock.Object
+                categoryRepositoryMock.Object,
+                genreRepositoryMock.Object
             );
 
             var action = async () => await useCase.Handle(input, CancellationToken.None);
@@ -88,6 +91,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
             var repositoryMock = new Mock<IVideoRepository>();
             var unitOfWorkMock = new Mock<IUnitOfWork>();
             var categoryRepositoryMock = new Mock<ICategoryRepository>();
+            var genreRepositoryMock = new Mock<IGenreRepository>();
 
             categoryRepositoryMock.Setup(x => x.GetIdsListByIds(It.IsAny<List<Guid>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync((List<Guid> ids, CancellationToken ct) => ids);
@@ -95,7 +99,8 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
             var useCase = new UseCases.CreateVideo(
                 unitOfWorkMock.Object,
                 repositoryMock.Object,
-                categoryRepositoryMock.Object
+                categoryRepositoryMock.Object,
+                genreRepositoryMock.Object
             );
 
             var categoriesIdsExample = Enumerable.Range(1, 5).Select(_ => Guid.NewGuid()).ToList();
@@ -152,6 +157,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
             var repositoryMock = new Mock<IVideoRepository>();
             var unitOfWorkMock = new Mock<IUnitOfWork>();
             var categoryRepositoryMock = new Mock<ICategoryRepository>();
+            var genreRepositoryMock = new Mock<IGenreRepository>();
 
             var categoriesIdsExample = Enumerable.Range(1, 5).Select(_ => Guid.NewGuid()).ToList();
             var categoryIdToRemove = categoriesIdsExample[2];
@@ -162,7 +168,8 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
             var useCase = new UseCases.CreateVideo(
                 unitOfWorkMock.Object,
                 repositoryMock.Object,
-                categoryRepositoryMock.Object
+                categoryRepositoryMock.Object,
+                genreRepositoryMock.Object
             );
 
 
@@ -175,6 +182,72 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
                 .WithMessage($"Related category id or ids not found: '{categoryIdToRemove}'");
 
             repositoryMock.VerifyAll();
+        }
+
+        [Fact(DisplayName = nameof(CreateVideoWithGenresIds))]
+        [Trait("Application", "CreateVideo - Use Cases")]
+        public async Task CreateVideoWithGenresIds()
+        {
+            var repositoryMock = new Mock<IVideoRepository>();
+            var unitOfWorkMock = new Mock<IUnitOfWork>();
+            var categoryRepositoryMock = new Mock<ICategoryRepository>();
+            var genreRepositoryMock = new Mock<IGenreRepository>();
+
+            genreRepositoryMock.Setup(x => x.GetIdsListByIds(It.IsAny<List<Guid>>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((List<Guid> ids, CancellationToken ct) => ids);
+
+            var useCase = new UseCases.CreateVideo(
+                unitOfWorkMock.Object,
+                repositoryMock.Object,
+                categoryRepositoryMock.Object,
+                genreRepositoryMock.Object
+            );
+
+            var idsExamples = Enumerable.Range(1, 5).Select(_ => Guid.NewGuid()).ToList();
+
+            var input = _fixture.GetValidInput(genresIds: idsExamples);
+
+            var output = await useCase.Handle(input, CancellationToken.None);
+
+            repositoryMock.Verify(x => x.Insert(It.Is<DomainEntity.Video>(
+                video => video.Opened == input.Opened &&
+                         video.Published == input.Published &&
+                         video.Title == input.Title &&
+                         video.Description == input.Description &&
+                         video.YearLaunched == input.YearLaunched &&
+                         video.Duration == input.Duration &&
+                         video.Rating == input.Rating &&
+                         video.Categories.All(categoryId => idsExamples.Contains(categoryId))
+                ),
+                It.IsAny<CancellationToken>())
+            );
+
+            unitOfWorkMock.Verify(x => x.Commit(It.IsAny<CancellationToken>()), Times.Once);
+
+            output.Should().NotBeNull();
+            output.Id.Should().NotBeEmpty();
+            output.Title.Should().Be(input.Title);
+            output.Description.Should().Be(input.Description);
+            output.YearLaunched.Should().Be(input.YearLaunched);
+            output.Opened.Should().Be(input.Opened);
+            output.Published.Should().Be(input.Published);
+            output.Duration.Should().Be(input.Duration);
+            output.Rating.Should().Be(input.Rating);
+            output.CreatedAt.Should().NotBeSameDateAs(default);
+            output.Categories.Should().BeEquivalentTo(idsExamples);
+
+            repositoryMock.Verify(x => x.Insert(It.Is<DomainEntity.Video>(
+                video => video.Opened == input.Opened &&
+                         video.Published == input.Published &&
+                         video.Title == input.Title &&
+                         video.Description == input.Description &&
+                         video.YearLaunched == input.YearLaunched &&
+                         video.Duration == input.Duration &&
+                         video.Rating == input.Rating &&
+                         video.Categories.All(categoryId => idsExamples.Contains(categoryId))
+                ),
+                It.IsAny<CancellationToken>())
+            );
         }
     }
 }
