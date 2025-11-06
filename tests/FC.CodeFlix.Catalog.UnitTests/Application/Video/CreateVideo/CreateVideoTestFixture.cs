@@ -1,4 +1,5 @@
-﻿using FC.CodeFlix.Catalog.UnitTests.Common.Fixtures;
+﻿using FC.CodeFlix.Catalog.Application.UseCases.Video.CreateVideo;
+using FC.CodeFlix.Catalog.UnitTests.Common.Fixtures;
 
 namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
 {
@@ -7,5 +8,16 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
 
     public class CreateVideoTestFixture : VideoTestFixtureBase
     {
+        public CreateVideoInput GetValidInput()
+        => new CreateVideoInput
+            (
+                GetValidTitle(),
+                GetValidDescription(),
+                GetValidYearLaunched(),
+                GetRandomBoolean(),
+                GetRandomBoolean(),
+                GetValidDuration(),
+                GetRandomRating()
+            );
     }
 }
