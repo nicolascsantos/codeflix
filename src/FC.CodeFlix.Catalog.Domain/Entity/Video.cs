@@ -57,7 +57,7 @@ namespace FC.CodeFlix.Catalog.Domain.Entity
             Opened = opened;
             Published = published;
             Duration = duration;
-            Rating = Rating;
+            Rating = rating;
             CreatedAt = DateTime.Now;
             _categories = new();
             _genres = new();
