@@ -30,6 +30,10 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.CreateVideo
                 request.Rating
             );
 
+            if ((request.categoriesIds?.Count ?? 0) > 0)
+                request.categoriesIds!.ToList().ForEach(video.AddCategory);
+            
+
             var validationHandler = new NotificationValidationHandler();
 
             video.Validate(validationHandler);
