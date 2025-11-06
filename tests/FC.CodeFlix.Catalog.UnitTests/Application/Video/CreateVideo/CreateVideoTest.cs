@@ -1,4 +1,5 @@
-﻿using FC.CodeFlix.Catalog.Application.Interfaces;
+﻿using FC.CodeFlix.Catalog.Application.Exceptions;
+using FC.CodeFlix.Catalog.Application.Interfaces;
 using FC.CodeFlix.Catalog.Application.UseCases.Video.CreateVideo;
 using FC.CodeFlix.Catalog.Domain.Exceptions;
 using FC.CodeFlix.Catalog.Domain.Repository;
@@ -23,10 +24,13 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
         {
             var repositoryMock = new Mock<IVideoRepository>();
             var unitOfWorkMock = new Mock<IUnitOfWork>();
+            var categoryRepositoryMock = new Mock<ICategoryRepository>();
+
 
             var useCase = new UseCases.CreateVideo(
                 unitOfWorkMock.Object,
-                repositoryMock.Object
+                repositoryMock.Object,
+                categoryRepositoryMock.Object
             );
 
             var input = _fixture.GetValidInput();
@@ -58,10 +62,13 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
         {
             var repositoryMock = new Mock<IVideoRepository>();
             var unitOfWorkMock = new Mock<IUnitOfWork>();
+            var categoryRepositoryMock = new Mock<ICategoryRepository>();
+
 
             var useCase = new UseCases.CreateVideo(
                 unitOfWorkMock.Object,
-                repositoryMock.Object
+                repositoryMock.Object,
+                categoryRepositoryMock.Object
             );
 
             var action = async () => await useCase.Handle(input, CancellationToken.None);
@@ -80,10 +87,15 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
         {
             var repositoryMock = new Mock<IVideoRepository>();
             var unitOfWorkMock = new Mock<IUnitOfWork>();
+            var categoryRepositoryMock = new Mock<ICategoryRepository>();
+
+            categoryRepositoryMock.Setup(x => x.GetIdsListByIds(It.IsAny<List<Guid>>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((List<Guid> ids, CancellationToken ct) => ids);
 
             var useCase = new UseCases.CreateVideo(
                 unitOfWorkMock.Object,
-                repositoryMock.Object
+                repositoryMock.Object,
+                categoryRepositoryMock.Object
             );
 
             var categoriesIdsExample = Enumerable.Range(1, 5).Select(_ => Guid.NewGuid()).ToList();
@@ -131,6 +143,39 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
                 ),
                 It.IsAny<CancellationToken>())
             );
+        }
+
+        [Fact(DisplayName = nameof(ThrowsWhenCategoryIdIsInvalid))]
+        [Trait("Application", "CreateVideo - Use Cases")]
+        public async Task ThrowsWhenCategoryIdIsInvalid()
+        {
+            var repositoryMock = new Mock<IVideoRepository>();
+            var unitOfWorkMock = new Mock<IUnitOfWork>();
+            var categoryRepositoryMock = new Mock<ICategoryRepository>();
+
+            var categoriesIdsExample = Enumerable.Range(1, 5).Select(_ => Guid.NewGuid()).ToList();
+            var categoryIdToRemove = categoriesIdsExample[2];
+            categoryRepositoryMock
+                .Setup(x => x.GetIdsListByIds(It.IsAny<List<Guid>>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(categoriesIdsExample.FindAll(x => x != categoryIdToRemove));
+
+            var useCase = new UseCases.CreateVideo(
+                unitOfWorkMock.Object,
+                repositoryMock.Object,
+                categoryRepositoryMock.Object
+            );
+
+
+            var input = _fixture.GetValidInput(categoriesIdsExample);
+
+            var action = async () => await useCase.Handle(input, CancellationToken.None);
+
+            await action.Should()
+                .ThrowAsync<RelatedAggregateException>()
+                .WithMessage($"Related category id or ids not found: '{categoryIdToRemove}'");
+
+            repositoryMock.Verify(
+                x => x.Insert(It.IsAny<DomainEntity.Video>(), It.IsAny<CancellationToken>()), Times.Never);
         }
     }
 }
