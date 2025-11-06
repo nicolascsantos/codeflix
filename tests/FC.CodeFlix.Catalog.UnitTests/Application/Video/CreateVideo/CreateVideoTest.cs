@@ -174,8 +174,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
                 .ThrowAsync<RelatedAggregateException>()
                 .WithMessage($"Related category id or ids not found: '{categoryIdToRemove}'");
 
-            repositoryMock.Verify(
-                x => x.Insert(It.IsAny<DomainEntity.Video>(), It.IsAny<CancellationToken>()), Times.Never);
+            repositoryMock.VerifyAll();
         }
     }
 }
