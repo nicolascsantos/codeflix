@@ -16,12 +16,18 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.CreateVideo
         private readonly ICategoryRepository _categoryRepository;
         private readonly IGenreRepository _genreRepository;
 
-        public CreateVideo(IUnitOfWork unitOfWork, IVideoRepository videoRepository, ICategoryRepository categoryRepository, IGenreRepository genreRepository)
+        public CreateVideo(
+            IUnitOfWork unitOfWork,
+            IVideoRepository videoRepository,
+            ICategoryRepository categoryRepository,
+            IGenreRepository genreRepository
+        )
             => (
-            _unitOfWork,
-            _videoRepository,
-            _categoryRepository,
-            _genreRepository) = (unitOfWork, videoRepository, categoryRepository, genreRepository);
+                _unitOfWork,
+                _videoRepository,
+                _categoryRepository,
+                _genreRepository
+            ) = (unitOfWork, videoRepository, categoryRepository, genreRepository);
 
 
         public async Task<CreateVideoOutput> Handle(CreateVideoInput request, CancellationToken cancellationToken)
@@ -40,6 +46,12 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.CreateVideo
             {
                 request.CategoriesIds!.ToList().ForEach(video.AddCategory);
                 await ValidateCategoriesIds(request, cancellationToken);
+            }
+
+            if ((request.GenresIds?.ToList().Count ?? 0) > 0)
+            {
+                request.GenresIds!.ToList().ForEach(video.AddGenre);
+                await ValidateGenresIds(request, cancellationToken);
             }
 
 
@@ -65,6 +77,17 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.CreateVideo
                 var notFoundIds = request.CategoriesIds.ToList().FindAll(x => !idsInPersistence.Contains(x));
                 var notFoundIdsAsString = string.Join(";", notFoundIds);
                 throw new RelatedAggregateException($"Related category id or ids not found: '{notFoundIdsAsString}'");
+            }
+        }
+
+        private async Task ValidateGenresIds(CreateVideoInput request, CancellationToken cancellationToken)
+        {
+            var idsInPersistence = await _genreRepository.GetIdsListByIds(request.GenresIds!.ToList(), cancellationToken);
+            if (idsInPersistence.Count < request.GenresIds!.Count)
+            {
+                var notFoundIds = request.GenresIds.ToList().FindAll(x => !idsInPersistence.Contains(x));
+                var notFoundIdsAsString = string.Join(";", notFoundIds);
+                throw new RelatedAggregateException($"Related genre id or ids not found: '{notFoundIdsAsString}'");
             }
         }
     }
