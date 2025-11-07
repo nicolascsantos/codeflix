@@ -16,7 +16,8 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.CreateVideo
         Rating Rating,
         DateTime CreatedAt,
         IReadOnlyCollection<Guid> Categories,
-        IReadOnlyCollection<Guid> Genres
+        IReadOnlyCollection<Guid> Genres,
+        IReadOnlyCollection<Guid> CastMembers
     ) : IRequest<VideoModelOutput>
     {
         public static CreateVideoOutput FromVideo(DomainEntity.Video video)
@@ -30,6 +31,7 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.CreateVideo
                    video.Rating,
                    video.CreatedAt,
                    video.Categories,
-                   video.Genres);
+                   video.Genres,
+                   video.CastMembers);
     }
 }

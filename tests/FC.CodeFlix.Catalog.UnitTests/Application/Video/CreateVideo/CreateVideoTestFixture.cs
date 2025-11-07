@@ -8,7 +8,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
 
     public class CreateVideoTestFixture : VideoTestFixtureBase
     {
-        public CreateVideoInput GetValidInput(List<Guid>? categoriesIds = null, List<Guid>? genresIds = null)
+        public CreateVideoInput GetValidInput(List<Guid>? categoriesIds = null, List<Guid>? genresIds = null, List<Guid>? castMembersIds = null)
         => new CreateVideoInput
             (
                 GetValidTitle(),
@@ -19,7 +19,8 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
                 GetValidDuration(),
                 GetRandomRating(),
                 categoriesIds,
-                genresIds
+                genresIds,
+                castMembersIds
             );
     }
 }

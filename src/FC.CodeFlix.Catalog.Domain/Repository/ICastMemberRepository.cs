@@ -6,5 +6,8 @@ namespace FC.CodeFlix.Catalog.Domain.Repository
 {
     public interface ICastMemberRepository : IGenericRepository<CastMember>, ISearchableRepository<CastMember>
     {
+        public Task<IReadOnlyList<Guid>> GetIdsListByIds(List<Guid> list, CancellationToken cancellationToken);
+
+        public Task<IReadOnlyList<CastMember>> GetListByIds(List<Guid> list, CancellationToken cancellationToken);
     }
 }
