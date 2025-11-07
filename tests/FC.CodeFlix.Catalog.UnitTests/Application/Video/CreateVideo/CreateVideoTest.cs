@@ -239,5 +239,39 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
 
             genreRepositoryMock.VerifyAll();
         }
+
+        [Fact(DisplayName = nameof(ThrowsWhenGenreIdIsInvalid))]
+        [Trait("Application", "CreateVideo - Use Cases")]
+        public async Task ThrowsWhenGenreIdIsInvalid()
+        {
+            var idsExamples = Enumerable.Range(1, 5).Select(_ => Guid.NewGuid()).ToList();
+            var idToRemove = idsExamples[2];
+            var repositoryMock = new Mock<IVideoRepository>();
+            var unitOfWorkMock = new Mock<IUnitOfWork>();
+            var categoryRepositoryMock = new Mock<ICategoryRepository>();
+            var genreRepositoryMock = new Mock<IGenreRepository>();
+
+            genreRepositoryMock.Setup(x => x.GetIdsListByIds(It.IsAny<List<Guid>>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(idsExamples.FindAll(x => x != idToRemove));
+
+            var useCase = new UseCases.CreateVideo(
+                unitOfWorkMock.Object,
+                repositoryMock.Object,
+                categoryRepositoryMock.Object,
+                genreRepositoryMock.Object
+            );
+
+
+            var input = _fixture.GetValidInput(genresIds: idsExamples);
+
+            var action = async () => await useCase.Handle(input, CancellationToken.None);
+
+            await action.Should()
+                .ThrowAsync<RelatedAggregateException>($"Related genre id or ids not found: '{idToRemove}'");
+
+            genreRepositoryMock.VerifyAll();
+        }
+
+
     }
 }
