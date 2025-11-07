@@ -346,5 +346,39 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
 
             castMemberRepositoryMock.VerifyAll();
         }
+
+        [Fact(DisplayName = nameof(ThrowsWhenCastMemberIdIsInvalid))]
+        [Trait("Application", "CreateVideo - Use Cases")]
+        public async Task ThrowsWhenCastMemberIdIsInvalid()
+        {
+            var idsExamples = Enumerable.Range(1, 5).Select(_ => Guid.NewGuid()).ToList();
+            var idToRemove = idsExamples[2];
+            var repositoryMock = new Mock<IVideoRepository>();
+            var unitOfWorkMock = new Mock<IUnitOfWork>();
+            var categoryRepositoryMock = new Mock<ICategoryRepository>();
+            var genreRepositoryMock = new Mock<IGenreRepository>();
+            var castMemberRepositoryMock = new Mock<ICastMemberRepository>();
+
+            castMemberRepositoryMock.Setup(x => x.GetIdsListByIds(It.IsAny<List<Guid>>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(idsExamples.FindAll(x => x != idToRemove));
+
+            var useCase = new UseCases.CreateVideo(
+                unitOfWorkMock.Object,
+                repositoryMock.Object,
+                categoryRepositoryMock.Object,
+                genreRepositoryMock.Object,
+                castMemberRepositoryMock.Object
+            );
+
+
+            var input = _fixture.GetValidInput(castMembersIds: idsExamples);
+
+            var action = async () => await useCase.Handle(input, CancellationToken.None);
+
+            await action.Should()
+                .ThrowAsync<RelatedAggregateException>($"Related CastMember id or ids not found: '{idToRemove}'");
+
+            castMemberRepositoryMock.VerifyAll();
+        }
     }
 }
