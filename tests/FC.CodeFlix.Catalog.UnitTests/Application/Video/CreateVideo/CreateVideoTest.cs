@@ -26,12 +26,15 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
             var unitOfWorkMock = new Mock<IUnitOfWork>();
             var categoryRepositoryMock = new Mock<ICategoryRepository>();
             var genreRepositoryMock = new Mock<IGenreRepository>();
+            var castMemberRepositoryMock = new Mock<ICastMemberRepository>();
+
 
             var useCase = new UseCases.CreateVideo(
                 unitOfWorkMock.Object,
                 repositoryMock.Object,
                 categoryRepositoryMock.Object,
-                genreRepositoryMock.Object
+                genreRepositoryMock.Object,
+                castMemberRepositoryMock.Object
             );
 
             var input = _fixture.GetValidInput();
@@ -65,13 +68,15 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
             var unitOfWorkMock = new Mock<IUnitOfWork>();
             var categoryRepositoryMock = new Mock<ICategoryRepository>();
             var genreRepositoryMock = new Mock<IGenreRepository>();
+            var castMemberRepositoryMock = new Mock<ICastMemberRepository>();
 
 
             var useCase = new UseCases.CreateVideo(
                 unitOfWorkMock.Object,
                 repositoryMock.Object,
                 categoryRepositoryMock.Object,
-                genreRepositoryMock.Object
+                genreRepositoryMock.Object,
+                castMemberRepositoryMock.Object
             );
 
             var action = async () => await useCase.Handle(input, CancellationToken.None);
@@ -92,6 +97,8 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
             var unitOfWorkMock = new Mock<IUnitOfWork>();
             var categoryRepositoryMock = new Mock<ICategoryRepository>();
             var genreRepositoryMock = new Mock<IGenreRepository>();
+            var castMemberRepositoryMock = new Mock<ICastMemberRepository>();
+
 
             categoryRepositoryMock.Setup(x => x.GetIdsListByIds(It.IsAny<List<Guid>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync((List<Guid> ids, CancellationToken ct) => ids);
@@ -100,7 +107,8 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
                 unitOfWorkMock.Object,
                 repositoryMock.Object,
                 categoryRepositoryMock.Object,
-                genreRepositoryMock.Object
+                genreRepositoryMock.Object,
+                castMemberRepositoryMock.Object
             );
 
             var categoriesIdsExample = Enumerable.Range(1, 5).Select(_ => Guid.NewGuid()).ToList();
@@ -158,6 +166,8 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
             var unitOfWorkMock = new Mock<IUnitOfWork>();
             var categoryRepositoryMock = new Mock<ICategoryRepository>();
             var genreRepositoryMock = new Mock<IGenreRepository>();
+            var castMemberRepositoryMock = new Mock<ICastMemberRepository>();
+
 
             var categoriesIdsExample = Enumerable.Range(1, 5).Select(_ => Guid.NewGuid()).ToList();
             var categoryIdToRemove = categoriesIdsExample[2];
@@ -169,7 +179,8 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
                 unitOfWorkMock.Object,
                 repositoryMock.Object,
                 categoryRepositoryMock.Object,
-                genreRepositoryMock.Object
+                genreRepositoryMock.Object,
+                castMemberRepositoryMock.Object
             );
 
 
@@ -192,6 +203,8 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
             var unitOfWorkMock = new Mock<IUnitOfWork>();
             var categoryRepositoryMock = new Mock<ICategoryRepository>();
             var genreRepositoryMock = new Mock<IGenreRepository>();
+            var castMemberRepositoryMock = new Mock<ICastMemberRepository>();
+
             var idsExamples = Enumerable.Range(1, 5).Select(_ => Guid.NewGuid()).ToList();
 
             genreRepositoryMock.Setup(x => x.GetIdsListByIds(It.IsAny<List<Guid>>(), It.IsAny<CancellationToken>()))
@@ -201,7 +214,8 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
                 unitOfWorkMock.Object,
                 repositoryMock.Object,
                 categoryRepositoryMock.Object,
-                genreRepositoryMock.Object
+                genreRepositoryMock.Object,
+                castMemberRepositoryMock.Object
             );
 
 
@@ -250,6 +264,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
             var unitOfWorkMock = new Mock<IUnitOfWork>();
             var categoryRepositoryMock = new Mock<ICategoryRepository>();
             var genreRepositoryMock = new Mock<IGenreRepository>();
+            var castMemberRepositoryMock = new Mock<ICastMemberRepository>();
 
             genreRepositoryMock.Setup(x => x.GetIdsListByIds(It.IsAny<List<Guid>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(idsExamples.FindAll(x => x != idToRemove));
@@ -258,7 +273,8 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
                 unitOfWorkMock.Object,
                 repositoryMock.Object,
                 categoryRepositoryMock.Object,
-                genreRepositoryMock.Object
+                genreRepositoryMock.Object,
+                castMemberRepositoryMock.Object
             );
 
 
@@ -272,6 +288,63 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
             genreRepositoryMock.VerifyAll();
         }
 
+        [Fact(DisplayName = nameof(CreateVideoWithCastMemberIds))]
+        [Trait("Application", "CreateVideo - Use Cases")]
+        public async Task CreateVideoWithCastMemberIds()
+        {
+            var repositoryMock = new Mock<IVideoRepository>();
+            var unitOfWorkMock = new Mock<IUnitOfWork>();
+            var categoryRepositoryMock = new Mock<ICategoryRepository>();
+            var genreRepositoryMock = new Mock<IGenreRepository>();
+            var castMemberRepositoryMock = new Mock<ICastMemberRepository>();
+            var idsExamples = Enumerable.Range(1, 5).Select(_ => Guid.NewGuid()).ToList();
 
+            castMemberRepositoryMock.Setup(x => x.GetIdsListByIds(It.IsAny<List<Guid>>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(idsExamples);
+
+            var useCase = new UseCases.CreateVideo(
+                unitOfWorkMock.Object,
+                repositoryMock.Object,
+                categoryRepositoryMock.Object,
+                genreRepositoryMock.Object,
+                castMemberRepositoryMock.Object
+            );
+
+
+            var input = _fixture.GetValidInput(castMembersIds: idsExamples);
+
+            var output = await useCase.Handle(input, CancellationToken.None);
+
+            repositoryMock.Verify(x => x.Insert(It.Is<DomainEntity.Video>(
+                video => video.Opened == input.Opened &&
+                         video.Published == input.Published &&
+                         video.Title == input.Title &&
+                         video.Description == input.Description &&
+                         video.YearLaunched == input.YearLaunched &&
+                         video.Duration == input.Duration &&
+                         video.Rating == input.Rating &&
+                         video.CastMembers.All(genreId => idsExamples.Contains(genreId))
+                ),
+                It.IsAny<CancellationToken>())
+            );
+
+            unitOfWorkMock.Verify(x => x.Commit(It.IsAny<CancellationToken>()), Times.Once);
+
+            output.Should().NotBeNull();
+            output.Id.Should().NotBeEmpty();
+            output.Title.Should().Be(input.Title);
+            output.Description.Should().Be(input.Description);
+            output.YearLaunched.Should().Be(input.YearLaunched);
+            output.Opened.Should().Be(input.Opened);
+            output.Published.Should().Be(input.Published);
+            output.Duration.Should().Be(input.Duration);
+            output.Rating.Should().Be(input.Rating);
+            output.CreatedAt.Should().NotBeSameDateAs(default);
+            output.Categories.Should().BeEmpty();
+            output.Genres.Should().BeEmpty();
+            output.CastMembers.Should().BeEquivalentTo(idsExamples);
+
+            castMemberRepositoryMock.VerifyAll();
+        }
     }
 }
