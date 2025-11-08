@@ -29,6 +29,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
             var categoryRepositoryMock = new Mock<ICategoryRepository>();
             var genreRepositoryMock = new Mock<IGenreRepository>();
             var castMemberRepositoryMock = new Mock<ICastMemberRepository>();
+            var storageService = new Mock<IStorageService>();
 
 
             var useCase = new UseCases.CreateVideo(
@@ -36,7 +37,8 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
                 repositoryMock.Object,
                 categoryRepositoryMock.Object,
                 genreRepositoryMock.Object,
-                castMemberRepositoryMock.Object
+                castMemberRepositoryMock.Object,
+                storageService.Object
             );
 
             var input = _fixture.GetValidInput();
@@ -68,8 +70,9 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
             var repositoryMock = new Mock<IVideoRepository>();
             var unitOfWorkMock = new Mock<IUnitOfWork>();
             var storageService = new Mock<IStorageService>();
-            var thumbFileInput = new FileInput("jpg", new MemoryStream(Encoding.ASCII.GetBytes("test")));\
-            var expectedThumbName = $"{output.Id}-thumb{thumbFileInput.Extension}";
+            var streamExample = new MemoryStream(Encoding.ASCII.GetBytes("test"));
+            var thumbFileInput = new FileInput("jpg", streamExample);
+            var expectedThumbName = $"thumb.{thumbFileInput.Extension}";
 
             storageService.Setup(x => x.Upload(
                 It.IsAny<string>(),
@@ -87,7 +90,8 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
                 repositoryMock.Object,
                 categoryRepositoryMock.Object,
                 genreRepositoryMock.Object,
-                castMemberRepositoryMock.Object
+                castMemberRepositoryMock.Object,
+                storageService.Object
             );
 
             var input = _fixture.GetValidInput(
@@ -112,7 +116,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
             output.Duration.Should().Be(input.Duration);
             output.Rating.Should().Be(input.Rating);
             output.CreatedAt.Should().NotBeSameDateAs(default);
-            output.Thumb.Should().Be();
+            output.Thumb.Should().Be(expectedThumbName);
         }
 
         [Theory(DisplayName = nameof(CreateVideoThrowsWhenInputIsInvalid))]
@@ -125,14 +129,15 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
             var categoryRepositoryMock = new Mock<ICategoryRepository>();
             var genreRepositoryMock = new Mock<IGenreRepository>();
             var castMemberRepositoryMock = new Mock<ICastMemberRepository>();
-
+            var storageService = new Mock<IStorageService>();
 
             var useCase = new UseCases.CreateVideo(
                 unitOfWorkMock.Object,
                 repositoryMock.Object,
                 categoryRepositoryMock.Object,
                 genreRepositoryMock.Object,
-                castMemberRepositoryMock.Object
+                castMemberRepositoryMock.Object,
+                storageService.Object
             );
 
             var action = async () => await useCase.Handle(input, CancellationToken.None);
@@ -154,6 +159,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
             var categoryRepositoryMock = new Mock<ICategoryRepository>();
             var genreRepositoryMock = new Mock<IGenreRepository>();
             var castMemberRepositoryMock = new Mock<ICastMemberRepository>();
+            var storageService = new Mock<IStorageService>();
 
 
             categoryRepositoryMock.Setup(x => x.GetIdsListByIds(It.IsAny<List<Guid>>(), It.IsAny<CancellationToken>()))
@@ -164,7 +170,8 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
                 repositoryMock.Object,
                 categoryRepositoryMock.Object,
                 genreRepositoryMock.Object,
-                castMemberRepositoryMock.Object
+                castMemberRepositoryMock.Object,
+                storageService.Object
             );
 
             var categoriesIdsExample = Enumerable.Range(1, 5).Select(_ => Guid.NewGuid()).ToList();
@@ -223,6 +230,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
             var categoryRepositoryMock = new Mock<ICategoryRepository>();
             var genreRepositoryMock = new Mock<IGenreRepository>();
             var castMemberRepositoryMock = new Mock<ICastMemberRepository>();
+            var storageService = new Mock<IStorageService>();
 
 
             var categoriesIdsExample = Enumerable.Range(1, 5).Select(_ => Guid.NewGuid()).ToList();
@@ -236,7 +244,8 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
                 repositoryMock.Object,
                 categoryRepositoryMock.Object,
                 genreRepositoryMock.Object,
-                castMemberRepositoryMock.Object
+                castMemberRepositoryMock.Object,
+                storageService.Object
             );
 
 
@@ -260,6 +269,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
             var categoryRepositoryMock = new Mock<ICategoryRepository>();
             var genreRepositoryMock = new Mock<IGenreRepository>();
             var castMemberRepositoryMock = new Mock<ICastMemberRepository>();
+            var storageService = new Mock<IStorageService>();
 
             var idsExamples = Enumerable.Range(1, 5).Select(_ => Guid.NewGuid()).ToList();
 
@@ -271,7 +281,8 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
                 repositoryMock.Object,
                 categoryRepositoryMock.Object,
                 genreRepositoryMock.Object,
-                castMemberRepositoryMock.Object
+                castMemberRepositoryMock.Object,
+                storageService.Object
             );
 
 
@@ -321,6 +332,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
             var categoryRepositoryMock = new Mock<ICategoryRepository>();
             var genreRepositoryMock = new Mock<IGenreRepository>();
             var castMemberRepositoryMock = new Mock<ICastMemberRepository>();
+            var storageService = new Mock<IStorageService>();
 
             genreRepositoryMock.Setup(x => x.GetIdsListByIds(It.IsAny<List<Guid>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(idsExamples.FindAll(x => x != idToRemove));
@@ -330,7 +342,8 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
                 repositoryMock.Object,
                 categoryRepositoryMock.Object,
                 genreRepositoryMock.Object,
-                castMemberRepositoryMock.Object
+                castMemberRepositoryMock.Object,
+                storageService.Object
             );
 
 
@@ -353,6 +366,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
             var categoryRepositoryMock = new Mock<ICategoryRepository>();
             var genreRepositoryMock = new Mock<IGenreRepository>();
             var castMemberRepositoryMock = new Mock<ICastMemberRepository>();
+            var storageService = new Mock<IStorageService>();
             var idsExamples = Enumerable.Range(1, 5).Select(_ => Guid.NewGuid()).ToList();
 
             castMemberRepositoryMock.Setup(x => x.GetIdsListByIds(It.IsAny<List<Guid>>(), It.IsAny<CancellationToken>()))
@@ -363,7 +377,8 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
                 repositoryMock.Object,
                 categoryRepositoryMock.Object,
                 genreRepositoryMock.Object,
-                castMemberRepositoryMock.Object
+                castMemberRepositoryMock.Object,
+                storageService.Object
             );
 
 
@@ -414,6 +429,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
             var categoryRepositoryMock = new Mock<ICategoryRepository>();
             var genreRepositoryMock = new Mock<IGenreRepository>();
             var castMemberRepositoryMock = new Mock<ICastMemberRepository>();
+            var storageService = new Mock<IStorageService>();
 
             castMemberRepositoryMock.Setup(x => x.GetIdsListByIds(It.IsAny<List<Guid>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(idsExamples.FindAll(x => x != idToRemove));
@@ -423,7 +439,8 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
                 repositoryMock.Object,
                 categoryRepositoryMock.Object,
                 genreRepositoryMock.Object,
-                castMemberRepositoryMock.Object
+                castMemberRepositoryMock.Object,
+                storageService.Object
             );
 
 

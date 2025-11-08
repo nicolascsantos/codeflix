@@ -1,4 +1,5 @@
-﻿using FC.CodeFlix.Catalog.Domain.Enum;
+﻿using FC.CodeFlix.Catalog.Application.UseCases.Video.Common;
+using FC.CodeFlix.Catalog.Domain.Enum;
 using MediatR;
 
 namespace FC.CodeFlix.Catalog.Application.UseCases.Video.CreateVideo
@@ -14,6 +15,6 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.CreateVideo
         IReadOnlyCollection<Guid>? CategoriesIds = null,
         IReadOnlyCollection<Guid>? GenresIds = null,
         IReadOnlyCollection<Guid>? CastMembersIds = null,
-        FileInput? thumb = null
+        FileInput? Thumb = null
     ) : IRequest<CreateVideoOutput>;
 }

@@ -16,21 +16,24 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.CreateVideo
         private readonly ICategoryRepository _categoryRepository;
         private readonly IGenreRepository _genreRepository;
         private readonly ICastMemberRepository _castMemberRepository;
+        private readonly IStorageService _storageService;
 
         public CreateVideo(
             IUnitOfWork unitOfWork,
             IVideoRepository videoRepository,
             ICategoryRepository categoryRepository,
             IGenreRepository genreRepository,
-            ICastMemberRepository castMemberRepository
+            ICastMemberRepository castMemberRepository,
+            IStorageService storageService
         )
             => (
                 _unitOfWork,
                 _videoRepository,
                 _categoryRepository,
                 _genreRepository,
-                _castMemberRepository
-            ) = (unitOfWork, videoRepository, categoryRepository, genreRepository, castMemberRepository);
+                _castMemberRepository,
+                _storageService
+            ) = (unitOfWork, videoRepository, categoryRepository, genreRepository, castMemberRepository, storageService);
 
 
         public async Task<CreateVideoOutput> Handle(CreateVideoInput request, CancellationToken cancellationToken)
@@ -61,6 +64,13 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.CreateVideo
             {
                 request.CastMembersIds!.ToList().ForEach(video.AddCastMember);
                 await ValidateCastMembersIds(request, cancellationToken);
+            }
+
+            if (request.Thumb is not null)
+            {
+                var thumbUrl = await _storageService
+                    .Upload($"{video.Id}-thumb.{request.Thumb.Extension}", request.Thumb.FileStream, cancellationToken);
+                video.UpdateThumb(thumbUrl);
             }
 
 

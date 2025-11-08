@@ -1,4 +1,5 @@
-﻿using FC.CodeFlix.Catalog.Application.UseCases.Video.CreateVideo;
+﻿using FC.CodeFlix.Catalog.Application.UseCases.Video.Common;
+using FC.CodeFlix.Catalog.Application.UseCases.Video.CreateVideo;
 using FC.CodeFlix.Catalog.UnitTests.Common.Fixtures;
 
 namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
