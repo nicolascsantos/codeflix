@@ -48,24 +48,23 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.CreateVideo
                 request.Rating
             );
 
-            if ((request.CategoriesIds?.Count ?? 0) > 0)
-            {
-                request.CategoriesIds!.ToList().ForEach(video.AddCategory);
-                await ValidateCategoriesIds(request, cancellationToken);
-            }
+            await ValidateAndAddRelationships(request, video, cancellationToken);
+            await UploadMediaImages(request, video, cancellationToken);
 
-            if ((request.GenresIds?.ToList().Count ?? 0) > 0)
-            {
-                request.GenresIds!.ToList().ForEach(video.AddGenre);
-                await ValidateGenresIds(request, cancellationToken);
-            }
+            var validationHandler = new NotificationValidationHandler();
+            video.Validate(validationHandler);
+            if (validationHandler.HasErrors())
+                throw new EntityValidationException("There are validation errors", validationHandler.Errors);
 
-            if ((request.CastMembersIds?.ToList().Count ?? 0) > 0)
-            {
-                request.CastMembersIds!.ToList().ForEach(video.AddCastMember);
-                await ValidateCastMembersIds(request, cancellationToken);
-            }
 
+            await _videoRepository.Insert(video, cancellationToken);
+            await _unitOfWork.Commit(cancellationToken);
+
+            return CreateVideoOutput.FromVideo(video);
+        }
+
+        private async Task UploadMediaImages(CreateVideoInput request, DomainEntity.Video video, CancellationToken cancellationToken)
+        {
             if (request.Thumb is not null)
             {
                 var thumbUrl = await _storageService
@@ -86,19 +85,27 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.CreateVideo
                     .Upload($"{video.Id}-banner.{request.ThumbHalf.Extension}", request.ThumbHalf.FileStream, cancellationToken);
                 video.UpdateThumbHalf(thumbHalfUrl);
             }
+        }
 
-            var validationHandler = new NotificationValidationHandler();
+        private async Task ValidateAndAddRelationships(CreateVideoInput request, DomainEntity.Video video, CancellationToken cancellationToken)
+        {
+            if ((request.CategoriesIds?.Count ?? 0) > 0)
+            {
+                request.CategoriesIds!.ToList().ForEach(video.AddCategory);
+                await ValidateCategoriesIds(request, cancellationToken);
+            }
 
-            video.Validate(validationHandler);
+            if ((request.GenresIds?.ToList().Count ?? 0) > 0)
+            {
+                request.GenresIds!.ToList().ForEach(video.AddGenre);
+                await ValidateGenresIds(request, cancellationToken);
+            }
 
-            if (validationHandler.HasErrors())
-                throw new EntityValidationException("There are validation errors", validationHandler.Errors);
-
-
-            await _videoRepository.Insert(video, cancellationToken);
-            await _unitOfWork.Commit(cancellationToken);
-
-            return CreateVideoOutput.FromVideo(video);
+            if ((request.CastMembersIds?.ToList().Count ?? 0) > 0)
+            {
+                request.CastMembersIds!.ToList().ForEach(video.AddCastMember);
+                await ValidateCastMembersIds(request, cancellationToken);
+            }
         }
 
         private async Task ValidateCategoriesIds(CreateVideoInput request, CancellationToken cancellationToken)
