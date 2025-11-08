@@ -34,5 +34,23 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
                 banner,
                 thumbHalf
             );
+
+        public CreateVideoInput GetValidInputWithAllImages()
+            => new CreateVideoInput
+            (
+                GetValidTitle(),
+                GetValidDescription(),
+                GetValidYearLaunched(),
+                GetRandomBoolean(),
+                GetRandomBoolean(),
+                GetValidDuration(),
+                GetRandomRating(),
+                null,
+                null,
+                null,
+                GetValidImageFileInput(),
+                GetValidImageFileInput(),
+                GetValidImageFileInput()
+            );
     }
 }

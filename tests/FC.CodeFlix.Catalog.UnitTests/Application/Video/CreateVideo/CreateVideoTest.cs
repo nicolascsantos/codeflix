@@ -101,6 +101,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
             );
 
             unitOfWorkMock.Verify(x => x.Commit(It.IsAny<CancellationToken>()), Times.Once);
+            storageService.VerifyAll();
 
             output.Should().NotBeNull();
             output.Id.Should().NotBeEmpty();
@@ -155,6 +156,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
             );
 
             unitOfWorkMock.Verify(x => x.Commit(It.IsAny<CancellationToken>()), Times.Once);
+            storageService.VerifyAll();
 
             output.Should().NotBeNull();
             output.Id.Should().NotBeEmpty();
@@ -176,7 +178,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
             var repositoryMock = new Mock<IVideoRepository>();
             var unitOfWorkMock = new Mock<IUnitOfWork>();
             var storageService = new Mock<IStorageService>();
-            var expectedThumbHalfName = $"banner.jpg";
+            var expectedThumbHalfName = $"thumbhalf.jpg";
 
             storageService.Setup(x => x.Upload(
                 It.IsAny<string>(),
@@ -209,6 +211,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
             );
 
             unitOfWorkMock.Verify(x => x.Commit(It.IsAny<CancellationToken>()), Times.Once);
+            storageService.VerifyAll();
 
             output.Should().NotBeNull();
             output.Id.Should().NotBeEmpty();
@@ -220,6 +223,75 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
             output.Duration.Should().Be(input.Duration);
             output.Rating.Should().Be(input.Rating);
             output.CreatedAt.Should().NotBeSameDateAs(default);
+            output.ThumbHalf.Should().Be(expectedThumbHalfName);
+        }
+
+        [Fact(DisplayName = nameof(CreateVideoWithAllImages))]
+        [Trait("Application", "CreateVideo - Use Cases")]
+        public async Task CreateVideoWithAllImages()
+        {
+            var repositoryMock = new Mock<IVideoRepository>();
+            var unitOfWorkMock = new Mock<IUnitOfWork>();
+            var storageService = new Mock<IStorageService>();
+            var expectedBannerName = $"-banner.jpg";
+            var expectedThumbName = "-thumb.jpg";
+            var expectedThumbHalfName = "-thumbhalf.jpg";
+
+            storageService.Setup(x => x.Upload(
+                It.Is<string>(x => x.Contains("-banner")),
+                It.IsAny<Stream>(),
+                It.IsAny<CancellationToken>())
+            ).ReturnsAsync(expectedBannerName);
+
+            storageService.Setup(x => x.Upload(
+                It.Is<string>(x => x.Contains("-thumb")),
+                It.IsAny<Stream>(),
+                It.IsAny<CancellationToken>())
+            ).ReturnsAsync(expectedThumbName);
+
+            storageService.Setup(x => x.Upload(
+                It.Is<string>(x => x.Contains("-thumbhalf")),
+                It.IsAny<Stream>(),
+                It.IsAny<CancellationToken>())
+            ).ReturnsAsync(expectedThumbHalfName);
+
+            var categoryRepositoryMock = new Mock<ICategoryRepository>();
+            var genreRepositoryMock = new Mock<IGenreRepository>();
+            var castMemberRepositoryMock = new Mock<ICastMemberRepository>();
+
+
+            var useCase = new UseCases.CreateVideo(
+                unitOfWorkMock.Object,
+                repositoryMock.Object,
+                categoryRepositoryMock.Object,
+                genreRepositoryMock.Object,
+                castMemberRepositoryMock.Object,
+                storageService.Object
+            );
+
+            var input = _fixture.GetValidInputWithAllImages();
+
+            var output = await useCase.Handle(input, CancellationToken.None);
+
+            repositoryMock.Verify(x => x.Insert(It.IsAny<DomainEntity.Video>(),
+                It.IsAny<CancellationToken>())
+            );
+
+            unitOfWorkMock.Verify(x => x.Commit(It.IsAny<CancellationToken>()), Times.Once);
+            storageService.VerifyAll();
+
+            output.Should().NotBeNull();
+            output.Id.Should().NotBeEmpty();
+            output.Title.Should().Be(input.Title);
+            output.Description.Should().Be(input.Description);
+            output.YearLaunched.Should().Be(input.YearLaunched);
+            output.Opened.Should().Be(input.Opened);
+            output.Published.Should().Be(input.Published);
+            output.Duration.Should().Be(input.Duration);
+            output.Rating.Should().Be(input.Rating);
+            output.CreatedAt.Should().NotBeSameDateAs(default);
+            output.Banner.Should().Be(expectedBannerName);
+            output.Thumb.Should().Be(expectedThumbName);
             output.ThumbHalf.Should().Be(expectedThumbHalfName);
         }
 
