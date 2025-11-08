@@ -13,7 +13,8 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
             List<Guid>? categoriesIds = null,
             List<Guid>? genresIds = null,
             List<Guid>? castMembersIds = null,
-            FileInput? thumb = null
+            FileInput? thumb = null,
+            FileInput? banner = null
         )
         => new CreateVideoInput
             (
@@ -27,7 +28,8 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
                 categoriesIds,
                 genresIds,
                 castMembersIds,
-                thumb
+                thumb,
+                banner
             );
     }
 }

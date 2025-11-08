@@ -73,6 +73,13 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.CreateVideo
                 video.UpdateThumb(thumbUrl);
             }
 
+            if (request.Banner is not null)
+            {
+                var bannerUrl = await _storageService
+                    .Upload($"{video.Id}-banner.{request.Banner.Extension}", request.Banner.FileStream, cancellationToken);
+                video.UpdateBanner(bannerUrl);
+            }
+
 
             var validationHandler = new NotificationValidationHandler();
 

@@ -1,5 +1,7 @@
 ﻿using Bogus;
+using FC.CodeFlix.Catalog.Application.UseCases.Video.Common;
 using FC.CodeFlix.Catalog.Domain.Enum;
+using System.Text;
 using DomainEntity = FC.CodeFlix.Catalog.Domain.Entity;
 
 
@@ -61,5 +63,12 @@ namespace FC.CodeFlix.Catalog.UnitTests.Common.Fixtures
 
         public DomainEntity.Media GetValidMedia()
             => new(GetValidMediaPath());
+
+        public FileInput GetValidImageFileInput()
+        {
+            var streamExample = new MemoryStream(Encoding.ASCII.GetBytes("test"));
+            var thumbFileInput = new FileInput("jpg", streamExample);
+            return thumbFileInput;
+        }
     }
 }
