@@ -117,5 +117,10 @@ namespace FC.Codeflix.Catalog.Infra.Data.EF.Repositories
         {
             throw new NotImplementedException();
         }
+
+        Task<IReadOnlyList<Genre>> IGenreRepository.GetListByIds(List<Guid> list, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
