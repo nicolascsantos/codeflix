@@ -169,6 +169,60 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
             output.Banner.Should().Be(expectedBannerName);
         }
 
+        [Fact(DisplayName = nameof(CreateVideoWithThumbHalf))]
+        [Trait("Application", "CreateVideo - Use Cases")]
+        public async Task CreateVideoWithThumbHalf()
+        {
+            var repositoryMock = new Mock<IVideoRepository>();
+            var unitOfWorkMock = new Mock<IUnitOfWork>();
+            var storageService = new Mock<IStorageService>();
+            var expectedThumbHalfName = $"banner.jpg";
+
+            storageService.Setup(x => x.Upload(
+                It.IsAny<string>(),
+                It.IsAny<Stream>(),
+                It.IsAny<CancellationToken>())
+            ).ReturnsAsync(expectedThumbHalfName);
+
+            var categoryRepositoryMock = new Mock<ICategoryRepository>();
+            var genreRepositoryMock = new Mock<IGenreRepository>();
+            var castMemberRepositoryMock = new Mock<ICastMemberRepository>();
+
+
+            var useCase = new UseCases.CreateVideo(
+                unitOfWorkMock.Object,
+                repositoryMock.Object,
+                categoryRepositoryMock.Object,
+                genreRepositoryMock.Object,
+                castMemberRepositoryMock.Object,
+                storageService.Object
+            );
+
+            var input = _fixture.GetValidInput(
+                thumbHalf: _fixture.GetValidImageFileInput()
+            );
+
+            var output = await useCase.Handle(input, CancellationToken.None);
+
+            repositoryMock.Verify(x => x.Insert(It.IsAny<DomainEntity.Video>(),
+                It.IsAny<CancellationToken>())
+            );
+
+            unitOfWorkMock.Verify(x => x.Commit(It.IsAny<CancellationToken>()), Times.Once);
+
+            output.Should().NotBeNull();
+            output.Id.Should().NotBeEmpty();
+            output.Title.Should().Be(input.Title);
+            output.Description.Should().Be(input.Description);
+            output.YearLaunched.Should().Be(input.YearLaunched);
+            output.Opened.Should().Be(input.Opened);
+            output.Published.Should().Be(input.Published);
+            output.Duration.Should().Be(input.Duration);
+            output.Rating.Should().Be(input.Rating);
+            output.CreatedAt.Should().NotBeSameDateAs(default);
+            output.ThumbHalf.Should().Be(expectedThumbHalfName);
+        }
+
         [Theory(DisplayName = nameof(CreateVideoThrowsWhenInputIsInvalid))]
         [Trait("Application", "CreateVideo - Use Cases")]
         [MemberData(nameof(CreateVideoTestDataGenerator.GetInvalidInputs), parameters: 12, MemberType = typeof(CreateVideoTestDataGenerator))]

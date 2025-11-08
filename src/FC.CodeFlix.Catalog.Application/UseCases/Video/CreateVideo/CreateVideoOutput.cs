@@ -19,7 +19,8 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.CreateVideo
         IReadOnlyCollection<Guid> Genres,
         IReadOnlyCollection<Guid> CastMembers,
         string? Thumb,
-        string? Banner
+        string? Banner,
+        string? ThumbHalf
     ) : IRequest<VideoModelOutput>
     {
         public static CreateVideoOutput FromVideo(DomainEntity.Video video)
@@ -36,6 +37,7 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.CreateVideo
                    video.Genres,
                    video.CastMembers,
                    video.Thumb?.Path,
-                   video.Banner?.Path);
+                   video.Banner?.Path,
+                   video.ThumbHalf?.Path);
     }
 }
