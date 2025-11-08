@@ -13,6 +13,7 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.CreateVideo
         Rating Rating,
         IReadOnlyCollection<Guid>? CategoriesIds = null,
         IReadOnlyCollection<Guid>? GenresIds = null,
-        IReadOnlyCollection<Guid>? CastMembersIds = null
+        IReadOnlyCollection<Guid>? CastMembersIds = null,
+        FileInput? thumb = null
     ) : IRequest<CreateVideoOutput>;
 }
