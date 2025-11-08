@@ -80,6 +80,12 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.CreateVideo
                 video.UpdateBanner(bannerUrl);
             }
 
+            if (request.ThumbHalf is not null)
+            {
+                var thumbHalfUrl = await _storageService
+                    .Upload($"{video.Id}-banner.{request.ThumbHalf.Extension}", request.ThumbHalf.FileStream, cancellationToken);
+                video.UpdateThumbHalf(thumbHalfUrl);
+            }
 
             var validationHandler = new NotificationValidationHandler();
 
