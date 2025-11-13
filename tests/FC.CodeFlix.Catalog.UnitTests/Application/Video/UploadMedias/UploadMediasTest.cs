@@ -1,4 +1,5 @@
 ﻿using FC.CodeFlix.Catalog.Application.Common;
+using FC.CodeFlix.Catalog.Application.Exceptions;
 using FC.CodeFlix.Catalog.Application.Interfaces;
 using FC.CodeFlix.Catalog.Domain.Repository;
 using FluentAssertions;
@@ -63,6 +64,29 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.UploadMedias
                 , Times.Exactly(2)
             );
             _unitOfWorkMock.Verify(x => x.Commit(It.IsAny<CancellationToken>()));
+        }
+
+        [Fact(DisplayName = nameof(ThrowsWhenVideoNotFound))]
+        [Trait("Application", "UploadMedias - Use Cases")]
+        public async Task ThrowsWhenVideoNotFound()
+        {
+            var videoExample = _fixture.GetValidVideo();
+            var validInput = _fixture.GetValidUploadMediasInput(videoExample.Id);
+            List<string> fileNames = new()
+            {
+                StorageName.Create(videoExample.Id, nameof(videoExample.Media), validInput.VideoFile!.Extension),
+                StorageName.Create(videoExample.Id, nameof(videoExample.Trailer), validInput.TrailerFile!.Extension)
+            };
+
+            _videoRepositoryMock.Setup(x => x.Get(
+                It.Is<Guid>(x => x == videoExample.Id),
+                It.IsAny<CancellationToken>()
+            )).ThrowsAsync(new NotFoundException("Video not found."));
+
+            var action = async () => await _useCase.Handle(validInput, CancellationToken.None);  
+
+            await action.Should().ThrowAsync<NotFoundException>()
+                .WithMessage("Video not found.");
         }
     }
 }
