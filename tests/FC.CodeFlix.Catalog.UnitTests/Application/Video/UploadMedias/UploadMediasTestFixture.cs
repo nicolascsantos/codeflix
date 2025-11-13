@@ -1,4 +1,5 @@
 ﻿using FC.CodeFlix.Catalog.Application.Interfaces;
+using FC.CodeFlix.Catalog.Application.UseCases.Video.UploadMedias;
 using FC.CodeFlix.Catalog.Domain.Repository;
 using FC.CodeFlix.Catalog.UnitTests.Common.Fixtures;
 using Moq;
@@ -11,9 +12,9 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.UploadMedias
 
     public class UploadMediasTestFixture : VideoTestFixtureBase
     {
-        public UploadMediasInput GetValidUploadMediasInput()
+        public UploadMediasInput GetValidUploadMediasInput(Guid? videoId = null)
             => new(
-                Guid.NewGuid(),
+                videoId ?? Guid.NewGuid(),
                 GetValidMediaFileInput(),
                 GetValidMediaFileInput()
             );

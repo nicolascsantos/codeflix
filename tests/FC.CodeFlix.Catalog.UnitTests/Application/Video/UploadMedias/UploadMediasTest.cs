@@ -1,4 +1,5 @@
-﻿using FC.CodeFlix.Catalog.Application.Interfaces;
+﻿using FC.CodeFlix.Catalog.Application.Common;
+using FC.CodeFlix.Catalog.Application.Interfaces;
 using FC.CodeFlix.Catalog.Domain.Repository;
 using FluentAssertions;
 using Moq;
@@ -33,9 +34,15 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.UploadMedias
         public async Task UploadMedias()
         {
             var videoExample = _fixture.GetValidVideo();
+            var validInput = _fixture.GetValidUploadMediasInput(videoExample.Id);
+            List<string> fileNames = new()
+            {
+                StorageName.Create(videoExample.Id, nameof(videoExample.Media), validInput.VideoFile!.Extension),
+                StorageName.Create(videoExample.Id, nameof(videoExample.Trailer), validInput.TrailerFile!.Extension)
+            }; 
 
             _videoRepositoryMock.Setup(x => x.Get(
-                It.IsAny<Guid>(),
+                It.Is<Guid>(x => x == videoExample.Id),
                 It.IsAny<CancellationToken>()
             )).ReturnsAsync(videoExample);
 
@@ -45,13 +52,12 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.UploadMedias
                 It.IsAny<CancellationToken>()
             )).ReturnsAsync(Guid.NewGuid().ToString());
 
-            var output = await _useCase.Handle(_fixture.GetValidImageFileInput(), CancellationToken.None);
+            await _useCase.Handle(validInput, CancellationToken.None);
 
-            output.Should().NotBeNull();
 
             _videoRepositoryMock.VerifyAll();
             _storageServiceMock.Verify(x => x.Upload(
-                It.IsAny<string>(),
+                It.Is<string>(x => fileNames.Contains(x)),
                 It.IsAny<Stream>(),
                 It.IsAny<CancellationToken>())
                 , Times.Exactly(2)
