@@ -70,5 +70,12 @@ namespace FC.CodeFlix.Catalog.UnitTests.Common.Fixtures
             var thumbFileInput = new FileInput("jpg", streamExample);
             return thumbFileInput;
         }
+
+        public FileInput GetValidMediaFileInput()
+        {
+            var streamExample = new MemoryStream(Encoding.ASCII.GetBytes("test"));
+            var thumbFileInput = new FileInput("mp4", streamExample);
+            return thumbFileInput;
+        }
     }
 }
