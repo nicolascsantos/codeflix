@@ -1,4 +1,5 @@
 ﻿
+using FC.CodeFlix.Catalog.Application.Common;
 using FC.CodeFlix.Catalog.Application.Exceptions;
 using FC.CodeFlix.Catalog.Application.Interfaces;
 using FC.CodeFlix.Catalog.Domain.Exceptions;
@@ -57,6 +58,7 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.CreateVideo
 
             try
             {
+                await UploadMediaVideos(request, video, cancellationToken);
                 await UploadMediaImages(request, video, cancellationToken);
                 await _videoRepository.Insert(video, cancellationToken);
                 await _unitOfWork.Commit(cancellationToken);
@@ -67,6 +69,23 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.CreateVideo
             {
                 await ClearStorage(video, cancellationToken);
                 throw;
+            }
+        }
+
+        private async Task UploadMediaVideos(CreateVideoInput request, DomainEntity.Video video, CancellationToken cancellationToken)
+        {
+            if (request.Media is not null)
+            {
+                var fileName = StorageName.Create(video.Id, nameof(video.Media), request.Media.Extension);
+                var mediaUrl = await _storageService.Upload(fileName, request.Media.FileStream, cancellationToken);
+                video.UpdateMedia(mediaUrl);
+            }
+
+            if (request.Trailer is not null)
+            {
+                var fileName = StorageName.Create(video.Id, nameof(video.Trailer), request.Trailer.Extension);
+                var mediaUrl = await _storageService.Upload(fileName, request.Trailer.FileStream, cancellationToken);
+                video.UpdateTrailer(mediaUrl);
             }
         }
 

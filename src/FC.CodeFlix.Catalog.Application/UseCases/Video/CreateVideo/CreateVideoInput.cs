@@ -17,6 +17,8 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.CreateVideo
         IReadOnlyCollection<Guid>? CastMembersIds = null,
         FileInput? Thumb = null,
         FileInput? Banner = null,
-        FileInput? ThumbHalf = null
+        FileInput? ThumbHalf = null,
+        FileInput? Media = null,
+        FileInput? Trailer = null
     ) : IRequest<CreateVideoOutput>;
 }

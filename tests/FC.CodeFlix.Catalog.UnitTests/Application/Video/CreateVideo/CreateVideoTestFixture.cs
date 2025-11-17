@@ -15,7 +15,9 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
             List<Guid>? castMembersIds = null,
             FileInput? thumb = null,
             FileInput? banner = null,
-            FileInput? thumbHalf = null
+            FileInput? thumbHalf = null,
+            FileInput? media = null,
+            FileInput? trailer = null
 
         )
         => new CreateVideoInput
@@ -32,7 +34,9 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
                 castMembersIds,
                 thumb,
                 banner,
-                thumbHalf
+                thumbHalf,
+                media,
+                trailer
             );
 
         public CreateVideoInput GetValidInputWithAllImages()
@@ -48,6 +52,8 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
                 null,
                 null,
                 null,
+                GetValidImageFileInput(),
+                GetValidImageFileInput(),
                 GetValidImageFileInput(),
                 GetValidImageFileInput(),
                 GetValidImageFileInput()
