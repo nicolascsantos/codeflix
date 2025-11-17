@@ -2,6 +2,7 @@
 using FC.CodeFlix.Catalog.Application.Common;
 using FC.CodeFlix.Catalog.Application.Interfaces;
 using FC.CodeFlix.Catalog.Domain.Repository;
+using MediatR;
 
 namespace FC.CodeFlix.Catalog.Application.UseCases.Video.UploadMedias
 {
@@ -18,16 +19,36 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.UploadMedias
             _storageService = storageService;
         }
 
-        public async Task Handle(UploadMediasInput request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(UploadMediasInput request, CancellationToken cancellationToken)
         {
             var video = await _videoRepository
                 .Get(request.VideoId, cancellationToken);
 
-            await UploadVideo(request, video, cancellationToken);
-            await UploadTrailer(request, video, cancellationToken);
+            try
+            {
+                await UploadVideo(request, video, cancellationToken);
+                await UploadTrailer(request, video, cancellationToken);
 
-            await _videoRepository.Update(video, cancellationToken);
-            await _unitOfWork.Commit(cancellationToken);
+                await _videoRepository.Update(video, cancellationToken);
+                await _unitOfWork.Commit(cancellationToken);
+                return Unit.Value;
+            }
+            catch (Exception)
+            {
+                await ClearStorage(request, video, cancellationToken);
+                throw;
+            }
+        }
+
+        private async Task ClearStorage(UploadMediasInput request, Domain.Entity.Video video, CancellationToken cancellationToken)
+        {
+            if (request.VideoFile is not null && video.Media is not null)
+                await _storageService
+                    .Delete(video.Media.FilePath, cancellationToken);
+
+            if (request.TrailerFile is not null && video.Trailer is not null)
+                await _storageService
+                    .Delete(video.Trailer.FilePath, cancellationToken);
         }
 
         private async Task UploadTrailer(UploadMediasInput request, Domain.Entity.Video video, CancellationToken cancellationToken)
@@ -36,7 +57,7 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.UploadMedias
             {
                 var mediaFileName = StorageName.Create(
                     video.Id,
-                    nameof(video.Media),
+                    nameof(video.Trailer),
                     request.TrailerFile.Extension
                 );
                 var uploadedFilePath = await _storageService

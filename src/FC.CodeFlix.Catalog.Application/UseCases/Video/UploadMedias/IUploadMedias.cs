@@ -2,7 +2,7 @@
 
 namespace FC.CodeFlix.Catalog.Application.UseCases.Video.UploadMedias
 {
-    public interface IUploadMedias : IRequestHandler<UploadMediasInput>
+    public interface IUploadMedias : IRequestHandler<UploadMediasInput, Unit>
     {
     }
 }
