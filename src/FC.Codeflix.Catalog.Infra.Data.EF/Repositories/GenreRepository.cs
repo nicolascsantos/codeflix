@@ -35,7 +35,7 @@ namespace FC.Codeflix.Catalog.Infra.Data.EF.Repositories
             var categoriesId = await _genresCategories.Where(x => x.GenreId == id)
                 .Select(x => x.CategoryId)
                 .ToListAsync(cancellationToken);
-            categoriesId.ForEach(genre.AddCategory);
+            categoriesId.ForEach(genre!.AddCategory);
             return genre ?? throw new NotFoundException($"Genre '{id}' not found.");
         }
 
