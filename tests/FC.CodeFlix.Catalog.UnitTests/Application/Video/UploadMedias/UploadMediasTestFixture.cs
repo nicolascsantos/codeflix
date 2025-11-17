@@ -12,11 +12,15 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.UploadMedias
 
     public class UploadMediasTestFixture : VideoTestFixtureBase
     {
-        public UploadMediasInput GetValidUploadMediasInput(Guid? videoId = null)
+        public UploadMediasInput GetValidUploadMediasInput(
+            Guid? videoId = null,
+            bool withVideoFile = true,
+            bool withTrailerFile = true
+        )
             => new(
                 videoId ?? Guid.NewGuid(),
-                GetValidMediaFileInput(),
-                GetValidMediaFileInput()
+                withVideoFile ? GetValidMediaFileInput() : null,
+                withTrailerFile ? GetValidMediaFileInput() : null
             );
 
         public UseCases.UploadMedias CreateUseCase()
