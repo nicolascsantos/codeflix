@@ -25,7 +25,7 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.Common
         string? Trailer
     )
     {
-        public static GetVideoOutput FromVideo(DomainEntity.Video video)
+        public static VideoModelOutput FromVideo(DomainEntity.Video video)
             => new(
                 video.Id,
                 video.Title,
