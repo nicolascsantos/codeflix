@@ -12,6 +12,36 @@ namespace FC.CodeFlix.Catalog.UnitTests.Common.Fixtures
         public DomainEntity.Video GetValidVideo()
             => new(GetValidTitle(), GetValidDescription(), GetValidYearLaunched(), true, true, GetValidDuration(), GetRandomRating());
 
+        public DomainEntity.Video GetValidVideoWithAllProperties()
+        {
+            var video = new DomainEntity.Video(
+                GetValidTitle(),
+                GetValidDescription(),
+                GetValidYearLaunched(),
+                GetRandomBoolean(),
+                GetRandomBoolean(),
+                GetValidDuration(),
+                GetRandomRating()
+            );
+            video.UpdateThumb(GetValidImagePath());
+            video.UpdateThumbHalf(GetValidImagePath());
+            video.UpdateBanner(GetValidImagePath());
+            video.UpdateMedia(GetValidImagePath());
+            video.UpdateTrailer(GetValidImagePath());
+
+            var random = new Random();
+            Enumerable.Range(1, random.Next(2, 5))
+                .ToList().ForEach(_ => video.AddCastMember(Guid.NewGuid()));
+
+            Enumerable.Range(1, random.Next(2, 5))
+                .ToList().ForEach(_ => video.AddCategory(Guid.NewGuid()));
+
+            Enumerable.Range(1, random.Next(2, 5))
+                .ToList().ForEach(_ => video.AddGenre(Guid.NewGuid()));
+
+            return video;
+        }
+
         public Rating GetRandomRating()
         {
             var enumValues = Enum.GetValues<Rating>();
