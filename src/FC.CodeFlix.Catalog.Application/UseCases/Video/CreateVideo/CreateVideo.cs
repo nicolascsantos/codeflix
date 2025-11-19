@@ -2,6 +2,7 @@
 using FC.CodeFlix.Catalog.Application.Common;
 using FC.CodeFlix.Catalog.Application.Exceptions;
 using FC.CodeFlix.Catalog.Application.Interfaces;
+using FC.CodeFlix.Catalog.Application.UseCases.Video.Common;
 using FC.CodeFlix.Catalog.Domain.Exceptions;
 using FC.CodeFlix.Catalog.Domain.Repository;
 using FC.CodeFlix.Catalog.Domain.Validation;
@@ -37,7 +38,7 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.CreateVideo
             ) = (unitOfWork, videoRepository, categoryRepository, genreRepository, castMemberRepository, storageService);
 
 
-        public async Task<CreateVideoOutput> Handle(CreateVideoInput request, CancellationToken cancellationToken)
+        public async Task<VideoModelOutput> Handle(CreateVideoInput request, CancellationToken cancellationToken)
         {
             var video = new DomainEntity.Video(
                 request.Title,
