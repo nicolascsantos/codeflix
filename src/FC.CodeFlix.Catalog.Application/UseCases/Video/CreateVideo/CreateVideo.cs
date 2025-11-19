@@ -64,7 +64,7 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.CreateVideo
                 await _videoRepository.Insert(video, cancellationToken);
                 await _unitOfWork.Commit(cancellationToken);
 
-                return CreateVideoOutput.FromVideo(video);
+                return VideoModelOutput.FromVideo(video);
             }
             catch (Exception)
             {
