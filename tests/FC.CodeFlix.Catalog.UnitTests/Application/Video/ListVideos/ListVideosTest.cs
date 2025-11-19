@@ -16,13 +16,18 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.ListVideos
     {
         private readonly ListVideosTestFixture _fixture;
         private readonly Mock<IVideoRepository> _videoRepositoryMock;
+        private readonly Mock<ICategoryRepository> _categoryRepositoryMock;
         private readonly UseCases.ListVideos _useCase;
 
         public ListVideosTest(ListVideosTestFixture fixture)
         {
             _fixture = fixture;
             _videoRepositoryMock = new Mock<IVideoRepository>();
-            _useCase = new UseCases.ListVideos(_videoRepositoryMock.Object);
+            _categoryRepositoryMock = new Mock<ICategoryRepository>();
+            _useCase = new UseCases.ListVideos(
+                _videoRepositoryMock.Object,
+                _categoryRepositoryMock.Object
+            );
         }
 
         [Fact(DisplayName = nameof(ListVideos))]
@@ -83,8 +88,15 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.ListVideos
         [Trait("Application", "ListVideos - Use Cases")]
         public async Task ListVideosWithRelations()
         {
-            var videosExampleList = _fixture.GetVideosExamplesList();
+            var (examplesVideosList, exampleCategories) = _fixture.GetVideosExamplesListWithRelations();
             var input = new ListVideosInput(1, 10, "", "", SearchOrder.Asc);
+
+            _categoryRepositoryMock.Setup(x => x.GetListByIds(
+                It.Is<List<Guid>>(list => list.Equals(
+                    exampleCategories.Select(category => category.Id).ToList()
+                )),
+                It.IsAny<CancellationToken>()
+            )).ReturnsAsync(exampleCategories);
 
             _videoRepositoryMock.Setup(x => x.Search(
                 It.Is<SearchInput>(x =>
@@ -97,8 +109,8 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.ListVideos
             )).ReturnsAsync(new SearchOutput<Catalog.Domain.Entity.Video>(
                 input.Page,
                 input.PerPage,
-                videosExampleList.Count,
-                videosExampleList)
+                examplesVideosList.Count,
+                examplesVideosList)
             );
 
             PaginatedListOutput<VideoModelOutput> output = await _useCase.Handle(input, CancellationToken.None);
@@ -106,11 +118,11 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.ListVideos
             output.Should().NotBeNull();
             output.Page.Should().Be(input.Page);
             output.PerPage.Should().Be(input.PerPage);
-            output.Items.Should().HaveCount(videosExampleList.Count);
-            output.Total.Should().Be(videosExampleList.Count);
+            output.Items.Should().HaveCount(examplesVideosList.Count);
+            output.Total.Should().Be(examplesVideosList.Count);
             output.Items.ToList().ForEach(outputItem =>
             {
-                var videoExample = videosExampleList.Find(x => x.Id == outputItem.Id);
+                var videoExample = examplesVideosList.Find(x => x.Id == outputItem.Id);
                 videoExample!.Should().NotBeNull();
                 outputItem.Id.Should().Be(videoExample.Id);
                 outputItem.Title.Should().Be(videoExample!.Title);
@@ -129,9 +141,12 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.ListVideos
                 outputItem.CastMembersIds.Should().BeEquivalentTo(videoExample.CastMembers);
                 outputItem.GenresIds.Should().BeEquivalentTo(videoExample.Genres);
                 outputItem.CategoriesIds.Should().BeEquivalentTo(videoExample.Categories);
-
-                List<Guid> outputCategoriesIds =  outputItem.Categories
-                    .Select(categoryDto => categoryDto.Id).ToList();
+                outputItem.Categories.ToList().ForEach(relation =>
+                {
+                    var exampleCategory = exampleCategories.Find(category => category.Id == relation.Id);
+                    exampleCategories.Should().NotBeNull();
+                    relation.Name.Should().Be(exampleCategory?.Name);
+                });
                 outputCategoriesIds.Should().BeEquivalentTo(videoExample.Categories);
 
                 List<Guid> outputGenresIds = outputItem.Genres

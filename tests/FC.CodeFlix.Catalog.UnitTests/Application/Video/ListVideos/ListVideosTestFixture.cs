@@ -12,6 +12,54 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.ListVideos
             => Enumerable.Range(1, Random.Shared.Next(2, length))
             .Select(_ => GetValidVideoWithAllProperties())
             .ToList();
-        
+
+        internal (List<DomainEntity.Video> Videos, List<DomainEntity.Category> Categories) GetVideosExamplesListWithRelations()
+        {
+            var itemsToBeCreated = Random.Shared.Next(2, 10);
+            List <DomainEntity.Category> categories = new();
+            var videos = Enumerable.Range(1, itemsToBeCreated)
+            .Select(_ => GetValidVideoWithAllProperties())
+            .ToList();
+
+            videos.ForEach(video =>
+            {
+                video.RemoveAllCategories();
+                var categoriesAmount = Random.Shared.Next(2, 5);
+                for (int i = 0; i < categoriesAmount; i++)
+                {
+                    var category = GetExampleCategory();
+                    categories.Add(category);
+                    video.AddCategory(category.Id);
+                }
+            });
+
+            return (videos, categories);
+        }
+
+        public string GetValidCategoryName()
+        {
+            var categoryName = "";
+            while (categoryName.Length < 3)
+                categoryName = Faker.Commerce.Categories(1)[0];
+            if (categoryName.Length > 255)
+                categoryName = categoryName[..255];
+            return categoryName;
+        }
+
+        public string GetValidCategoryDescription()
+        {
+            var categoryDescription = Faker.Commerce.ProductDescription();
+            while (categoryDescription.Length > 10_000)
+                categoryDescription = categoryDescription[..10_000];
+            return categoryDescription;
+        }
+
+
+        public DomainEntity.Category GetExampleCategory()
+            => new(
+                GetValidCategoryName(),
+                GetValidCategoryDescription(),
+                GetRandomBoolean()
+            );
     }
 }
