@@ -1,4 +1,5 @@
-﻿using FC.CodeFlix.Catalog.Domain.Repository;
+﻿using FC.CodeFlix.Catalog.Application.Exceptions;
+using FC.CodeFlix.Catalog.Domain.Repository;
 using FluentAssertions;
 using Moq;
 using UseCases = FC.CodeFlix.Catalog.Application.UseCases.Video.GetVideo;
@@ -43,6 +44,28 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.GetVideo
             output.Duration.Should().Be(videoExample.Duration);
             output.CreatedAt.Should().Be(videoExample.CreatedAt);
             output.Rating.Should().Be(videoExample.Rating);
+            _videoRepositoryMock.VerifyAll();
+        }
+
+        [Fact(DisplayName = nameof(ThrowsWhenVideoNotFound))]
+        [Trait("Application", "GetVideo - Use Cases")]
+        public async Task ThrowsWhenVideoNotFound()
+        {
+            var videoExample = _fixture.GetValidVideo();
+
+            _videoRepositoryMock.Setup(x => x.Get(
+                It.Is<Guid>(x => x == videoExample.Id),
+                It.IsAny<CancellationToken>()
+            )).ThrowsAsync(new NotFoundException($"Video '{videoExample.Id}' not found."));
+
+            var input = new UseCases.GetVideoInput(videoExample.Id);
+            var action = async () => await _useCase.Handle(input, CancellationToken.None);
+
+            await action
+                .Should()
+                .ThrowAsync<NotFoundException>()
+                .WithMessage($"Video '{videoExample.Id}' not found.");
+             
             _videoRepositoryMock.VerifyAll();
         }
     }
