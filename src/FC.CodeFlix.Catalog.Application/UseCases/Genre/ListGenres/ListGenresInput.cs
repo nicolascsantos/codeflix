@@ -1,5 +1,4 @@
 ﻿using FC.CodeFlix.Catalog.Application.Common;
-using FC.CodeFlix.Catalog.Application.UseCases.Category.ListCategories;
 using FC.CodeFlix.Catalog.Domain.SeedWork.SearchableRepository;
 using MediatR;
 
