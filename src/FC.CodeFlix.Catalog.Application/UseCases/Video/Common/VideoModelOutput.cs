@@ -1,7 +1,5 @@
-﻿using FC.CodeFlix.Catalog.Application.UseCases.Video.GetVideo;
-using FC.CodeFlix.Catalog.Domain.Enum;
+﻿using FC.CodeFlix.Catalog.Domain.Extensions;
 using DomainEntity = FC.CodeFlix.Catalog.Domain.Entity;
-
 
 namespace FC.CodeFlix.Catalog.Application.UseCases.Video.Common
 {
@@ -13,16 +11,19 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.Common
         bool Opened,
         bool Published,
         int Duration,
-        Rating Rating,
+        string Rating,
         DateTime CreatedAt,
-        IReadOnlyCollection<Guid> Categories,
-        IReadOnlyCollection<Guid> Genres,
-        IReadOnlyCollection<Guid> CastMembers,
-        string? Thumb,
-        string? Banner,
-        string? ThumbHalf,
-        string? Media,
-        string? Trailer
+        IReadOnlyCollection<Guid> CategoriesIds,
+        IReadOnlyCollection<Guid> GenresIds,
+        IReadOnlyCollection<Guid> CastMembersIds,
+        IReadOnlyCollection<VideoModelOutputRelatedAggregate> Categories,
+        IReadOnlyCollection<VideoModelOutputRelatedAggregate> Genres,
+        IReadOnlyCollection<VideoModelOutputRelatedAggregate> CastMembers,
+        string? ThumbFileUrl,
+        string? BannerFileUrl,
+        string? ThumbHalfFileUrl,
+        string? VideoFileUrl,
+        string? TrailerFileUrl
     )
     {
         public static VideoModelOutput FromVideo(DomainEntity.Video video)
@@ -34,11 +35,14 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.Common
                 video.Opened,
                 video.Published,
                 video.Duration,
-                video.Rating,
+                video.Rating.ToStringSignal(),
                 video.CreatedAt,
                 video.Categories,
                 video.Genres,
                 video.CastMembers,
+                video.Categories.Select(id => new VideoModelOutputRelatedAggregate(id)).ToList(),
+                video.Genres.Select(id => new VideoModelOutputRelatedAggregate(id)).ToList(),
+                video.CastMembers.Select(id => new VideoModelOutputRelatedAggregate(id)).ToList(),
                 video.Thumb?.Path,
                 video.Banner?.Path,
                 video.ThumbHalf?.Path,
@@ -46,4 +50,6 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.Common
                 video.Trailer?.FilePath
             );
     };
+
+    public record VideoModelOutputRelatedAggregate(Guid Id, string? Name = null);
 }

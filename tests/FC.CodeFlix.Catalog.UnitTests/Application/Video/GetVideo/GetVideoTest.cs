@@ -1,4 +1,5 @@
 ﻿using FC.CodeFlix.Catalog.Application.Exceptions;
+using FC.CodeFlix.Catalog.Domain.Extensions;
 using FC.CodeFlix.Catalog.Domain.Repository;
 using FluentAssertions;
 using Moq;
@@ -43,7 +44,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.GetVideo
             output.Published.Should().Be(videoExample.Published);
             output.Duration.Should().Be(videoExample.Duration);
             output.CreatedAt.Should().Be(videoExample.CreatedAt);
-            output.Rating.Should().Be(videoExample.Rating);
+            output.Rating.Should().Be(videoExample.Rating.ToStringSignal());
             _videoRepositoryMock.VerifyAll();
         }
 
@@ -92,15 +93,15 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.GetVideo
             output.Published.Should().Be(videoExample.Published);
             output.Duration.Should().Be(videoExample.Duration);
             output.CreatedAt.Should().Be(videoExample.CreatedAt);
-            output.Rating.Should().Be(videoExample.Rating);
-            output.Thumb.Should().Be(videoExample.Thumb!.Path); 
-            output.ThumbHalf.Should().Be(videoExample.ThumbHalf!.Path); 
-            output.Banner.Should().Be(videoExample.Banner!.Path);
-            output.Media.Should().Be(videoExample.Media!.FilePath);
-            output.Trailer.Should().Be(videoExample.Trailer!.FilePath);
-            output.CastMembers.Should().BeEquivalentTo(videoExample.CastMembers);
-            output.Categories.Should().BeEquivalentTo(videoExample.Categories);
-            output.Genres.Should().BeEquivalentTo(videoExample.Genres);
+            output.Rating.Should().Be(videoExample.Rating.ToStringSignal());
+            output.ThumbFileUrl.Should().Be(videoExample.Thumb!.Path); 
+            output.ThumbHalfFileUrl.Should().Be(videoExample.ThumbHalf!.Path); 
+            output.BannerFileUrl.Should().Be(videoExample.Banner!.Path);
+            output.VideoFileUrl.Should().Be(videoExample.Media!.FilePath);
+            output.TrailerFileUrl.Should().Be(videoExample.Trailer!.FilePath);
+            output.CastMembersIds.Should().BeEquivalentTo(videoExample.CastMembers);
+            output.CategoriesIds.Should().BeEquivalentTo(videoExample.Categories);
+            output.GenresIds.Should().BeEquivalentTo(videoExample.Genres);
             _videoRepositoryMock.VerifyAll();
         }
     }

@@ -1,8 +1,8 @@
-﻿using FC.CodeFlix.Catalog.Application.Common;
-using FC.CodeFlix.Catalog.Application.Exceptions;
+﻿using FC.CodeFlix.Catalog.Application.Exceptions;
 using FC.CodeFlix.Catalog.Application.Interfaces;
 using FC.CodeFlix.Catalog.Application.UseCases.Video.CreateVideo;
 using FC.CodeFlix.Catalog.Domain.Exceptions;
+using FC.CodeFlix.Catalog.Domain.Extensions;
 using FC.CodeFlix.Catalog.Domain.Repository;
 using FluentAssertions;
 using Moq;
@@ -58,7 +58,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
             output.Opened.Should().Be(input.Opened);
             output.Published.Should().Be(input.Published);
             output.Duration.Should().Be(input.Duration);
-            output.Rating.Should().Be(input.Rating);
+            output.Rating.Should().Be(input.Rating.ToStringSignal());
             output.CreatedAt.Should().NotBeSameDateAs(default);
         }
 
@@ -112,9 +112,9 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
             output.Opened.Should().Be(input.Opened);
             output.Published.Should().Be(input.Published);
             output.Duration.Should().Be(input.Duration);
-            output.Rating.Should().Be(input.Rating);
+            output.Rating.Should().Be(input.Rating.ToStringSignal());
             output.CreatedAt.Should().NotBeSameDateAs(default);
-            output.Thumb.Should().Be(expectedThumbName);
+            output.ThumbFileUrl.Should().Be(expectedThumbName);
         }
 
         [Fact(DisplayName = nameof(CreateVideoWithBanner))]
@@ -167,9 +167,9 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
             output.Opened.Should().Be(input.Opened);
             output.Published.Should().Be(input.Published);
             output.Duration.Should().Be(input.Duration);
-            output.Rating.Should().Be(input.Rating);
+            output.Rating.Should().Be(input.Rating.ToStringSignal());
             output.CreatedAt.Should().NotBeSameDateAs(default);
-            output.Banner.Should().Be(expectedBannerName);
+            output.BannerFileUrl.Should().Be(expectedBannerName);
         }
 
         [Fact(DisplayName = nameof(CreateVideoWithThumbHalf))]
@@ -222,9 +222,9 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
             output.Opened.Should().Be(input.Opened);
             output.Published.Should().Be(input.Published);
             output.Duration.Should().Be(input.Duration);
-            output.Rating.Should().Be(input.Rating);
+            output.Rating.Should().Be(input.Rating.ToStringSignal());
             output.CreatedAt.Should().NotBeSameDateAs(default);
-            output.ThumbHalf.Should().Be(expectedThumbHalfName);
+            output.ThumbHalfFileUrl.Should().Be(expectedThumbHalfName);
         }
 
         [Fact(DisplayName = nameof(CreateVideoWithAllImages))]
@@ -289,11 +289,11 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
             output.Opened.Should().Be(input.Opened);
             output.Published.Should().Be(input.Published);
             output.Duration.Should().Be(input.Duration);
-            output.Rating.Should().Be(input.Rating);
+            output.Rating.Should().Be(input.Rating.ToStringSignal());
             output.CreatedAt.Should().NotBeSameDateAs(default);
-            output.Banner.Should().Be(expectedBannerName);
-            output.Thumb.Should().Be(expectedThumbName);
-            output.ThumbHalf.Should().Be(expectedThumbHalfName);
+            output.BannerFileUrl.Should().Be(expectedBannerName);
+            output.ThumbFileUrl.Should().Be(expectedThumbName);
+            output.ThumbHalfFileUrl.Should().Be(expectedThumbHalfName);
         }
 
         [Fact(DisplayName = nameof(CreateVideoWithMedia))]
@@ -346,9 +346,9 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
             output.Opened.Should().Be(input.Opened);
             output.Published.Should().Be(input.Published);
             output.Duration.Should().Be(input.Duration);
-            output.Rating.Should().Be(input.Rating);
+            output.Rating.Should().Be(input.Rating.ToStringSignal());
             output.CreatedAt.Should().NotBeSameDateAs(default);
-            output.Media.Should().Be(expectedMediaName);
+            output.VideoFileUrl.Should().Be(expectedMediaName);
         }
 
         [Fact(DisplayName = nameof(CreateVideoWithTrailer))]
@@ -401,9 +401,9 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
             output.Opened.Should().Be(input.Opened);
             output.Published.Should().Be(input.Published);
             output.Duration.Should().Be(input.Duration);
-            output.Rating.Should().Be(input.Rating);
+            output.Rating.Should().Be(input.Rating.ToStringSignal());
             output.CreatedAt.Should().NotBeSameDateAs(default);
-            output.Trailer.Should().Be(expectedTrailerName);
+            output.TrailerFileUrl.Should().Be(expectedTrailerName);
         }
 
         [Theory(DisplayName = nameof(CreateVideoThrowsWhenInputIsInvalid))]
@@ -490,9 +490,9 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
             output.Opened.Should().Be(input.Opened);
             output.Published.Should().Be(input.Published);
             output.Duration.Should().Be(input.Duration);
-            output.Rating.Should().Be(input.Rating);
+            output.Rating.Should().Be(input.Rating.ToStringSignal());
             output.CreatedAt.Should().NotBeSameDateAs(default);
-            output.Categories.Should().BeEquivalentTo(categoriesIdsExample);
+            output.CategoriesIds.Should().BeEquivalentTo(categoriesIdsExample);
 
             repositoryMock.Verify(x => x.Insert(It.Is<DomainEntity.Video>(
                 video => video.Opened == input.Opened &&
@@ -600,10 +600,10 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
             output.Opened.Should().Be(input.Opened);
             output.Published.Should().Be(input.Published);
             output.Duration.Should().Be(input.Duration);
-            output.Rating.Should().Be(input.Rating);
+            output.Rating.Should().Be(input.Rating.ToStringSignal());
             output.CreatedAt.Should().NotBeSameDateAs(default);
-            output.Categories.Should().BeEmpty();
-            output.Genres.Should().BeEquivalentTo(idsExamples);
+            output.CategoriesIds.Should().BeEmpty();
+            output.GenresIds.Should().BeEquivalentTo(idsExamples);
 
             genreRepositoryMock.VerifyAll();
         }
@@ -696,11 +696,11 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
             output.Opened.Should().Be(input.Opened);
             output.Published.Should().Be(input.Published);
             output.Duration.Should().Be(input.Duration);
-            output.Rating.Should().Be(input.Rating);
+            output.Rating.Should().Be(input.Rating.ToStringSignal());
             output.CreatedAt.Should().NotBeSameDateAs(default);
-            output.Categories.Should().BeEmpty();
-            output.Genres.Should().BeEmpty();
-            output.CastMembers.Should().BeEquivalentTo(idsExamples);
+            output.CategoriesIds.Should().BeEmpty();
+            output.GenresIds.Should().BeEmpty();
+            output.CastMembersIds.Should().BeEquivalentTo(idsExamples);
 
             castMemberRepositoryMock.VerifyAll();
         }
@@ -746,7 +746,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
         [Trait("Application", "CreateVideo - Use Cases")]
         public async Task ThrowsExceptionInUploadErrorCases()
         {
-            
+
             var storageService = new Mock<IStorageService>();
             var expectedBannerName = $"-banner.jpg";
 
@@ -767,7 +767,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
 
             var input = _fixture.GetValidInputWithAllImages();
 
-            var action = async () 
+            var action = async ()
                     => await useCase.Handle(input, CancellationToken.None);
 
             await action.Should().ThrowAsync<Exception>().WithMessage("Something went wrong with the upload.");
