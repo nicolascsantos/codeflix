@@ -97,6 +97,10 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.CreateVideo
                 await _storageService.Delete(video.Thumb.Path, cancellationToken);
             if (video.ThumbHalf is not null)
                 await _storageService.Delete(video.ThumbHalf.Path, cancellationToken);
+            if (video.Media is not null)
+                await _storageService.Delete(video.Media.FilePath, cancellationToken);
+            if (video.Trailer is not null)
+                await _storageService.Delete(video.Trailer.FilePath, cancellationToken);
         }
 
         private async Task UploadMediaImages(CreateVideoInput request, DomainEntity.Video video, CancellationToken cancellationToken)

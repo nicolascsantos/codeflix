@@ -58,5 +58,25 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.CreateVideo
                 GetValidImageFileInput(),
                 GetValidImageFileInput()
             );
+
+        internal CreateVideoInput GetValidInputWithAllMedias()
+        => new CreateVideoInput
+            (
+                GetValidTitle(),
+                GetValidDescription(),
+                GetValidYearLaunched(),
+                GetRandomBoolean(),
+                GetRandomBoolean(),
+                GetValidDuration(),
+                GetRandomRating(),
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                GetValidMediaFileInput(),
+                GetValidMediaFileInput()
+            );
     }
 }
