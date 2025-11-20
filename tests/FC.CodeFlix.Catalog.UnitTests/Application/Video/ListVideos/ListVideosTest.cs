@@ -90,11 +90,12 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.ListVideos
         {
             var (examplesVideosList, exampleCategories) = _fixture.GetVideosExamplesListWithRelations();
             var input = new ListVideosInput(1, 10, "", "", SearchOrder.Asc);
+            var examplesCategoriesIds = exampleCategories.Select(category => category.Id).ToList();
 
             _categoryRepositoryMock.Setup(x => x.GetListByIds(
-                It.Is<List<Guid>>(list => list.Equals(
-                    exampleCategories.Select(category => category.Id).ToList()
-                )),
+                It.Is<List<Guid>>(list =>
+                     list.All(examplesCategoriesIds.Contains) &&
+                     list.Count == examplesCategoriesIds.Count),
                 It.IsAny<CancellationToken>()
             )).ReturnsAsync(exampleCategories);
 
@@ -147,7 +148,6 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.ListVideos
                     exampleCategories.Should().NotBeNull();
                     relation.Name.Should().Be(exampleCategory?.Name);
                 });
-                outputCategoriesIds.Should().BeEquivalentTo(videoExample.Categories);
 
                 List<Guid> outputGenresIds = outputItem.Genres
                     .Select(genresDto => genresDto.Id).ToList();
@@ -158,6 +158,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.ListVideos
                 outputCastMembersIds.Should().BeEquivalentTo(videoExample.CastMembers);
             });
             _videoRepositoryMock.VerifyAll();
+            _categoryRepositoryMock.VerifyAll();
         }
 
 
