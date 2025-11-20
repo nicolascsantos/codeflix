@@ -1,4 +1,5 @@
-﻿using FC.CodeFlix.Catalog.UnitTests.Common.Fixtures;
+﻿using FC.CodeFlix.Catalog.Domain.Enum;
+using FC.CodeFlix.Catalog.UnitTests.Common.Fixtures;
 using DomainEntity = FC.CodeFlix.Catalog.Domain.Entity;
 
 namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.ListVideos
@@ -16,12 +17,14 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.ListVideos
         internal (
             List<DomainEntity.Video> Videos,
             List<DomainEntity.Category> Categories,
-            List<DomainEntity.Genre>
+            List<DomainEntity.Genre> Genres,
+            List<DomainEntity.CastMember> CastMembers
         ) GetVideosExamplesListWithRelations()
         {
             var itemsToBeCreated = Random.Shared.Next(2, 10);
             List<DomainEntity.Category> categories = new();
             List<DomainEntity.Genre> genres = new();
+            List<DomainEntity.CastMember> castMembers = new();
             var videos = Enumerable.Range(1, itemsToBeCreated)
             .Select(_ => GetValidVideoWithAllProperties())
             .ToList();
@@ -45,9 +48,18 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.ListVideos
                     genres.Add(genre);
                     video.AddGenre(genre.Id);
                 }
+
+                video.RemoveAllCastMembers();
+                var castMembersAmount = Random.Shared.Next(2, 5);
+                for (int i = 0; i < castMembersAmount; i++)
+                {
+                    var castMember = GetExampleCastMember();
+                    castMembers.Add(castMember);
+                    video.AddCastMember(castMember.Id);
+                }
             });
 
-            return (videos, categories, genres);
+            return (videos, categories, genres, castMembers);
         }
 
         public string GetValidCategoryName()
@@ -85,5 +97,17 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.ListVideos
 
         private string GetValidGenreName()
             => Faker.Commerce.Categories(1)[0];
+
+        private DomainEntity.CastMember GetExampleCastMember()
+          => new DomainEntity.CastMember(
+              GetValidName(),
+              GetRandomCastMemberType()
+          );
+
+        private string GetValidName()
+            => Faker.Name.FullName();
+
+        private CastMemberType GetRandomCastMemberType()
+            => (CastMemberType)(new Random().Next(1, 2));
     }
 }
