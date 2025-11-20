@@ -62,7 +62,12 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.ListVideos
             return (videos, categories, genres, castMembers);
         }
 
-        public string GetValidCategoryName()
+        public List<DomainEntity.Video> GetVideosExamplesListWithoutRelations()
+        => Enumerable.Range(1, Random.Shared.Next(2, 10))
+            .Select(_ => GetValidVideo())
+            .ToList();
+
+        private string GetValidCategoryName()
         {
             var categoryName = "";
             while (categoryName.Length < 3)
@@ -72,7 +77,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.ListVideos
             return categoryName;
         }
 
-        public string GetValidCategoryDescription()
+        private string GetValidCategoryDescription()
         {
             var categoryDescription = Faker.Commerce.ProductDescription();
             while (categoryDescription.Length > 10_000)
@@ -81,14 +86,14 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.ListVideos
         }
 
 
-        public DomainEntity.Category GetExampleCategory()
+        private DomainEntity.Category GetExampleCategory()
             => new(
                 GetValidCategoryName(),
                 GetValidCategoryDescription(),
                 GetRandomBoolean()
             );
 
-        public DomainEntity.Genre GetExampleGenre(bool? isActive = null, List<Guid>? categoriesIds = null)
+        private DomainEntity.Genre GetExampleGenre(bool? isActive = null, List<Guid>? categoriesIds = null)
         {
             var genre = new DomainEntity.Genre(GetValidGenreName(), isActive ?? GetRandomBoolean());
             categoriesIds?.ForEach(genre.AddCategory);
