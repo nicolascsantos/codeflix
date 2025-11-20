@@ -52,7 +52,8 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.Common
 
         public static VideoModelOutput FromVideo(
             DomainEntity.Video video,
-            IReadOnlyList<DomainEntity.Category>? categories
+            IReadOnlyList<DomainEntity.Category>? categories,
+            IReadOnlyList<DomainEntity.Genre>? genres
         )
             => new(
                 video.Id,
@@ -69,7 +70,8 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.Common
                 video.CastMembers,
                 video.Categories.Select(id =>
                     new VideoModelOutputRelatedAggregate(id, categories?.FirstOrDefault(category => category.Id == id)?.Name)).ToList(),
-                video.Genres.Select(id => new VideoModelOutputRelatedAggregate(id)).ToList(),
+                video.Genres.Select(id =>
+                    new VideoModelOutputRelatedAggregate(id, genres?.FirstOrDefault(genre => genre.Id == id)?.Name)).ToList(),
                 video.CastMembers.Select(id => new VideoModelOutputRelatedAggregate(id)).ToList(),
                 video.Thumb?.Path,
                 video.Banner?.Path,
