@@ -53,7 +53,7 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.Common
         public static VideoModelOutput FromVideo(
             DomainEntity.Video video,
             IReadOnlyList<DomainEntity.Category>? categories,
-            IReadOnlyList<DomainEntity.Genre>? genres
+            IReadOnlyList<DomainEntity.Genre>? genres,
             IReadOnlyList<DomainEntity.CastMember>? castMembers
         )
             => new(
