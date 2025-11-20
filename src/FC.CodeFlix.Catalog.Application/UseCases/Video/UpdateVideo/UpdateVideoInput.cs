@@ -1,0 +1,17 @@
+﻿using FC.CodeFlix.Catalog.Application.UseCases.Video.Common;
+using FC.CodeFlix.Catalog.Domain.Enum;
+using MediatR;
+
+namespace FC.CodeFlix.Catalog.Application.UseCases.Video.UpdateVideo
+{
+    public record UpdateVideoInput(
+        Guid VideoId,
+        string Title,
+        string Description,
+        int YearLaunched,
+        bool Opened,
+        bool Published, 
+        int Duration, 
+        Rating Rating
+    ) : IRequest<VideoModelOutput>;
+}
