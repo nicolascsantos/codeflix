@@ -120,6 +120,13 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.ListVideos
                     It.IsAny<CancellationToken>()
                 )).ReturnsAsync(exampleGenres);
 
+            _castMemberRepositoryMock.Setup(x => x.GetListByIds(
+                It.Is<List<Guid>>(list =>
+                    list.All(examplesCastMembersIds.Contains) &&
+                    list.Count == examplesCastMembersIds.Count),
+                    It.IsAny<CancellationToken>()
+                )).ReturnsAsync(exampleCastMembers);
+
             _videoRepositoryMock.Setup(x => x.Search(
                 It.Is<SearchInput>(x =>
                     x.Page == input.Page &&
