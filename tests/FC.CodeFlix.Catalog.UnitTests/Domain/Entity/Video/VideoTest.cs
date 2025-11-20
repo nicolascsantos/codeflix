@@ -124,6 +124,38 @@ namespace FC.CodeFlix.Catalog.UnitTests.Domain.Entity.Video
             video.Duration.Should().Be(expectedDuration);
         }
 
+        [Fact(DisplayName = nameof(UpdateWithRating))]
+        [Trait("Domain", "Video - Aggregates")]
+        public void UpdateWithRating()
+        {
+            var expectedTitle = _fixture.GetValidTitle();
+            var expectedDescription = _fixture.GetValidDescription();
+            var expectedYearLaunched = _fixture.GetValidYearLaunched();
+            var expectedOpened = _fixture.GetRandomBoolean();
+            var expectedPublished = _fixture.GetRandomBoolean();
+            var expectedDuration = _fixture.GetValidDuration();
+            var expectedRating = _fixture.GetRandomRating();
+            var video = _fixture.GetValidVideo();
+
+            video.Update(
+                expectedTitle,
+                expectedDescription,
+                expectedYearLaunched,
+                expectedOpened,
+                expectedPublished,
+                expectedDuration,
+                expectedRating
+            );
+
+            video.Title.Should().Be(expectedTitle);
+            video.Description.Should().Be(expectedDescription);
+            video.YearLaunched.Should().Be(expectedYearLaunched);
+            video.Opened.Should().Be(expectedOpened);
+            video.Published.Should().Be(expectedPublished);
+            video.Duration.Should().Be(expectedDuration);
+            video.Rating.Should().Be(expectedRating);
+        }
+
         [Fact(DisplayName = nameof(UpdateValidation))]
         [Trait("Domain", "Video - Aggregates")]
         public void UpdateValidation()

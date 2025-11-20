@@ -73,7 +73,8 @@ namespace FC.CodeFlix.Catalog.Domain.Entity
             int yearLaunched,
             bool opened,
             bool published,
-            int duration
+            int duration,
+            Rating? rating = null
         )
         {
             Title = title;
@@ -82,6 +83,7 @@ namespace FC.CodeFlix.Catalog.Domain.Entity
             Opened = opened;
             Published = published;
             Duration = duration;
+            if (rating is not null) Rating = (Rating)rating!;
         }
 
         public void UpdateThumb(string path) => Thumb = new Image(path);
