@@ -13,10 +13,15 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.ListVideos
             .Select(_ => GetValidVideoWithAllProperties())
             .ToList();
 
-        internal (List<DomainEntity.Video> Videos, List<DomainEntity.Category> Categories) GetVideosExamplesListWithRelations()
+        internal (
+            List<DomainEntity.Video> Videos,
+            List<DomainEntity.Category> Categories,
+            List<DomainEntity.Genre>
+        ) GetVideosExamplesListWithRelations()
         {
             var itemsToBeCreated = Random.Shared.Next(2, 10);
-            List <DomainEntity.Category> categories = new();
+            List<DomainEntity.Category> categories = new();
+            List<DomainEntity.Genre> genres = new();
             var videos = Enumerable.Range(1, itemsToBeCreated)
             .Select(_ => GetValidVideoWithAllProperties())
             .ToList();
@@ -31,9 +36,18 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.ListVideos
                     categories.Add(category);
                     video.AddCategory(category.Id);
                 }
+
+                video.RemoveAllGenres();
+                var genresAmount = Random.Shared.Next(2, 5);
+                for (int i = 0; i < genresAmount; i++)
+                {
+                    var genre = GetExampleGenre();
+                    genres.Add(genre);
+                    video.AddGenre(genre.Id);
+                }
             });
 
-            return (videos, categories);
+            return (videos, categories, genres);
         }
 
         public string GetValidCategoryName()
@@ -61,5 +75,15 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.ListVideos
                 GetValidCategoryDescription(),
                 GetRandomBoolean()
             );
+
+        public DomainEntity.Genre GetExampleGenre(bool? isActive = null, List<Guid>? categoriesIds = null)
+        {
+            var genre = new DomainEntity.Genre(GetValidGenreName(), isActive ?? GetRandomBoolean());
+            categoriesIds?.ForEach(genre.AddCategory);
+            return genre;
+        }
+
+        private string GetValidGenreName()
+            => Faker.Commerce.Categories(1)[0];
     }
 }
