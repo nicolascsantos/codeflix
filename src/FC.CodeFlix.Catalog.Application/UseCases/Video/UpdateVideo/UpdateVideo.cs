@@ -59,14 +59,16 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.UpdateVideo
         {
             if ((request.GenresIds?.ToList().Count ?? 0) > 0)
             {
-                request.GenresIds!.ToList().ForEach(video.AddGenre);
                 await ValidateGenresIds(request, cancellationToken);
+                video.RemoveAllGenres();
+                request.GenresIds!.ToList().ForEach(video.AddGenre);
             }
 
             if ((request.CategoriesIds?.ToList().Count ?? 0) > 0)
             {
-                request.CategoriesIds!.ToList().ForEach(video.AddCategory);
                 await ValidateCategoriesIds(request, cancellationToken);
+                video.RemoveAllCategories();
+                request.CategoriesIds!.ToList().ForEach(video.AddCategory);
             }
         }
 
