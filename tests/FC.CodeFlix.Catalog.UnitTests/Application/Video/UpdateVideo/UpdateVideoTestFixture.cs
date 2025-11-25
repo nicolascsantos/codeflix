@@ -8,7 +8,10 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.UpdateVideo
 
     public class UpdateVideoTestFixture : VideoTestFixtureBase
     {
-        public UseCases.UpdateVideoInput GetValidInput(Guid videoId)
+        public UseCases.UpdateVideoInput GetValidInput(
+            Guid videoId,
+            List<Guid>? genresIds = null
+        )
             => new(
                videoId,
                GetValidTitle(),
@@ -17,7 +20,8 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.UpdateVideo
                GetRandomBoolean(),
                GetRandomBoolean(),
                GetValidDuration(),
-               GetRandomRating()
+               GetRandomRating(),
+               genresIds
             );
     }
 }
