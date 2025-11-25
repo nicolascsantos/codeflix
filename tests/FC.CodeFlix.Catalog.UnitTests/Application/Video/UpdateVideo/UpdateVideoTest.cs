@@ -6,6 +6,8 @@ using Moq;
 using UseCases = FC.CodeFlix.Catalog.Application.UseCases.Video.UpdateVideo;
 using DomainEntity = FC.CodeFlix.Catalog.Domain.Entity;
 using FC.CodeFlix.Catalog.Application.Exceptions;
+using FC.CodeFlix.Catalog.Application.UseCases.Video.UpdateVideo;
+using FC.CodeFlix.Catalog.Domain.Exceptions;
 
 namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.UpdateVideo
 {
@@ -65,6 +67,34 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.UpdateVideo
             output.Published.Should().Be(input.Published);
             output.Duration.Should().Be(input.Duration);
             output.Rating.Should().Be(input.Rating.ToStringSignal());
+        }
+
+        [Theory(DisplayName = nameof(UpdateVideosThrowsWhenRecieveInvalidInput))]
+        [ClassData(typeof(UpdateVideoTestDataGenerator))]
+        [Trait("Application", "UpdateVideo - Use Cases")]
+        public async Task UpdateVideosThrowsWhenRecieveInvalidInput(
+            UpdateVideoInput invalidInput,
+            string expectedExceptionMessage
+        )
+        {
+            var exampleVideo = _fixture.GetValidVideo();
+
+            _videoRepositoryMock.Setup(x => x.Get(
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()
+            )).ReturnsAsync(exampleVideo);
+
+            var action = async () => await _useCase.Handle(invalidInput, CancellationToken.None);
+
+            var exceptionAssertion = await action.Should()
+                .ThrowAsync<EntityValidationException>()
+                .WithMessage("There are validation errors.");
+
+            exceptionAssertion.Which.Errors!
+                .ToList()[0].Message.Should().Be(expectedExceptionMessage);
+
+            _videoRepositoryMock.VerifyAll();
+            _unitOfWorkMock.Verify(x => x.Commit(It.IsAny<CancellationToken>()), Times.Never);
         }
 
         [Fact(DisplayName = nameof(UpdateVideosThrowsWhenVideoNotFound))]
