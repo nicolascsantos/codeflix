@@ -10,7 +10,8 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.UpdateVideo
     {
         public UseCases.UpdateVideoInput GetValidInput(
             Guid videoId,
-            List<Guid>? genresIds = null
+            List<Guid>? genresIds = null,
+            List<Guid>? categoriesIds = null
         )
             => new(
                videoId,
@@ -21,7 +22,8 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.UpdateVideo
                GetRandomBoolean(),
                GetValidDuration(),
                GetRandomRating(),
-               genresIds
+               genresIds,
+               categoriesIds
             );
     }
 }

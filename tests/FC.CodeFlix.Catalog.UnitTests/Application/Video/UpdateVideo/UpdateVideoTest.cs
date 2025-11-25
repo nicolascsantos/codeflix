@@ -17,6 +17,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.UpdateVideo
         private readonly UpdateVideoTestFixture _fixture;
         private readonly Mock<IVideoRepository> _videoRepositoryMock;
         private readonly Mock<IGenreRepository> _genreRepositoryMock;
+        private readonly Mock<ICategoryRepository> _categoryRepositoryMock;
         private readonly Mock<IUnitOfWork> _unitOfWorkMock;
         private readonly UseCases.UpdateVideo _useCase;
 
@@ -25,10 +26,12 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.UpdateVideo
             _fixture = fixture;
             _videoRepositoryMock = new Mock<IVideoRepository>();
             _genreRepositoryMock = new Mock<IGenreRepository>();
+            _categoryRepositoryMock = new Mock<ICategoryRepository>();
             _unitOfWorkMock = new Mock<IUnitOfWork>();
             _useCase = new UseCases.UpdateVideo(
                 _videoRepositoryMock.Object,
                 _genreRepositoryMock.Object,
+                _categoryRepositoryMock.Object,
                 _unitOfWorkMock.Object
             );
         }
@@ -158,6 +161,60 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.UpdateVideo
             _unitOfWorkMock.Verify(x => x.Commit(
                 It.IsAny<CancellationToken>()
             ), Times.Never);
+        }
+
+        [Fact(DisplayName = nameof(UpdateVideosWithCategoriesIds))]
+        [Trait("Application", "UpdateVideo - Use Cases")]
+        public async Task UpdateVideosWithCategoriesIds()
+        {
+            var exampleVideo = _fixture.GetValidVideo();
+            var exampleIds = Enumerable.Range(1, 5)
+                .Select(_ => Guid.NewGuid()).ToList();
+            var input = _fixture.GetValidInput(exampleVideo.Id, categoriesIds: exampleIds);
+
+            _videoRepositoryMock.Setup(x => x.Get(
+                It.Is<Guid>(videoId => videoId == exampleVideo.Id),
+                It.IsAny<CancellationToken>()
+            )).ReturnsAsync(exampleVideo);
+
+            _categoryRepositoryMock.Setup(x => x.GetIdsListByIds(
+                It.IsAny<List<Guid>>(),
+                It.IsAny<CancellationToken>()
+            )).ReturnsAsync(exampleIds);
+
+            var output = await _useCase.Handle(input, CancellationToken.None);
+
+            _videoRepositoryMock.VerifyAll();
+            _categoryRepositoryMock.VerifyAll();
+
+            _videoRepositoryMock.Verify(repository => repository.Update(
+                It.Is<DomainEntity.Video>(video =>
+                    (video.Id == exampleVideo.Id) &&
+                    (video.Title == input.Title) &&
+                    (video.Description == input.Description) &&
+                    (video.YearLaunched == input.YearLaunched) &&
+                    (video.Opened == input.Opened) &&
+                    (video.Published == input.Published) &&
+                    (video.Duration == input.Duration) &&
+                    (video.Rating == input.Rating) &&
+                    (video.Categories.All(categoryId => exampleIds.Contains(categoryId))) &&
+                    (video.Categories.Count == exampleIds.Count)),
+                It.IsAny<CancellationToken>()
+            ), Times.Once);
+            _unitOfWorkMock.Verify(x => x.Commit(It.IsAny<CancellationToken>()));
+
+            output.Should().NotBeNull();
+            output.Title.Should().Be(input.Title);
+            output.Description.Should().Be(input.Description);
+            output.YearLaunched.Should().Be(input.YearLaunched);
+            output.Opened.Should().Be(input.Opened);
+            output.Published.Should().Be(input.Published);
+            output.Duration.Should().Be(input.Duration);
+            output.Rating.Should().Be(input.Rating.ToStringSignal());
+            output.Categories.Select(category => category.Id)
+                .ToList()
+                .Should()
+                .BeEquivalentTo(exampleIds);
         }
 
         [Theory(DisplayName = nameof(UpdateVideosThrowsWhenRecieveInvalidInput))]
