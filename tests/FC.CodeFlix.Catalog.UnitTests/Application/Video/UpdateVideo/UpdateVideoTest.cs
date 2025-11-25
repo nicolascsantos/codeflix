@@ -72,9 +72,9 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.UpdateVideo
             output.Rating.Should().Be(input.Rating.ToStringSignal());
         }
 
-        [Fact(DisplayName = nameof(UpdateVideosWithGenreIds))]
+        [Fact(DisplayName = nameof(UpdateVideosThrowsWhenInvalidGenreIds))]
         [Trait("Application", "UpdateVideo - Use Cases")]
-        public async Task UpdateVideosWithGenreIds()
+        public async Task UpdateVideosThrowsWhenInvalidGenreIds()
         {
             var exampleVideo = _fixture.GetValidVideo();
             var genreIdsExamples = Enumerable.Range(1, 5)
@@ -87,9 +87,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.UpdateVideo
             )).ReturnsAsync(exampleVideo);
 
             _genreRepositoryMock.Setup(x => x.GetIdsListByIds(
-                It.Is<List<Guid>>(idsList =>
-                idsList.Count == genreIdsExamples.Count &&
-                idsList.All(id => genreIdsExamples.Contains(id))),
+                It.IsAny<List<Guid>>(),
                 It.IsAny<CancellationToken>()
             )).ReturnsAsync(genreIdsExamples);
 
@@ -126,6 +124,40 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.UpdateVideo
                 .ToList()
                 .Should()
                 .BeEquivalentTo(genreIdsExamples);
+        }
+
+        [Fact(DisplayName = nameof(UpdateVideosWithGenreId))]
+        [Trait("Application", "UpdateVideo - Use Cases")]
+        public async Task UpdateVideosWithGenreId()
+        {
+            var exampleVideo = _fixture.GetValidVideo();
+            var genreIdsExamples = Enumerable.Range(1, 5)
+                .Select(_ => Guid.NewGuid()).ToList();
+            var invalidGenresId = Guid.NewGuid();
+            var invalidInputIdsList = genreIdsExamples.Concat(new List<Guid>() { invalidGenresId }).ToList();
+            var input = _fixture.GetValidInput(exampleVideo.Id, invalidInputIdsList);
+
+            _videoRepositoryMock.Setup(x => x.Get(
+                It.Is<Guid>(videoId => videoId == exampleVideo.Id),
+                It.IsAny<CancellationToken>()
+            )).ReturnsAsync(exampleVideo);
+
+            _genreRepositoryMock.Setup(x => x.GetIdsListByIds(
+                It.IsAny<List<Guid>>(),
+                It.IsAny<CancellationToken>()
+            )).ReturnsAsync(genreIdsExamples);
+
+            var action = async () => await _useCase.Handle(input, CancellationToken.None);
+
+            await action.Should()
+                .ThrowAsync<RelatedAggregateException>()
+                .WithMessage($"Related genre id or ids not found: '{invalidGenresId}'");
+
+            _videoRepositoryMock.VerifyAll();
+            _genreRepositoryMock.VerifyAll();
+            _unitOfWorkMock.Verify(x => x.Commit(
+                It.IsAny<CancellationToken>()
+            ), Times.Never);
         }
 
         [Theory(DisplayName = nameof(UpdateVideosThrowsWhenRecieveInvalidInput))]
