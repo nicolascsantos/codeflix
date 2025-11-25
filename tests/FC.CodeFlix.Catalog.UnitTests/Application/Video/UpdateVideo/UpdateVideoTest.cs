@@ -72,9 +72,9 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.UpdateVideo
             output.Rating.Should().Be(input.Rating.ToStringSignal());
         }
 
-        [Fact(DisplayName = nameof(UpdateVideosThrowsWhenInvalidGenreIds))]
+        [Fact(DisplayName = nameof(UpdateVideosWithGenreId))]
         [Trait("Application", "UpdateVideo - Use Cases")]
-        public async Task UpdateVideosThrowsWhenInvalidGenreIds()
+        public async Task UpdateVideosWithGenreId()
         {
             var exampleVideo = _fixture.GetValidVideo();
             var genreIdsExamples = Enumerable.Range(1, 5)
@@ -126,9 +126,9 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.UpdateVideo
                 .BeEquivalentTo(genreIdsExamples);
         }
 
-        [Fact(DisplayName = nameof(UpdateVideosWithGenreId))]
+        [Fact(DisplayName = nameof(UpdateVideosThrowsWhenInvalidGenreIds))]
         [Trait("Application", "UpdateVideo - Use Cases")]
-        public async Task UpdateVideosWithGenreId()
+        public async Task UpdateVideosThrowsWhenInvalidGenreIds()
         {
             var exampleVideo = _fixture.GetValidVideo();
             var genreIdsExamples = Enumerable.Range(1, 5)
