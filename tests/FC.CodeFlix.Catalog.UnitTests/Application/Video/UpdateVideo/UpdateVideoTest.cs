@@ -217,6 +217,40 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.UpdateVideo
                 .BeEquivalentTo(exampleIds);
         }
 
+        [Fact(DisplayName = nameof(UpdateVideosThrowsWhenInvalidCategoriesIds))]
+        [Trait("Application", "UpdateVideo - Use Cases")]
+        public async Task UpdateVideosThrowsWhenInvalidCategoriesIds()
+        {
+            var exampleVideo = _fixture.GetValidVideo();
+            var categoriesIdsExamples = Enumerable.Range(1, 5)
+                .Select(_ => Guid.NewGuid()).ToList();
+            var invalidCategoryId = Guid.NewGuid();
+            var invalidInputIdsList = categoriesIdsExamples.Concat(new List<Guid>() { invalidCategoryId }).ToList();
+            var input = _fixture.GetValidInput(exampleVideo.Id, categoriesIds: invalidInputIdsList);
+
+            _videoRepositoryMock.Setup(x => x.Get(
+                It.Is<Guid>(videoId => videoId == exampleVideo.Id),
+                It.IsAny<CancellationToken>()
+            )).ReturnsAsync(exampleVideo);
+
+            _categoryRepositoryMock.Setup(x => x.GetIdsListByIds(
+                It.IsAny<List<Guid>>(),
+                It.IsAny<CancellationToken>()
+            )).ReturnsAsync(categoriesIdsExamples);
+
+            var action = async () => await _useCase.Handle(input, CancellationToken.None);
+
+            await action.Should()
+                .ThrowAsync<RelatedAggregateException>()
+                .WithMessage($"Related category id or ids not found: '{invalidCategoryId}'");
+
+            _videoRepositoryMock.VerifyAll();
+            _categoryRepositoryMock.VerifyAll();
+            _unitOfWorkMock.Verify(x => x.Commit(
+                It.IsAny<CancellationToken>()
+            ), Times.Never);
+        }
+
         [Theory(DisplayName = nameof(UpdateVideosThrowsWhenRecieveInvalidInput))]
         [ClassData(typeof(UpdateVideoTestDataGenerator))]
         [Trait("Application", "UpdateVideo - Use Cases")]
