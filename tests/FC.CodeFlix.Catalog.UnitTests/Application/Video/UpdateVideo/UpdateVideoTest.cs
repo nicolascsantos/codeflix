@@ -5,6 +5,7 @@ using FluentAssertions;
 using Moq;
 using UseCases = FC.CodeFlix.Catalog.Application.UseCases.Video.UpdateVideo;
 using DomainEntity = FC.CodeFlix.Catalog.Domain.Entity;
+using FC.CodeFlix.Catalog.Application.Exceptions;
 
 namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.UpdateVideo
 {
@@ -64,6 +65,30 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.UpdateVideo
             output.Published.Should().Be(input.Published);
             output.Duration.Should().Be(input.Duration);
             output.Rating.Should().Be(input.Rating.ToStringSignal());
+        }
+
+        [Fact(DisplayName = nameof(UpdateVideosThrowsWhenVideoNotFound))]
+        [Trait("Application", "UpdateVideo - Use Cases")]
+        public async Task UpdateVideosThrowsWhenVideoNotFound()
+        {
+            var input = _fixture.GetValidInput(Guid.NewGuid());
+
+            _videoRepositoryMock.Setup(x => x.Get(
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()
+            )).ThrowsAsync(new NotFoundException("Video not found."));
+
+            var action = async () => await _useCase.Handle(input, CancellationToken.None);
+
+            await action.Should()
+                .ThrowAsync<NotFoundException>()
+                .WithMessage("Video not found.");
+
+            _videoRepositoryMock.Verify(x => x.Update(
+                It.IsAny<DomainEntity.Video>(),
+                It.IsAny<CancellationToken>()
+            ), Times.Never);
+            _unitOfWorkMock.Verify(x => x.Commit(It.IsAny<CancellationToken>()), Times.Never);
         }
     }
 }
