@@ -156,6 +156,25 @@ namespace FC.CodeFlix.Catalog.UnitTests.Domain.Entity.Video
             video.Rating.Should().Be(expectedRating);
         }
 
+        [Fact(DisplayName = nameof(UpdateWithoutRatingDoesntChangeTheRating))]
+        [Trait("Domain", "Video - Aggregates")]
+        public void UpdateWithoutRatingDoesntChangeTheRating()
+        {
+            var video = _fixture.GetValidVideo();
+            var expectedRating = video.Rating;
+
+            video.Update(
+                _fixture.GetValidTitle(),
+                _fixture.GetValidDescription(),
+                _fixture.GetValidYearLaunched(),
+                _fixture.GetRandomBoolean(),
+                _fixture.GetRandomBoolean(),
+                _fixture.GetValidDuration()
+            );
+
+            video.Rating.Should().Be(expectedRating);
+        }
+
         [Fact(DisplayName = nameof(UpdateValidation))]
         [Trait("Domain", "Video - Aggregates")]
         public void UpdateValidation()
