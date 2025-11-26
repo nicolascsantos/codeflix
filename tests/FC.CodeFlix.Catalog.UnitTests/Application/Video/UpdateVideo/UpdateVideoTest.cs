@@ -393,5 +393,90 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.UpdateVideo
             ), Times.Never);
             _unitOfWorkMock.Verify(x => x.Commit(It.IsAny<CancellationToken>()), Times.Never);
         }
+
+        [Fact(DisplayName = nameof(UpdateVideosWithoutRelationshipsWithRelationships))]
+        [Trait("Application", "UpdateVideo - Use Cases")]
+        public async Task UpdateVideosWithoutRelationshipsWithRelationships()
+        {
+            var exampleVideo = _fixture.GetValidVideo();
+            var categoriesIdsExamples = Enumerable.Range(1, 5)
+               .Select(_ => Guid.NewGuid()).ToList();
+            var genresIdsExamples = Enumerable.Range(1, 5)
+                .Select(_ => Guid.NewGuid()).ToList();
+            var castmembersIdsExamples = Enumerable.Range(1, 5)
+               .Select(_ => Guid.NewGuid()).ToList();
+
+
+            var input = _fixture.GetValidInput(
+                exampleVideo.Id,
+                categoriesIds: categoriesIdsExamples,
+                genresIds: genresIdsExamples,
+                castMembersIds: castmembersIdsExamples
+            );
+
+            _videoRepositoryMock.Setup(x => x.Get(
+                It.Is<Guid>(videoId => videoId == exampleVideo.Id),
+                It.IsAny<CancellationToken>()
+            )).ReturnsAsync(exampleVideo);
+
+            _categoryRepositoryMock.Setup(x => x.GetIdsListByIds(
+                It.IsAny<List<Guid>>(),
+                It.IsAny<CancellationToken>()
+            )).ReturnsAsync(categoriesIdsExamples);
+
+            _genreRepositoryMock.Setup(x => x.GetIdsListByIds(
+                It.IsAny<List<Guid>>(),
+                It.IsAny<CancellationToken>()
+            )).ReturnsAsync(genresIdsExamples);
+
+            _castMemberRepositoryMock.Setup(x => x.GetIdsListByIds(
+                It.IsAny<List<Guid>>(),
+                It.IsAny<CancellationToken>()
+            )).ReturnsAsync(castmembersIdsExamples);
+
+            var output = await _useCase.Handle(input, CancellationToken.None);
+
+            _videoRepositoryMock.VerifyAll();
+            _categoryRepositoryMock.VerifyAll();
+            _genreRepositoryMock.VerifyAll();
+            _castMemberRepositoryMock.VerifyAll();
+
+            _videoRepositoryMock.Verify(repository => repository.Update(
+                It.Is<DomainEntity.Video>(video =>
+                    (video.Id == exampleVideo.Id) &&
+                    (video.Title == input.Title) &&
+                    (video.Description == input.Description) &&
+                    (video.YearLaunched == input.YearLaunched) &&
+                    (video.Opened == input.Opened) &&
+                    (video.Published == input.Published) &&
+                    (video.Duration == input.Duration) &&
+                    (video.Rating == input.Rating) &&
+                    (video.Genres.All(genreId => genresIdsExamples.Contains(genreId))) &&
+                    (video.Genres.Count == genresIdsExamples.Count) &&
+                    (video.Categories.All(categoryId => categoriesIdsExamples.Contains(categoryId))) &&
+                    (video.Categories.Count == categoriesIdsExamples.Count) && 
+                    (video.CastMembers.All(castMemberId => castmembersIdsExamples.Contains(castMemberId))) &&
+                    (video.CastMembers.Count == castmembersIdsExamples.Count)),
+                It.IsAny<CancellationToken>()
+            ), Times.Once);
+            _unitOfWorkMock.Verify(x => x.Commit(It.IsAny<CancellationToken>()));
+
+            output.Should().NotBeNull();
+            output.Title.Should().Be(input.Title);
+            output.Description.Should().Be(input.Description);
+            output.YearLaunched.Should().Be(input.YearLaunched);
+            output.Opened.Should().Be(input.Opened);
+            output.Published.Should().Be(input.Published);
+            output.Duration.Should().Be(input.Duration);
+            output.Rating.Should().Be(input.Rating.ToStringSignal());
+            output.Categories.Select(category => category.Id)
+                .ToList()
+                .Should()
+                .BeEquivalentTo(categoriesIdsExamples);
+            output.CastMembers.Select(castMember => castMember.Id)
+                .ToList()
+                .Should()
+                .BeEquivalentTo(castmembersIdsExamples);
+        }
     }
 }
