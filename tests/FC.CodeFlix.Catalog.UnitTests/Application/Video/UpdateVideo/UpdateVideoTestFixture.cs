@@ -1,4 +1,5 @@
-﻿using FC.CodeFlix.Catalog.UnitTests.Common.Fixtures;
+﻿using FC.CodeFlix.Catalog.Application.UseCases.Video.Common;
+using FC.CodeFlix.Catalog.UnitTests.Common.Fixtures;
 using UseCases = FC.CodeFlix.Catalog.Application.UseCases.Video.UpdateVideo;
 
 namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.UpdateVideo
@@ -12,7 +13,10 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.UpdateVideo
             Guid videoId,
             List<Guid>? genresIds = null,
             List<Guid>? categoriesIds = null,
-            List<Guid>? castMembersIds = null
+            List<Guid>? castMembersIds = null,
+            FileInput? banner = null,
+            FileInput? thumb = null,
+            FileInput? thumbHalf = null
         )
             => new(
                videoId,
@@ -25,7 +29,10 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.UpdateVideo
                GetRandomRating(),
                genresIds,
                categoriesIds,
-               castMembersIds
+               castMembersIds,
+               banner,
+               thumb,
+               thumbHalf
             );
     }
 }

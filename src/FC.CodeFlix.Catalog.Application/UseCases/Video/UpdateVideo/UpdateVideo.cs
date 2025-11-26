@@ -1,7 +1,7 @@
-﻿using FC.CodeFlix.Catalog.Application.Exceptions;
+﻿using FC.CodeFlix.Catalog.Application.Common;
+using FC.CodeFlix.Catalog.Application.Exceptions;
 using FC.CodeFlix.Catalog.Application.Interfaces;
 using FC.CodeFlix.Catalog.Application.UseCases.Video.Common;
-using FC.CodeFlix.Catalog.Application.UseCases.Video.CreateVideo;
 using FC.CodeFlix.Catalog.Domain.Exceptions;
 using FC.CodeFlix.Catalog.Domain.Repository;
 using FC.CodeFlix.Catalog.Domain.Validation;
@@ -15,6 +15,7 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.UpdateVideo
         private readonly IGenreRepository _genreRepository;
         private readonly ICategoryRepository _categoryRepository;
         private readonly ICastMemberRepository _castMemberRepository;
+        private readonly IStorageService _storageService;
         private readonly IUnitOfWork _unitOfWork;
 
         public UpdateVideo(
@@ -22,6 +23,7 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.UpdateVideo
             IGenreRepository genreRepository,
             ICategoryRepository categoryRepository,
             ICastMemberRepository castMemberRepository,
+            IStorageService storageService,
             IUnitOfWork unitOfWork
         )
         {
@@ -29,6 +31,7 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.UpdateVideo
             _genreRepository = genreRepository;
             _categoryRepository = categoryRepository;
             _castMemberRepository = castMemberRepository;
+            _storageService = storageService;
             _unitOfWork = unitOfWork;
         }
 
@@ -46,12 +49,13 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.UpdateVideo
                 request.Rating
             );
 
-            await ValidateAndAddRelationships(request, video, cancellationToken);
-
             var validationHandler = new NotificationValidationHandler();
             video.Validate(validationHandler);
             if (validationHandler.HasErrors())
                 throw new EntityValidationException("There are validation errors.", validationHandler.Errors);
+
+            await ValidateAndAddRelationships(request, video, cancellationToken);
+            await UploadMediaImages(request, video, cancellationToken);
 
             await _videoRepository.Update(video, cancellationToken);
             await _unitOfWork.Commit(cancellationToken);
@@ -120,6 +124,46 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.UpdateVideo
                 var notFoundIds = request.CastMembersIds.ToList().FindAll(x => !idsInPersistence.Contains(x));
                 var notFoundIdsAsString = string.Join(";", notFoundIds);
                 throw new RelatedAggregateException($"Related cast member id or ids not found: '{notFoundIdsAsString}'");
+            }
+        }
+
+        private async Task UploadMediaImages(
+            UpdateVideoInput request,
+            DomainEntity.Video video,
+            CancellationToken cancellationToken
+        )
+        {
+            if (request.Banner is not null)
+            {
+                var fileName = StorageName.Create(request.VideoId, nameof(request.Banner), request.Banner.Extension);
+                var bannerUrl = await _storageService.Upload(
+                    fileName,
+                    request.Banner.FileStream,
+                    cancellationToken
+                );
+                video.UpdateBanner(bannerUrl);
+            }
+
+            if (request.Thumb is not null)
+            {
+                var fileName = StorageName.Create(request.VideoId, nameof(request.Thumb), request.Thumb.Extension);
+                var thumbUrl = await _storageService.Upload(
+                    fileName,
+                    request.Thumb.FileStream,
+                    cancellationToken
+                );
+                video.UpdateThumb(thumbUrl);
+            }
+
+            if (request.ThumbHalf is not null)
+            {
+                var fileName = StorageName.Create(request.VideoId, nameof(request.ThumbHalf), request.ThumbHalf.Extension);
+                var thumbUrl = await _storageService.Upload(
+                    fileName,
+                    request.ThumbHalf.FileStream,
+                    cancellationToken
+                );
+                video.UpdateThumbHalf(thumbUrl);
             }
         }
     }
