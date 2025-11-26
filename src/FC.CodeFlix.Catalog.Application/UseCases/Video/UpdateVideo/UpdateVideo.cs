@@ -60,25 +60,33 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.UpdateVideo
 
         private async Task ValidateAndAddRelationships(UpdateVideoInput request, DomainEntity.Video video, CancellationToken cancellationToken)
         {
-            if ((request.GenresIds?.ToList().Count ?? 0) > 0)
+            if (request.GenresIds is not null)
             {
-                await ValidateGenresIds(request, cancellationToken);
                 video.RemoveAllGenres();
+                if (request.GenresIds.Count > 0)
+                    await ValidateGenresIds(request, cancellationToken);
                 request.GenresIds!.ToList().ForEach(video.AddGenre);
             }
 
-            if ((request.CategoriesIds?.ToList().Count ?? 0) > 0)
+            if (request.CategoriesIds is not null)
             {
-                await ValidateCategoriesIds(request, cancellationToken);
                 video.RemoveAllCategories();
-                request.CategoriesIds!.ToList().ForEach(video.AddCategory);
+                if (request.CategoriesIds.Count > 0)
+                {
+                    await ValidateCategoriesIds(request, cancellationToken);
+                    request.CategoriesIds!.ToList().ForEach(video.AddCategory);
+                }
+
             }
 
-            if ((request.CastMembersIds?.ToList().Count ?? 0) > 0)
+            if (request.CastMembersIds is not null)
             {
-                await ValidateCastMembersIds(request, cancellationToken);
                 video.RemoveAllCastMembers();
-                request.CastMembersIds!.ToList().ForEach(video.AddCastMember);
+                if (request.CastMembersIds.Count > 0)
+                {
+                    await ValidateCastMembersIds(request, cancellationToken);
+                    request.CastMembersIds!.ToList().ForEach(video.AddCastMember);
+                }
             }
         }
 

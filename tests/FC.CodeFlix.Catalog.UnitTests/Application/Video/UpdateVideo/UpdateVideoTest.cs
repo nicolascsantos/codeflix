@@ -571,5 +571,149 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.UpdateVideo
                 .Should()
                 .BeEquivalentTo(castmembersIdsExamples);
         }
+
+        [Fact(DisplayName = nameof(UpdateVideosWithRelationshipsRemovingRelationships))]
+        [Trait("Application", "UpdateVideo - Use Cases")]
+        public async Task UpdateVideosWithRelationshipsRemovingRelationships()
+        {
+            var exampleVideo = _fixture.GetValidVideoWithAllProperties();
+           
+
+
+            var input = _fixture.GetValidInput(
+                exampleVideo.Id,
+                categoriesIds: new List<Guid>(),
+                genresIds: new List<Guid>(),
+                castMembersIds: new List<Guid>()
+            );
+
+            _videoRepositoryMock.Setup(x => x.Get(
+                It.Is<Guid>(videoId => videoId == exampleVideo.Id),
+                It.IsAny<CancellationToken>()
+            )).ReturnsAsync(exampleVideo);
+
+            var output = await _useCase.Handle(input, CancellationToken.None);
+
+            _videoRepositoryMock.VerifyAll();
+            _categoryRepositoryMock.Verify(x => x.GetIdsListByIds(
+                It.IsAny<List<Guid>>(),
+                It.IsAny<CancellationToken>()
+            ), Times.Never);
+            _genreRepositoryMock.Verify(x => x.GetIdsListByIds(
+                It.IsAny<List<Guid>>(),
+                It.IsAny<CancellationToken>()
+            ), Times.Never);
+            _castMemberRepositoryMock.Verify(x => x.GetIdsListByIds(
+                It.IsAny<List<Guid>>(),
+                It.IsAny<CancellationToken>()
+            ), Times.Never);
+
+            _videoRepositoryMock.Verify(repository => repository.Update(
+                It.Is<DomainEntity.Video>(video =>
+                    (video.Id == exampleVideo.Id) &&
+                    (video.Title == input.Title) &&
+                    (video.Description == input.Description) &&
+                    (video.YearLaunched == input.YearLaunched) &&
+                    (video.Opened == input.Opened) &&
+                    (video.Published == input.Published) &&
+                    (video.Duration == input.Duration) &&
+                    (video.Rating == input.Rating) &&
+                    (video.Genres.Count == exampleVideo.Genres.Count) &&
+                    (video.Categories.Count == exampleVideo.Categories.Count) &&
+                    (video.CastMembers.Count == exampleVideo.CastMembers.Count)),
+                It.IsAny<CancellationToken>()
+            ), Times.Once);
+            _unitOfWorkMock.Verify(x => x.Commit(It.IsAny<CancellationToken>()));
+
+            output.Should().NotBeNull();
+            output.Title.Should().Be(input.Title);
+            output.Description.Should().Be(input.Description);
+            output.YearLaunched.Should().Be(input.YearLaunched);
+            output.Opened.Should().Be(input.Opened);
+            output.Published.Should().Be(input.Published);
+            output.Duration.Should().Be(input.Duration);
+            output.Rating.Should().Be(input.Rating.ToStringSignal());
+            output.Categories.Should().BeEmpty();
+            output.Genres.Should().BeEmpty();
+            output.CastMembers.Should().BeEmpty();
+        }
+
+        [Fact(DisplayName = nameof(UpdateVideosWithRelationshipsKeepRelationshipsWhenRelationshipsIsNull))]
+        [Trait("Application", "UpdateVideo - Use Cases")]
+        public async Task UpdateVideosWithRelationshipsKeepRelationshipsWhenRelationshipsIsNull()
+        {
+            var exampleVideo = _fixture.GetValidVideoWithAllProperties();
+
+
+
+            var input = _fixture.GetValidInput(
+                exampleVideo.Id,
+                categoriesIds: null,
+                genresIds: null,
+                castMembersIds: null
+            );
+
+            _videoRepositoryMock.Setup(x => x.Get(
+                It.Is<Guid>(videoId => videoId == exampleVideo.Id),
+                It.IsAny<CancellationToken>()
+            )).ReturnsAsync(exampleVideo);
+
+            var output = await _useCase.Handle(input, CancellationToken.None);
+
+            _videoRepositoryMock.VerifyAll();
+            _categoryRepositoryMock.Verify(x => x.GetIdsListByIds(
+                It.IsAny<List<Guid>>(),
+                It.IsAny<CancellationToken>()
+            ), Times.Never);
+            _genreRepositoryMock.Verify(x => x.GetIdsListByIds(
+                It.IsAny<List<Guid>>(),
+                It.IsAny<CancellationToken>()
+            ), Times.Never);
+            _castMemberRepositoryMock.Verify(x => x.GetIdsListByIds(
+                It.IsAny<List<Guid>>(),
+                It.IsAny<CancellationToken>()
+            ), Times.Never);
+
+            _videoRepositoryMock.Verify(repository => repository.Update(
+                It.Is<DomainEntity.Video>(video =>
+                    (video.Id == exampleVideo.Id) &&
+                    (video.Title == input.Title) &&
+                    (video.Description == input.Description) &&
+                    (video.YearLaunched == input.YearLaunched) &&
+                    (video.Opened == input.Opened) &&
+                    (video.Published == input.Published) &&
+                    (video.Duration == input.Duration) &&
+                    (video.Rating == input.Rating) &&
+                    (video.Genres.All(genreId => exampleVideo.Genres.Contains(genreId))) &&
+                    (video.Genres.Count == exampleVideo.Genres.Count) &&
+                    (video.Categories.All(categoryId => exampleVideo.Categories.Contains(categoryId))) &&
+                    (video.Categories.Count == exampleVideo.Categories.Count) &&
+                    (video.CastMembers.All(castMemberId => exampleVideo.CastMembers.Contains(castMemberId))) &&
+                    (video.CastMembers.Count == exampleVideo.CastMembers.Count)),
+                It.IsAny<CancellationToken>()
+            ), Times.Once);
+            _unitOfWorkMock.Verify(x => x.Commit(It.IsAny<CancellationToken>()));
+
+            output.Should().NotBeNull();
+            output.Title.Should().Be(input.Title);
+            output.Description.Should().Be(input.Description);
+            output.YearLaunched.Should().Be(input.YearLaunched);
+            output.Opened.Should().Be(input.Opened);
+            output.Published.Should().Be(input.Published);
+            output.Duration.Should().Be(input.Duration);
+            output.Rating.Should().Be(input.Rating.ToStringSignal());
+            output.Categories.Select(x => x.Id)
+                .ToList()
+                .Should()
+                .BeEquivalentTo(exampleVideo.Categories);
+            output.Genres.Select(x => x.Id)
+                .ToList()
+                .Should()
+                .BeEquivalentTo(exampleVideo.Genres);
+            output.CastMembers.Select(x => x.Id)
+                .ToList()
+                .Should()
+                .BeEquivalentTo(exampleVideo.CastMembers);
+        }
     }
 }
