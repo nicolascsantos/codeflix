@@ -58,5 +58,15 @@ namespace FC.Codeflix.Catalog.Infra.Data.EF.Repositories
             ("createdat", SearchOrder.Desc) => query.OrderByDescending(x => x.CreatedAt),
             _ => query.OrderBy(x => x.Name)
         };
+
+        public Task<IReadOnlyList<Guid>> GetIdsListByIds(List<Guid> list, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IReadOnlyList<CastMember>> GetListByIds(List<Guid> list, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
