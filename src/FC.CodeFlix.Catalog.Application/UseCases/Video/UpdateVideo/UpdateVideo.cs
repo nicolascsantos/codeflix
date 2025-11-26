@@ -14,18 +14,21 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.UpdateVideo
         private readonly IVideoRepository _videoRepository;
         private readonly IGenreRepository _genreRepository;
         private readonly ICategoryRepository _categoryRepository;
+        private readonly ICastMemberRepository _castMemberRepository;
         private readonly IUnitOfWork _unitOfWork;
 
         public UpdateVideo(
             IVideoRepository videoRepository,
             IGenreRepository genreRepository,
             ICategoryRepository categoryRepository,
+            ICastMemberRepository castMemberRepository,
             IUnitOfWork unitOfWork
         )
         {
             _videoRepository = videoRepository;
             _genreRepository = genreRepository;
             _categoryRepository = categoryRepository;
+            _castMemberRepository = castMemberRepository;
             _unitOfWork = unitOfWork;
         }
 
@@ -70,6 +73,13 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.UpdateVideo
                 video.RemoveAllCategories();
                 request.CategoriesIds!.ToList().ForEach(video.AddCategory);
             }
+
+            if ((request.CastMembersIds?.ToList().Count ?? 0) > 0)
+            {
+                await ValidateCastMembersIds(request, cancellationToken);
+                video.RemoveAllCastMembers();
+                request.CastMembersIds!.ToList().ForEach(video.AddCastMember);
+            }
         }
 
         private async Task ValidateGenresIds(UpdateVideoInput request, CancellationToken cancellationToken)
@@ -91,6 +101,17 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.UpdateVideo
                 var notFoundIds = request.CategoriesIds.ToList().FindAll(x => !idsInPersistence.Contains(x));
                 var notFoundIdsAsString = string.Join(";", notFoundIds);
                 throw new RelatedAggregateException($"Related category id or ids not found: '{notFoundIdsAsString}'");
+            }
+        }
+
+        private async Task ValidateCastMembersIds(UpdateVideoInput request, CancellationToken cancellationToken)
+        {
+            var idsInPersistence = await _castMemberRepository.GetIdsListByIds(request.CastMembersIds!.ToList(), cancellationToken);
+            if (idsInPersistence.Count < request.CastMembersIds!.Count)
+            {
+                var notFoundIds = request.CastMembersIds.ToList().FindAll(x => !idsInPersistence.Contains(x));
+                var notFoundIdsAsString = string.Join(";", notFoundIds);
+                throw new RelatedAggregateException($"Related cast member id or ids not found: '{notFoundIdsAsString}'");
             }
         }
     }
