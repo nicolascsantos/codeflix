@@ -28,6 +28,7 @@ namespace FC.Codeflix.Catalog.Infra.Data.EF
             modelBuilder.ApplyConfiguration(new CategoryConfiguration());
             modelBuilder.ApplyConfiguration(new GenreConfiguration());
             modelBuilder.ApplyConfiguration(new GenresCategoriesConfiguration());
+            modelBuilder.ApplyConfiguration(new VideoConfiguration());
         }
     }
 }

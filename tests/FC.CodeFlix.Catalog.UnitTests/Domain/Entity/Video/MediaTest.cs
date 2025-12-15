@@ -20,6 +20,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Domain.Entity.Video
             var media = new DomainEntity.Media(expectedFilePath);
 
             media.Should().NotBeNull();
+            media.Id.Should().NotBeEmpty();
             media.FilePath.Should().Be(expectedFilePath);
             media.Status.Should().Be(MediaStatus.PENDING);
         }
