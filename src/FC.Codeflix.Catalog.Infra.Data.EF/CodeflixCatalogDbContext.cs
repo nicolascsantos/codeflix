@@ -15,6 +15,8 @@ namespace FC.Codeflix.Catalog.Infra.Data.EF
 
         public DbSet<CastMember> CastMembers { get; set; }
 
+        public DbSet<Video> Videos => Set<Video>();
+
 
         public CodeflixCatalogDbContext(DbContextOptions<CodeflixCatalogDbContext> options) : base(options)
         {
