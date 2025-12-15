@@ -14,6 +14,7 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.UpdateVideo
         int Duration, 
         Rating Rating,
         List<Guid>? GenresIds = null,
-        List<Guid>? CategoriesIds = null
+        List<Guid>? CategoriesIds = null,
+        List<Guid>? CastMembersIds = null
     ) : IRequest<VideoModelOutput>;
 }
