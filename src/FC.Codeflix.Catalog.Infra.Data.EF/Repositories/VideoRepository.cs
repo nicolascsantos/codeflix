@@ -36,7 +36,14 @@ namespace FC.Codeflix.Catalog.Infra.Data.EF.Repositories
         }
 
         public async Task Insert(Video aggregate, CancellationToken cancellationToken)
-            => await _videos.AddAsync(aggregate, cancellationToken);
+        {
+            if (aggregate.Categories.Count > 0)
+            {
+
+            }
+
+            await _videos.AddAsync(aggregate, cancellationToken);
+        }
 
         public Task<SearchOutput<Video>> Search(SearchInput input, CancellationToken cancellationToken)
         {
