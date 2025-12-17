@@ -1,7 +1,6 @@
 ﻿using FC.CodeFlix.Catalog.Domain.Repository;
 using FluentAssertions;
 using Context = FC.Codeflix.Catalog.Infra.Data.EF;
-using DomainEntity = FC.CodeFlix.Catalog.Domain.Entity;
 using Repository = FC.Codeflix.Catalog.Infra.Data.EF.Repositories;
 
 namespace FC.Codeflix.Catalog.IntegrationTests.Infra.Data.EF.Repositories.VideoRepository
@@ -26,8 +25,9 @@ namespace FC.Codeflix.Catalog.IntegrationTests.Infra.Data.EF.Repositories.VideoR
             await dbContext.SaveChangesAsync(CancellationToken.None);
 
             var assertsDbContext = _fixture.CreateDbContext(true);
-            DomainEntity.Video dbVideo = await assertsDbContext.Videos.FindAsync(exampleVideo.Id);
+            var dbVideo = await assertsDbContext.Videos.FindAsync(exampleVideo.Id);
             dbVideo.Should().NotBeNull();
+            dbVideo.Id.Should().Be(exampleVideo.Id);
             dbVideo.Title.Should().Be(exampleVideo.Title);
             dbVideo.Description.Should().Be(exampleVideo.Description);
             dbVideo.YearLaunched.Should().Be(exampleVideo.YearLaunched);
@@ -47,6 +47,46 @@ namespace FC.Codeflix.Catalog.IntegrationTests.Infra.Data.EF.Repositories.VideoR
             dbVideo.Categories.Should().BeEmpty();
             dbVideo.Genres.Should().BeEmpty();
             dbVideo.CastMembers.Should().BeEmpty();
+        }
+
+        [Fact(DisplayName = nameof(InsertWithRelationships))]
+        [Trait("Integration/Infra.Data", "VideoRepository - Repositories")]
+        public async Task InsertWithRelationships()
+        {
+            Context.CodeflixCatalogDbContext dbContext = _fixture.CreateDbContext();
+            var exampleVideo = _fixture.GetExampleVideo();
+
+            var castMembers = _fixture.GetRandomCastMembersList();
+            await dbContext.CastMembers.AddRangeAsync(castMembers);
+            castMembers.ToList()
+                .ForEach(castMember => exampleVideo.AddCastMember(castMember.Id));
+
+            var categories = _fixture.GetRandomCategoriesList();
+            await dbContext.Categories.AddRangeAsync(categories);
+            categories.ToList()
+                .ForEach(category => exampleVideo.AddCategory(category.Id));
+
+            var genres = _fixture.GetRandomGenresList();
+            await dbContext.Genres.AddRangeAsync(genres);
+            genres.ToList()
+                .ForEach(genre => exampleVideo.AddGenre(genre.Id));
+
+            await dbContext.SaveChangesAsync();
+
+            IVideoRepository videoRepository = new Repository.VideoRepository(dbContext);
+
+            await videoRepository.Insert(exampleVideo, CancellationToken.None);
+            await dbContext.SaveChangesAsync(CancellationToken.None);
+
+            var assertsDbContext = _fixture.CreateDbContext(true);
+            var dbVideo = await assertsDbContext.Videos.FindAsync(exampleVideo.Id);
+            dbVideo.Should().NotBeNull();
+            dbVideo.CastMembers.Should().HaveCount(castMembers.Count());
+            dbVideo.Categories.Should().HaveCount(categories.Count());
+            dbVideo.Genres.Should().HaveCount(genres.Count());
+            dbVideo.CastMembers.Should().BeEquivalentTo(castMembers.Select(castMember => castMember.Id));
+            dbVideo.Categories.Should().BeEquivalentTo(categories.Select(categories => categories.Id));
+            dbVideo.Genres.Should().BeEquivalentTo(genres.Select(genre => genre.Id));
         }
     }
 }

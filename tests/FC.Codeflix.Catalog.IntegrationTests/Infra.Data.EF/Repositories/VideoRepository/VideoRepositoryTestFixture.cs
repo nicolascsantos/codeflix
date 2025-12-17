@@ -1,5 +1,6 @@
 ﻿using FC.Codeflix.Catalog.IntegrationTests.Base;
 using FC.CodeFlix.Catalog.Domain.Enum;
+using System.Linq;
 using DomainEntity = FC.CodeFlix.Catalog.Domain.Entity;
 
 namespace FC.Codeflix.Catalog.IntegrationTests.Infra.Data.EF.Repositories.VideoRepository
@@ -44,5 +45,78 @@ namespace FC.Codeflix.Catalog.IntegrationTests.Infra.Data.EF.Repositories.VideoR
             var random = new Random();
             return enumValues[random.Next(enumValues.Length)];
         }
+
+        public DomainEntity.CastMember GetExampleCastMember()
+            => new DomainEntity.CastMember(
+                GetValidCastMemberName(),
+                GetRandomCastMemberType()
+            );
+
+        public IEnumerable<DomainEntity.CastMember> GetRandomCastMembersList()
+            => Enumerable.Range(0, Random.Shared.Next(1, 5))
+            .Select(_ =>
+                new DomainEntity.CastMember(
+                    GetValidCastMemberName(),
+                    GetRandomCastMemberType()
+                ));
+
+        public string GetValidCastMemberName()
+            => Faker.Name.FullName();
+
+        public CastMemberType GetRandomCastMemberType()
+            => (CastMemberType)new Random().Next(1, 2);
+
+        public string GetValidCategoryName()
+        {
+            var categoryName = "";
+            while (categoryName.Length < 3)
+                categoryName = Faker.Commerce.Categories(1)[0];
+            if (categoryName.Length > 255)
+                categoryName = categoryName[..255];
+            return categoryName;
+        }
+
+        public string GetValidCategoryDescription()
+        {
+            var categoryDescription = Faker.Commerce.ProductDescription();
+            while (categoryDescription.Length > 10_000)
+                categoryDescription = categoryDescription[..10_000];
+            return categoryDescription;
+        }
+
+        public DomainEntity.Category GetValidCategory()
+            => new(GetValidCategoryName(),
+                GetValidCategoryDescription()
+            );
+
+        public IEnumerable<DomainEntity.Category> GetRandomCategoriesList()
+            => Enumerable.Range(0, Random.Shared.Next(1, 5))
+            .Select(_ =>
+                new DomainEntity.Category(
+                    GetValidCategoryName(),
+                    GetValidCategoryDescription()
+                ));
+
+        public string GetGenreValidName()
+            => Faker.Commerce.Categories(1)[0];
+
+        public DomainEntity.Genre GetExampleGenre(bool isActive = true, List<Guid>? categoriesIdsList = null)
+        {
+            var genre = new DomainEntity.Genre(GetGenreValidName(), isActive);
+            if (categoriesIdsList is not null)
+                foreach (var categoryId in categoriesIdsList)
+                    genre.AddCategory(categoryId);
+            return genre;
+        }
+
+        public IEnumerable<DomainEntity.Genre> GetRandomGenresList()
+            => Enumerable.Range(0, Random.Shared.Next(1, 5))
+            .Select(_ =>
+                new DomainEntity.Genre(
+                    GetGenreValidName(),
+                    GetRandomBoolean()
+                ));
+
+        public bool GetRandomBoolean() => new Random().NextDouble() < 0.5;
     }
 }
