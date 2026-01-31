@@ -52,13 +52,13 @@ namespace FC.Codeflix.Catalog.IntegrationTests.Infra.Data.EF.Repositories.VideoR
                 GetRandomCastMemberType()
             );
 
-        public IEnumerable<DomainEntity.CastMember> GetRandomCastMembersList()
+        public List<DomainEntity.CastMember> GetRandomCastMembersList()
             => Enumerable.Range(0, Random.Shared.Next(1, 5))
             .Select(_ =>
                 new DomainEntity.CastMember(
                     GetValidCastMemberName(),
                     GetRandomCastMemberType()
-                ));
+                )).ToList();
 
         public string GetValidCastMemberName()
             => Faker.Name.FullName();
@@ -89,13 +89,13 @@ namespace FC.Codeflix.Catalog.IntegrationTests.Infra.Data.EF.Repositories.VideoR
                 GetValidCategoryDescription()
             );
 
-        public IEnumerable<DomainEntity.Category> GetRandomCategoriesList()
+        public List<DomainEntity.Category> GetRandomCategoriesList()
             => Enumerable.Range(0, Random.Shared.Next(1, 5))
             .Select(_ =>
                 new DomainEntity.Category(
                     GetValidCategoryName(),
                     GetValidCategoryDescription()
-                ));
+                )).ToList();
 
         public string GetGenreValidName()
             => Faker.Commerce.Categories(1)[0];
@@ -109,13 +109,13 @@ namespace FC.Codeflix.Catalog.IntegrationTests.Infra.Data.EF.Repositories.VideoR
             return genre;
         }
 
-        public IEnumerable<DomainEntity.Genre> GetRandomGenresList()
+        public List<DomainEntity.Genre> GetRandomGenresList()
             => Enumerable.Range(0, Random.Shared.Next(1, 5))
             .Select(_ =>
                 new DomainEntity.Genre(
                     GetGenreValidName(),
                     GetRandomBoolean()
-                ));
+                )).ToList();
 
         public bool GetRandomBoolean() => new Random().NextDouble() < 0.5;
     }

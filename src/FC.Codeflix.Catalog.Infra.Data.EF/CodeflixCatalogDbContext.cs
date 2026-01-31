@@ -17,6 +17,12 @@ namespace FC.Codeflix.Catalog.Infra.Data.EF
 
         public DbSet<Video> Videos => Set<Video>();
 
+        public DbSet<VideosCategories> VideosCategories => Set<VideosCategories>();
+
+        public DbSet<VideosGenres> VideosGenres => Set<VideosGenres>();
+
+        public DbSet<VideosCastMembers> VideosCastMembers => Set<VideosCastMembers>();
+
 
         public CodeflixCatalogDbContext(DbContextOptions<CodeflixCatalogDbContext> options) : base(options)
         {
@@ -29,6 +35,9 @@ namespace FC.Codeflix.Catalog.Infra.Data.EF
             modelBuilder.ApplyConfiguration(new GenreConfiguration());
             modelBuilder.ApplyConfiguration(new GenresCategoriesConfiguration());
             modelBuilder.ApplyConfiguration(new VideoConfiguration());
+            modelBuilder.ApplyConfiguration(new VideosCategoriesConfiguration());
+            modelBuilder.ApplyConfiguration(new VideosGenresConfiguration());
+            modelBuilder.ApplyConfiguration(new VideosCastMembersConfiguration());
         }
     }
 }

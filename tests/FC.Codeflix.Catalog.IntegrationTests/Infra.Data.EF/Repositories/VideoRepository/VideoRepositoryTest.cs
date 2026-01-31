@@ -81,12 +81,30 @@ namespace FC.Codeflix.Catalog.IntegrationTests.Infra.Data.EF.Repositories.VideoR
             var assertsDbContext = _fixture.CreateDbContext(true);
             var dbVideo = await assertsDbContext.Videos.FindAsync(exampleVideo.Id);
             dbVideo.Should().NotBeNull();
-            dbVideo.CastMembers.Should().HaveCount(castMembers.Count());
-            dbVideo.Categories.Should().HaveCount(categories.Count());
-            dbVideo.Genres.Should().HaveCount(genres.Count());
-            dbVideo.CastMembers.Should().BeEquivalentTo(castMembers.Select(castMember => castMember.Id));
-            dbVideo.Categories.Should().BeEquivalentTo(categories.Select(categories => categories.Id));
-            dbVideo.Genres.Should().BeEquivalentTo(genres.Select(genre => genre.Id));
+
+            var dbVideosCategories = assertsDbContext.VideosCategories
+                .Where(relation => relation.VideoId == exampleVideo.Id)
+                .ToList();
+            dbVideosCategories.Should().HaveCount(categories.Count);
+            dbVideosCategories.Select(relation => relation.CategoryId).ToList()
+                .Should()
+                .BeEquivalentTo(categories.Select(x => x.Id));
+
+            var dbVideosGenres = assertsDbContext.VideosGenres
+                .Where(relation => relation.VideoId == exampleVideo.Id)
+                .ToList();
+            dbVideosGenres.Should().HaveCount(genres.Count);
+            dbVideosGenres.Select(relation => relation.GenreId).ToList()
+                .Should()
+                .BeEquivalentTo(genres.Select(x => x.Id));
+
+            var dbVideosCastMembers = assertsDbContext.VideosCastMembers
+                .Where(relation => relation.VideoId == exampleVideo.Id)
+                .ToList();
+            dbVideosCastMembers.Should().HaveCount(castMembers.Count);
+            dbVideosCastMembers.Select(relation => relation.CastMemberId).ToList()
+                .Should()
+                .BeEquivalentTo(castMembers.Select(x => x.Id));
         }
     }
 }

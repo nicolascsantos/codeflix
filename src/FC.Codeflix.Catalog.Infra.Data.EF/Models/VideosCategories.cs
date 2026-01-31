@@ -2,9 +2,9 @@
 
 namespace FC.Codeflix.Catalog.Infra.Data.EF.Models
 {
-    internal class VideoCategories
+    public class VideosCategories
     {
-        public VideoCategories(Guid videoId, Guid categoryId)
+        public VideosCategories(Guid videoId, Guid categoryId)
         {
             VideoId = videoId;
             CategoryId = categoryId;
