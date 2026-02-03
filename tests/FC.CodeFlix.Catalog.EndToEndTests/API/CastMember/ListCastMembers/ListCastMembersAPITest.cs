@@ -154,6 +154,7 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.CastMember.ListCastMembers
 
         [Theory(DisplayName = nameof(OrderedSearch))]
         [Trait("EndToEnd/API", "CastMember/ListCastMembers")]
+        [InlineData("name", "asc")]
         [InlineData("name", "desc")]
         [InlineData("id", "asc")]
         [InlineData("id", "desc")]
@@ -187,7 +188,7 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.CastMember.ListCastMembers
                 exampleItem.Type.Should().Be(outputItem.Type);
             });
 
-            var orderedList = _fixture.CloneCategoriesListOrdered(castMemberListExample, orderBy, searchOrder);
+            var orderedList = _fixture.CloneCastMembersListOrdered(castMemberListExample, orderBy, searchOrder);
             for (int i = 0; i < orderedList.Count; i++)
             {
                 output.Data[i].Id.Should().Be(orderedList[i].Id);

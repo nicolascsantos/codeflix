@@ -42,7 +42,7 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.CastMember.Common
                 return example;
             }).ToList();
 
-        public List<DomainEntity.CastMember> CloneCategoriesListOrdered(List<DomainEntity.CastMember> castMembersList, string orderBy, SearchOrder order)
+        public List<DomainEntity.CastMember> CloneCastMembersListOrdered(List<DomainEntity.CastMember> castMembersList, string orderBy, SearchOrder order)
         {
             var listClone = new List<DomainEntity.CastMember>(castMembersList);
             var orderedEnumerable = (orderBy.ToLower(), order) switch
