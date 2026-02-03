@@ -83,7 +83,8 @@ namespace FC.Codeflix.Catalog.Infra.Data.EF.Repositories
 
         public Task Update(Video aggregate, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            _videos.Update(aggregate);
+            return Task.CompletedTask;
         }
     }
 }

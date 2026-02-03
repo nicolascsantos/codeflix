@@ -23,6 +23,29 @@ namespace FC.Codeflix.Catalog.IntegrationTests.Infra.Data.EF.Repositories.VideoR
                 GetRandomRating()
             );
 
+        public DomainEntity.Video GetValidVideoWithAllProperties()
+        {
+            var video = new DomainEntity.Video(
+                GetValidTitle(),
+                GetValidDescription(),
+                GetValidYearLaunched(),
+                GetRandomBoolean(),
+                GetRandomBoolean(),
+                GetValidDuration(),
+                GetRandomRating()
+            );
+            video.UpdateThumb(GetValidImagePath());
+            video.UpdateThumbHalf(GetValidImagePath());
+            video.UpdateBanner(GetValidImagePath());
+
+            video.UpdateMedia(GetValidImagePath());
+            video.UpdateTrailer(GetValidImagePath());
+
+            video.UpdateAsEncoded(GetValidImagePath());
+
+            return video;
+        }
+
         public string GetValidTitle()
             => Faker.Lorem.Letter(100);
 
@@ -118,5 +141,8 @@ namespace FC.Codeflix.Catalog.IntegrationTests.Infra.Data.EF.Repositories.VideoR
                 )).ToList();
 
         public bool GetRandomBoolean() => new Random().NextDouble() < 0.5;
+
+        public string GetValidImagePath()
+            => Faker.Image.PicsumUrl();
     }
 }
