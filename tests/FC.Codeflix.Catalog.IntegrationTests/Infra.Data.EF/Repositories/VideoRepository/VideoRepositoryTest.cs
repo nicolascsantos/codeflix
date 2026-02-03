@@ -1,4 +1,5 @@
-﻿using FC.CodeFlix.Catalog.Domain.Repository;
+﻿using FC.CodeFlix.Catalog.Domain.Enum;
+using FC.CodeFlix.Catalog.Domain.Repository;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Context = FC.Codeflix.Catalog.Infra.Data.EF;
@@ -27,7 +28,7 @@ namespace FC.Codeflix.Catalog.IntegrationTests.Infra.Data.EF.Repositories.VideoR
 
             var assertsDbContext = _fixture.CreateDbContext(true);
             var dbVideo = await assertsDbContext.Videos.FindAsync(exampleVideo.Id);
-            dbVideo.Should().NotBeNull();   
+            dbVideo.Should().NotBeNull();
             dbVideo.Id.Should().Be(exampleVideo.Id);
             dbVideo.Title.Should().Be(exampleVideo.Title);
             dbVideo.Description.Should().Be(exampleVideo.Description);
@@ -168,7 +169,7 @@ namespace FC.Codeflix.Catalog.IntegrationTests.Infra.Data.EF.Repositories.VideoR
             );
 
             await videoRepository.Update(exampleVideo, CancellationToken.None);
-            await dbContextArrange.SaveChangesAsync(CancellationToken.None);
+            await dbContextAct.SaveChangesAsync(CancellationToken.None);
 
             // Assert
             var assertsDbContext = _fixture.CreateDbContext(true);
@@ -189,6 +190,65 @@ namespace FC.Codeflix.Catalog.IntegrationTests.Infra.Data.EF.Repositories.VideoR
 
             dbVideo.Trailer.Should().BeNull();
             dbVideo.Media.Should().BeNull();
+
+            dbVideo.Categories.Should().BeEmpty();
+            dbVideo.Genres.Should().BeEmpty();
+            dbVideo.CastMembers.Should().BeEmpty();
+        }
+
+        [Fact(DisplayName = nameof(UpdateEntitesAndValueObjects))]
+        [Trait("Integration/Infra.Data", "VideoRepository - Repositories")]
+        public async Task UpdateEntitesAndValueObjects()
+        {
+            // Arrange
+            Context.CodeflixCatalogDbContext dbContextArrange = _fixture.CreateDbContext();
+            var exampleVideo = _fixture.GetExampleVideo();
+            await dbContextArrange.AddAsync(exampleVideo);
+            await dbContextArrange.SaveChangesAsync();
+            var videoNewValues = _fixture.GetExampleVideo();
+            var dbContextAct = _fixture.CreateDbContext(true);
+            var updatedThumb = _fixture.GetValidImagePath();
+            var updatedThumbHalf = _fixture.GetValidImagePath();
+            var updatedBanner = _fixture.GetValidImagePath();
+            var updatedMedia = _fixture.GetValidImagePath();
+            var updatedMediaEncoded = _fixture.GetValidImagePath();
+            var updatedTrailer = _fixture.GetValidImagePath();
+            IVideoRepository videoRepository = new Repository.VideoRepository(dbContextAct);
+            var savedVideo = dbContextAct.Videos.Single(video => video.Id == exampleVideo.Id);
+
+            //Act
+            savedVideo.UpdateThumb(updatedThumb);
+            savedVideo.UpdateThumbHalf(updatedThumbHalf);
+            savedVideo.UpdateBanner(updatedBanner);
+            savedVideo.UpdateMedia(updatedMedia);
+            savedVideo.UpdateTrailer(updatedTrailer);
+            savedVideo.UpdateAsEncoded(updatedMediaEncoded);
+
+            await videoRepository.Update(savedVideo, CancellationToken.None);
+            await dbContextAct.SaveChangesAsync(CancellationToken.None);
+
+            // Assert
+            var assertsDbContext = _fixture.CreateDbContext(true);
+            var dbVideo = await assertsDbContext.Videos.FirstOrDefaultAsync(video => video.Id == exampleVideo.Id);
+
+            dbVideo.Should().NotBeNull();
+
+            dbVideo.Thumb.Should().NotBeNull();
+            dbVideo.Thumb.Path.Should().Be(updatedThumb);
+
+            dbVideo.ThumbHalf.Should().NotBeNull();
+            dbVideo.ThumbHalf.Path.Should().Be(updatedThumbHalf);
+
+            dbVideo.Banner.Should().NotBeNull();
+            dbVideo.Banner.Path.Should().Be(updatedBanner);
+
+            dbVideo.Media.Should().NotBeNull();
+            dbVideo.Media!.FilePath.Should().Be(updatedMedia);
+            dbVideo.Media.EncodedPath.Should().Be(updatedMediaEncoded);
+            dbVideo.Media.Status.Should().Be(MediaStatus.COMPLETED);
+
+            dbVideo.Trailer.Should().NotBeNull();
+            dbVideo.Trailer.FilePath.Should().Be(updatedTrailer);
 
             dbVideo.Categories.Should().BeEmpty();
             dbVideo.Genres.Should().BeEmpty();
