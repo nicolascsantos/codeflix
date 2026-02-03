@@ -3,6 +3,7 @@ using FC.CodeFlix.Catalog.Domain.Entity;
 using FC.CodeFlix.Catalog.Domain.Repository;
 using FC.CodeFlix.Catalog.Domain.SeedWork.SearchableRepository;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace FC.Codeflix.Catalog.Infra.Data.EF.Repositories
 {
@@ -81,10 +82,46 @@ namespace FC.Codeflix.Catalog.Infra.Data.EF.Repositories
             throw new NotImplementedException();
         }
 
-        public Task Update(Video aggregate, CancellationToken cancellationToken)
+        public async Task Update(Video video, CancellationToken cancellationToken)
         {
-            _videos.Update(aggregate);
-            return Task.CompletedTask;
+            _videos.Update(video);
+
+            _videosCategories.RemoveRange(_videosCategories
+                    .Where(x => x.VideoId == video.Id));
+            _videosCastMembers.RemoveRange(_videosCastMembers
+                .Where(x => x.VideoId == video.Id));
+            _videosGenres.RemoveRange(_videosGenres
+                .Where(x => x.VideoId == video.Id));
+
+            if (video.Categories.Count > 0)
+            {
+                var relations = video.Categories
+                    .Select(categoryId => new VideosCategories(
+                        video.Id,
+                        categoryId
+                    ));
+                await _videosCategories.AddRangeAsync(relations);
+            }
+
+            if (video.Genres.Count > 0)
+            {
+                var relations = video.Genres
+                    .Select(genreId => new VideosGenres(
+                        video.Id,
+                        genreId
+                    ));
+                await _videosGenres.AddRangeAsync(relations);
+            }
+
+            if (video.CastMembers.Count > 0)
+            {
+                var relations = video.CastMembers
+                    .Select(castMemberId => new VideosCastMembers(
+                        video.Id,
+                        castMemberId
+                    ));
+                await _videosCastMembers.AddRangeAsync(relations);
+            }
         }
     }
 }
