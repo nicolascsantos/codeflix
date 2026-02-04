@@ -3,7 +3,6 @@ using FC.CodeFlix.Catalog.Domain.Entity;
 using FC.CodeFlix.Catalog.Domain.Repository;
 using FC.CodeFlix.Catalog.Domain.SeedWork.SearchableRepository;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace FC.Codeflix.Catalog.Infra.Data.EF.Repositories
 {
@@ -15,6 +14,7 @@ namespace FC.Codeflix.Catalog.Infra.Data.EF.Repositories
             => _context = context;
 
         private DbSet<Video> _videos => _context.Set<Video>();
+        private DbSet<Media> _medias => _context.Set<Media>();
         private DbSet<VideosCategories> _videosCategories => _context.Set<VideosCategories>();
         private DbSet<VideosGenres> _videosGenres => _context.Set<VideosGenres>();
         private DbSet<VideosCastMembers> _videosCastMembers => _context.Set<VideosCastMembers>();
@@ -22,7 +22,15 @@ namespace FC.Codeflix.Catalog.Infra.Data.EF.Repositories
 
         public Task Delete(Video aggregate, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            _videosCategories.RemoveRange(_videosCategories.Where(x => x.VideoId == aggregate.Id));
+            _videosGenres.RemoveRange(_videosGenres.Where(x => x.VideoId == aggregate.Id));
+            _videosCastMembers.RemoveRange(_videosCastMembers.Where(x => x.VideoId == aggregate.Id));
+
+            if (aggregate.Trailer is not null) _medias.Remove(aggregate.Trailer);
+            if (aggregate.Media is not null) _medias.Remove(aggregate.Media);
+
+            _videos.Remove(aggregate);
+            return Task.CompletedTask;
         }
 
         public Task<Video> Get(Guid id, CancellationToken cancellationToken)
@@ -42,7 +50,7 @@ namespace FC.Codeflix.Catalog.Infra.Data.EF.Repositories
 
         public async Task Insert(Video video, CancellationToken cancellationToken)
         {
-            
+
 
             if (video.Categories.Count > 0)
             {
