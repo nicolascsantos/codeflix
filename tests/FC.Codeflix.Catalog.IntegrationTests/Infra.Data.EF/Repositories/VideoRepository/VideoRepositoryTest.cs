@@ -413,5 +413,45 @@ namespace FC.Codeflix.Catalog.IntegrationTests.Infra.Data.EF.Repositories.VideoR
 
             assertsDbContext.Set<Media>().Count().Should().Be(0);
         }
+
+        [Fact(DisplayName = nameof(Get))]
+        [Trait("Integration/Infra.Data", "VideoRepository - Repositories")]
+        public async Task Get()
+        {
+            var exampleVideo = _fixture.GetExampleVideo();
+
+            using (Context.CodeflixCatalogDbContext dbContext = _fixture.CreateDbContext())
+            {
+                await dbContext.Videos.AddAsync(exampleVideo);
+                await dbContext.SaveChangesAsync();
+            }
+
+            var actDbContext = _fixture.CreateDbContext(true);
+            var savedVideo = await actDbContext.Videos
+                .FirstAsync(video => video.Id == exampleVideo.Id);
+
+            IVideoRepository videoRepository = new Repository.VideoRepository(actDbContext);
+
+            await videoRepository.Get(exampleVideo.Id, CancellationToken.None);
+            
+
+            var assertsDbContext = _fixture.CreateDbContext(true);
+            var dbVideo = await assertsDbContext.Videos.FindAsync(exampleVideo.Id);
+
+            dbVideo.Should().NotBeNull();
+            dbVideo.Title.Should().Be(exampleVideo.Title);
+            dbVideo.Description.Should().Be(exampleVideo.Description);
+            dbVideo.YearLaunched.Should().Be(exampleVideo.YearLaunched);
+            dbVideo.Opened.Should().Be(exampleVideo.Opened);
+            dbVideo.Published.Should().Be(exampleVideo.Published);
+            dbVideo.Duration.Should().Be(exampleVideo.Duration);
+            dbVideo.Rating.Should().Be(exampleVideo.Rating);
+            dbVideo.CreatedAt.Should().Be(exampleVideo.CreatedAt);
+            dbVideo.Thumb.Should().BeNull();
+            dbVideo.ThumbHalf.Should().BeNull();
+            dbVideo.Banner.Should().BeNull();
+            dbVideo.Media.Should().BeNull();
+            dbVideo.Trailer.Should().BeNull();
+        }
     }
 }

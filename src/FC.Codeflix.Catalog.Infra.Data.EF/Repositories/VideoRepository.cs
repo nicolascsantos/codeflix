@@ -1,4 +1,5 @@
 ﻿using FC.Codeflix.Catalog.Infra.Data.EF.Models;
+using FC.CodeFlix.Catalog.Application.Exceptions;
 using FC.CodeFlix.Catalog.Domain.Entity;
 using FC.CodeFlix.Catalog.Domain.Repository;
 using FC.CodeFlix.Catalog.Domain.SeedWork.SearchableRepository;
@@ -33,10 +34,9 @@ namespace FC.Codeflix.Catalog.Infra.Data.EF.Repositories
             return Task.CompletedTask;
         }
 
-        public Task<Video> Get(Guid id, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
+        public async Task<Video> Get(Guid id, CancellationToken cancellationToken)
+            => await _videos.AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == id) ?? throw new NotFoundException($"Video '{id}' not found.");
 
         public Task<IReadOnlyList<Guid>> GetIdsListByIds(List<Guid> list, CancellationToken cancellationToken)
         {
