@@ -1,4 +1,5 @@
 ﻿using FC.Codeflix.Catalog.Infra.Data.EF.Models;
+using FC.CodeFlix.Catalog.Application.Exceptions;
 using FC.CodeFlix.Catalog.Domain.Entity;
 using FC.CodeFlix.Catalog.Domain.Enum;
 using FC.CodeFlix.Catalog.Domain.Repository;
@@ -452,6 +453,21 @@ namespace FC.Codeflix.Catalog.IntegrationTests.Infra.Data.EF.Repositories.VideoR
             dbVideo.Banner.Should().BeNull();
             dbVideo.Media.Should().BeNull();
             dbVideo.Trailer.Should().BeNull();
+        }
+
+        [Fact(DisplayName = nameof(GetThrowIfNotFound))]
+        [Trait("Integration/Infra.Data", "VideoRepository - Repositories")]
+        public async Task GetThrowIfNotFound()
+        {
+            var dbContext = _fixture.CreateDbContext();
+            var randomGuid = Guid.NewGuid();
+            IVideoRepository videoRepository = new Repository.VideoRepository(dbContext);
+
+            var action = async () => await videoRepository.Get(randomGuid, CancellationToken.None);
+
+            await action.Should()
+                .ThrowAsync<NotFoundException>()
+                .WithMessage($"Video '{randomGuid}' not found.");
         }
     }
 }
