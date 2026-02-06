@@ -469,5 +469,85 @@ namespace FC.Codeflix.Catalog.IntegrationTests.Infra.Data.EF.Repositories.VideoR
                 .ThrowAsync<NotFoundException>()
                 .WithMessage($"Video '{randomGuid}' not found.");
         }
+
+        [Fact(DisplayName = nameof(GetWithAllPropertiesAndRelationships))]
+        [Trait("Integration/Infra.Data", "VideoRepository - Repositories")]
+        public async Task GetWithAllPropertiesAndRelationships()
+        {
+            var id = Guid.Empty;
+            var castMembers = _fixture.GetRandomCastMembersList();
+            var categories = _fixture.GetRandomCategoriesList();
+            var genres = _fixture.GetRandomGenresList();
+            var exampleVideo = _fixture.GetValidVideoWithAllProperties();
+
+            using (Context.CodeflixCatalogDbContext dbContext = _fixture.CreateDbContext())
+            {
+                id = exampleVideo.Id;
+
+                castMembers.ToList()
+                    .ForEach(castMember => dbContext.VideosCastMembers.Add(new VideosCastMembers(id, castMember.Id)));
+
+                categories.ToList()
+                    .ForEach(category => dbContext.VideosCategories.Add(new VideosCategories(id, category.Id)));
+
+                genres.ToList()
+                    .ForEach(genre => dbContext.VideosGenres.Add(new VideosGenres(id, genre.Id)));
+
+                await dbContext.CastMembers.AddRangeAsync(castMembers);
+                await dbContext.Categories.AddRangeAsync(categories);
+                await dbContext.Genres.AddRangeAsync(genres);
+                await dbContext.Videos.AddAsync(exampleVideo);
+                await dbContext.SaveChangesAsync();
+            }
+
+            var actDbContext = _fixture.CreateDbContext(true);
+            
+            IVideoRepository videoRepository = new Repository.VideoRepository(actDbContext);
+
+            var dbVideo = await videoRepository.Get(id, CancellationToken.None);
+
+            dbVideo.Should().NotBeNull();
+            dbVideo.Should().NotBeNull();
+            dbVideo.Title.Should().Be(exampleVideo.Title);
+            dbVideo.Description.Should().Be(exampleVideo.Description);
+            dbVideo.YearLaunched.Should().Be(exampleVideo.YearLaunched);
+            dbVideo.Opened.Should().Be(exampleVideo.Opened);
+            dbVideo.Published.Should().Be(exampleVideo.Published);
+            dbVideo.Duration.Should().Be(exampleVideo.Duration);
+            dbVideo.Rating.Should().Be(exampleVideo.Rating);
+            dbVideo.CreatedAt.Should().Be(exampleVideo.CreatedAt);
+            dbVideo.Thumb.Should().NotBeNull();
+            dbVideo.ThumbHalf.Should().NotBeNull();
+            dbVideo.Banner.Should().NotBeNull();
+            dbVideo.Media.Should().NotBeNull();
+            dbVideo.Trailer.Should().NotBeNull();
+
+            var assertsDbContext = _fixture.CreateDbContext(true);
+
+            var dbVideosCategories = assertsDbContext.VideosCategories
+                .Where(relation => relation.VideoId == id)
+                .ToList();
+            dbVideosCategories.Should().HaveCount(categories.Count);
+            dbVideosCategories.Select(relation => relation.CategoryId).ToList()
+                .Should()
+                .BeEquivalentTo(categories.Select(x => x.Id));
+
+            var dbVideosGenres = assertsDbContext.VideosGenres
+                .Where(relation => relation.VideoId == id)
+                .ToList();
+            dbVideosGenres.Should().HaveCount(genres.Count);
+            dbVideosGenres.Select(relation => relation.GenreId).ToList()
+                .Should()
+                .BeEquivalentTo(genres.Select(x => x.Id));
+
+            var dbVideosCastMembers = assertsDbContext.VideosCastMembers
+                .Where(relation => relation.VideoId == id)
+                .ToList();
+            dbVideosCastMembers.Should().HaveCount(castMembers.Count);
+            dbVideosCastMembers.Select(relation => relation.CastMemberId).ToList()
+                .Should()
+                .BeEquivalentTo(castMembers.Select(x => x.Id));
+
+        }
     }
 }
