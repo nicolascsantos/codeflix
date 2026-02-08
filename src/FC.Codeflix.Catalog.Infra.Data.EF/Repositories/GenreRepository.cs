@@ -72,8 +72,8 @@ namespace FC.Codeflix.Catalog.Infra.Data.EF.Repositories
                 query = query.Where(genre => genre.Name.Contains(input.Search));
 
             var total = await query.CountAsync();
-            var genres = await query.Skip(toSkip).Take(input.PerPage).ToListAsync(cancellationToken);
-            var genresIds = genres.Select(genre => genre.Id).ToList();
+            var items = await query.Skip(toSkip).Take(input.PerPage).ToListAsync(cancellationToken);
+            var genresIds = items.Select(genre => genre.Id).ToList();
             var relations = await _genresCategories
                 .Where(relation => genresIds.Contains(relation.GenreId))
                 .ToListAsync();
@@ -82,7 +82,7 @@ namespace FC.Codeflix.Catalog.Infra.Data.EF.Repositories
 
             relationsByGenreIdGroup.ForEach(relationGroup =>
             {
-                var genre = genres.Find(genre => genre.Id == relationGroup.Key);
+                var genre = items.Find(genre => genre.Id == relationGroup.Key);
                 if (genre is null) return;
                 relationGroup.ToList()
                     .ForEach(relation => genre.AddCategory(relation.CategoryId));
@@ -92,7 +92,7 @@ namespace FC.Codeflix.Catalog.Infra.Data.EF.Repositories
                 input.Page,
                 input.PerPage,
                 total,
-                genres
+                items
             );
         }
 
