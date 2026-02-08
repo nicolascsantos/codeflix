@@ -112,16 +112,10 @@ namespace FC.Codeflix.Catalog.Infra.Data.EF.Repositories
             => await _genres.AsNoTracking()
                 .Where(genre => ids.Contains(genre.Id))
                 .Select(genre => genre.Id)
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
 
-        public Task<IReadOnlyList<Video>> GetListByIds(List<Guid> list, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<IReadOnlyList<Genre>> IGenreRepository.GetListByIds(List<Guid> list, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
+        public async Task<IReadOnlyList<Genre>> GetListByIds(List<Guid> list, CancellationToken cancellationToken)
+            => await _genres.Where(x => list.Contains(x.Id))
+                .ToListAsync(cancellationToken);
     }
 }
