@@ -35,8 +35,28 @@ namespace FC.Codeflix.Catalog.Infra.Data.EF.Repositories
         }
 
         public async Task<Video> Get(Guid id, CancellationToken cancellationToken)
-            => await _videos.AsNoTracking()
+        {
+            var video = await _videos
+                .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.Id == id) ?? throw new NotFoundException($"Video '{id}' not found.");
+
+            var categoriesIds = await _videosCategories.Where(x => x.VideoId == id)
+                .Select(x => x.CategoryId)
+                .ToListAsync();
+            categoriesIds.ForEach(video.AddCategory);
+
+            var genresIds = await _videosGenres.Where(genre => genre.VideoId == id)
+                .Select(x => x.GenreId)
+                .ToListAsync();
+            genresIds.ForEach(video.AddGenre);
+
+            var castMembersIds = await _videosCastMembers.Where(castMember => castMember.VideoId == id)
+                .Select(x => x.CastMemberId)
+                .ToListAsync();
+            castMembersIds.ForEach(video.AddCastMember);
+
+            return video;
+        }
 
         public Task<IReadOnlyList<Guid>> GetIdsListByIds(List<Guid> list, CancellationToken cancellationToken)
         {

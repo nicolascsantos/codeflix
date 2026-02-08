@@ -163,7 +163,7 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.CastMember.ListCastMembers
         [InlineData("", "asc")]
         public async Task OrderedSearch(string orderBy, string order)
         {
-            var searchOrder = order == "asc" ? SearchOrder.Asc : SearchOrder.Desc;
+            var searchOrder = order.ToLower() == "asc" ? SearchOrder.Asc : SearchOrder.Desc;
             var castMemberListExample = _fixture.GetExampleCastMembersList(10);
             await _fixture.Persistence.InsertList(castMemberListExample);
 

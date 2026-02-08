@@ -507,7 +507,6 @@ namespace FC.Codeflix.Catalog.IntegrationTests.Infra.Data.EF.Repositories.VideoR
             var dbVideo = await videoRepository.Get(id, CancellationToken.None);
 
             dbVideo.Should().NotBeNull();
-            dbVideo.Should().NotBeNull();
             dbVideo.Title.Should().Be(exampleVideo.Title);
             dbVideo.Description.Should().Be(exampleVideo.Description);
             dbVideo.YearLaunched.Should().Be(exampleVideo.YearLaunched);
@@ -517,10 +516,20 @@ namespace FC.Codeflix.Catalog.IntegrationTests.Infra.Data.EF.Repositories.VideoR
             dbVideo.Rating.Should().Be(exampleVideo.Rating);
             dbVideo.CreatedAt.Should().Be(exampleVideo.CreatedAt);
             dbVideo.Thumb.Should().NotBeNull();
+            dbVideo.Thumb.Path.Should().Be(exampleVideo.Thumb!.Path);
             dbVideo.ThumbHalf.Should().NotBeNull();
+            dbVideo.ThumbHalf.Path.Should().Be(exampleVideo.ThumbHalf!.Path);
             dbVideo.Banner.Should().NotBeNull();
+            dbVideo.Banner.Path.Should().Be(exampleVideo.Banner!.Path);
             dbVideo.Media.Should().NotBeNull();
+            dbVideo.Media.EncodedPath.Should().Be(exampleVideo.Media!.EncodedPath);
+            dbVideo.Media.FilePath.Should().Be(exampleVideo.Media!.FilePath);
+            dbVideo.Media.Status.Should().Be(exampleVideo.Media!.Status);
             dbVideo.Trailer.Should().NotBeNull();
+            dbVideo.Trailer.EncodedPath.Should().Be(exampleVideo.Trailer!.EncodedPath);
+            dbVideo.Trailer.FilePath.Should().Be(exampleVideo.Trailer!.FilePath);
+            dbVideo.Trailer.Status.Should().Be(exampleVideo.Trailer!.Status);
+
 
             var assertsDbContext = _fixture.CreateDbContext(true);
 
