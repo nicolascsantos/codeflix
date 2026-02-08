@@ -3,6 +3,7 @@ using FC.CodeFlix.Catalog.Application.Exceptions;
 using FC.CodeFlix.Catalog.Domain.Entity;
 using FC.CodeFlix.Catalog.Domain.Enum;
 using FC.CodeFlix.Catalog.Domain.Repository;
+using FC.CodeFlix.Catalog.Domain.SeedWork.SearchableRepository;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Context = FC.Codeflix.Catalog.Infra.Data.EF;
@@ -557,6 +558,252 @@ namespace FC.Codeflix.Catalog.IntegrationTests.Infra.Data.EF.Repositories.VideoR
                 .Should()
                 .BeEquivalentTo(castMembers.Select(x => x.Id));
 
+        }
+
+        [Fact(DisplayName = nameof(Search))]
+        [Trait("Integration/Infra.Data", "VideoRepository - Repositories")]
+        public async Task Search()
+        {
+            var exampleVideosList = _fixture.GetExampleVideoList();
+            var arrangeDbContext = _fixture.CreateDbContext();
+            await arrangeDbContext.Videos.AddRangeAsync(exampleVideosList);
+            await arrangeDbContext.SaveChangesAsync();
+
+            var actDbContext = _fixture.CreateDbContext(true);
+            var videoRepository = new Repository.VideoRepository(actDbContext);
+
+            var searchInput = new SearchInput(
+                page: 1,
+                perPage: 20,
+                search: "",
+                orderBy: "",
+                searchOrder: default
+            );
+
+            var result = await videoRepository.Search(searchInput, CancellationToken.None);
+
+            result.Should().NotBeNull();
+            result.CurrentPage.Should().Be(searchInput.Page);
+            result.PerPage.Should().Be(searchInput.PerPage);
+            result.Total.Should().Be(exampleVideosList.Count);
+            result.Items.Should().NotBeNull();
+            result.Items.Should().HaveCount(exampleVideosList.Count);
+            result.Items.ToList().ForEach(resultItem =>
+            {
+                var exampleItem = exampleVideosList
+                    .FirstOrDefault(x => x.Id == resultItem.Id);
+                exampleItem.Should().NotBeNull();
+                resultItem.Title.Should().Be(exampleItem.Title);
+                resultItem.Description.Should().Be(exampleItem.Description);
+                resultItem.YearLaunched.Should().Be(exampleItem.YearLaunched);
+                resultItem.Opened.Should().Be(exampleItem.Opened);
+                resultItem.Published.Should().Be(exampleItem.Published);
+                resultItem.Duration.Should().Be(exampleItem.Duration);
+                resultItem.Rating.Should().Be(exampleItem.Rating);
+                resultItem.CreatedAt.Should().Be(exampleItem.CreatedAt);
+
+                resultItem.Thumb.Should().BeNull();
+                resultItem.ThumbHalf.Should().BeNull();
+                resultItem.Banner.Should().BeNull();
+
+                resultItem.Media.Should().BeNull();
+                resultItem.Trailer.Should().BeNull();
+
+                resultItem.Categories.Should().BeEmpty();
+                resultItem.Genres.Should().BeEmpty();
+                resultItem.CastMembers.Should().BeEmpty();
+            });
+        }
+
+        [Fact(DisplayName = nameof(SearchRetursEmptyWhenEmpty))]
+        [Trait("Integration/Infra.Data", "VideoRepository - Repositories")]
+        public async Task SearchRetursEmptyWhenEmpty()
+        {
+            var actDbContext = _fixture.CreateDbContext();
+            var videoRepository = new Repository.VideoRepository(actDbContext);
+
+            var searchInput = new SearchInput(
+                page: 1,
+                perPage: 20,
+                search: "",
+                orderBy: "",
+                searchOrder: default
+            );
+
+            var result = await videoRepository.Search(searchInput, CancellationToken.None);
+
+            result.Should().NotBeNull();
+            result.CurrentPage.Should().Be(searchInput.Page);
+            result.PerPage.Should().Be(searchInput.PerPage);
+            result.Total.Should().Be(0);
+            result.Items.Should().NotBeNull();
+            result.Items.Should().HaveCount(0);
+        }
+
+        [Theory(DisplayName = nameof(SearchPagination))]
+        [Trait("Integration/Infra.Data", "VideoRepository - Repositories")]
+        [InlineData(10, 1, 5, 5)]
+        [InlineData(10, 2, 5, 5)]
+        [InlineData(7, 2, 5, 2)]
+        [InlineData(7, 3, 5, 0)]
+        public async Task SearchPagination(
+            int quantityToGenerate,
+            int page,
+            int perPage,
+            int expectedQuantityItems
+        )
+        {
+            var exampleVideosList = _fixture.GetExampleVideoList(quantityToGenerate);
+            var arrangeDbContext = _fixture.CreateDbContext();
+            await arrangeDbContext.Videos.AddRangeAsync(exampleVideosList);
+            await arrangeDbContext.SaveChangesAsync();
+
+            var actDbContext = _fixture.CreateDbContext(true);
+            var videoRepository = new Repository.VideoRepository(actDbContext);
+
+            var searchInput = new SearchInput(
+                page: page,
+                perPage: perPage,
+                search: "",
+                orderBy: "",
+                searchOrder: default
+            );
+
+            var result = await videoRepository.Search(searchInput, CancellationToken.None);
+
+            result.Should().NotBeNull();
+            result.CurrentPage.Should().Be(searchInput.Page);
+            result.PerPage.Should().Be(searchInput.PerPage);
+            result.Total.Should().Be(exampleVideosList.Count);
+            result.Items.Should().NotBeNull();
+            result.Items.Should().HaveCount(expectedQuantityItems);
+            result.Items.ToList().ForEach(resultItem =>
+            {
+                var exampleItem = exampleVideosList
+                    .FirstOrDefault(x => x.Id == resultItem.Id);
+                exampleItem.Should().NotBeNull();
+                resultItem.Title.Should().Be(exampleItem.Title);
+                resultItem.Description.Should().Be(exampleItem.Description);
+            });
+        }
+
+        [Theory(DisplayName = nameof(SearchByTitle))]
+        [Trait("Integration/Infra.Data", "VideoRepository - Repositories")]
+        [InlineData("Action", 1, 5, 1, 1)]
+        [InlineData("Horror", 1, 5, 3, 3)]
+        [InlineData("Horror", 2, 5, 0, 3)]
+        [InlineData("Sci-fi", 1, 5, 4, 4)]
+        [InlineData("Sci-fi", 1, 2, 2, 4)]
+        [InlineData("Sci-fi", 2, 3, 1, 4)]
+        [InlineData("Sci-fi Other", 1, 3, 0, 0)]
+        [InlineData("", 1, 5, 5, 9)]
+        [InlineData("test-no-items", 1, 5, 0, 0)]
+        public async Task SearchByTitle(
+            string search,
+            int page,
+            int perPage,
+            int expectedQuantityItemsReturned,
+            int expectedQuantityTotalItems
+        )
+        {
+            var exampleVideosList = _fixture.GetExampleVideoListByTitles(
+                new List<string>()
+                {
+                    "Action",
+                    "Horror",
+                    "Horror - Robots",
+                    "Horror - Based on Real Facts",
+                    "Drama",
+                    "Sci-fi AI",
+                    "Sci-fi Space",
+                    "Sci-fi Robots",
+                    "Sci-fi Future"
+                }
+            );
+            var arrangeDbContext = _fixture.CreateDbContext();
+            await arrangeDbContext.Videos.AddRangeAsync(exampleVideosList);
+            await arrangeDbContext.SaveChangesAsync();
+
+            var actDbContext = _fixture.CreateDbContext(true);
+            var videoRepository = new Repository.VideoRepository(actDbContext);
+
+            var searchInput = new SearchInput(
+                page: page,
+                perPage: perPage,
+                search: search,
+                orderBy: "",
+                searchOrder: default
+            );
+
+            var result = await videoRepository.Search(searchInput, CancellationToken.None);
+
+            result.Should().NotBeNull();
+            result.CurrentPage.Should().Be(searchInput.Page);
+            result.PerPage.Should().Be(searchInput.PerPage);
+            result.Total.Should().Be(expectedQuantityTotalItems);
+            result.Items.Should().NotBeNull();
+            result.Items.Should().HaveCount(expectedQuantityItemsReturned);
+            result.Items.ToList().ForEach(resultItem =>
+            {
+                var exampleItem = exampleVideosList
+                    .FirstOrDefault(x => x.Id == resultItem.Id);
+                exampleItem.Should().NotBeNull();
+                resultItem.Title.Should().Be(exampleItem.Title);
+                resultItem.Description.Should().Be(exampleItem.Description);
+            });
+        }
+
+        [Theory(DisplayName = nameof(SearchOrdered))]
+        [Trait("Integration/Infra.Data", "VideoRepository - Repositories")]
+        [InlineData("title", "asc")]
+        [InlineData("title", "desc")]
+        [InlineData("id", "asc")]
+        [InlineData("id", "desc")]
+        [InlineData("createdat", "asc")]
+        [InlineData("createdat", "desc")]
+        [InlineData("", "asc")]
+        public async Task SearchOrdered(string orderBy, string order)
+        {
+            Context.CodeflixCatalogDbContext dbContext = _fixture.CreateDbContext();
+            var exampleVideosList = _fixture.GetExampleVideoList();
+            var searchOrder = order == "asc" ? SearchOrder.Asc : SearchOrder.Desc;
+            await dbContext.AddRangeAsync(exampleVideosList);
+            await dbContext.SaveChangesAsync(CancellationToken.None);
+            var videosRepository = new Repository.VideoRepository(dbContext);
+
+            var searchInput = new SearchInput(
+                page: 1,
+                perPage: 20,
+                search: "",
+                orderBy: orderBy,
+                searchOrder: searchOrder
+            );
+
+            var output = await videosRepository.Search(searchInput, CancellationToken.None);
+
+            var expectedOrderedList = _fixture.CloneVideoListOrdered(
+                exampleVideosList,
+                orderBy,
+                searchOrder
+            );
+
+
+            output.Should().NotBeNull();
+            output.CurrentPage.Should().Be(searchInput.Page);
+            output.PerPage.Should().Be(searchInput.PerPage);
+            output.Total.Should().Be(exampleVideosList.Count);
+            output.Items.Should().NotBeNull();
+            output.Items.Should().HaveCount(exampleVideosList.Count);
+            for (int index = 0; index < expectedOrderedList.Count; index++)
+            {
+                var outputItem = output.Items[index];
+                var expectedItem = expectedOrderedList[index];
+                expectedItem.Should().NotBeNull();
+                outputItem.Should().NotBeNull();
+                outputItem.Id.Should().Be(expectedItem.Id);
+                outputItem.Title.Should().Be(expectedItem.Title);
+                outputItem.Description.Should().Be(expectedItem.Description);
+            }
         }
     }
 }

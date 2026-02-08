@@ -105,9 +105,43 @@ namespace FC.Codeflix.Catalog.Infra.Data.EF.Repositories
             await _videos.AddAsync(video, cancellationToken);
         }
 
-        public Task<SearchOutput<Video>> Search(SearchInput input, CancellationToken cancellationToken)
+        public async Task<SearchOutput<Video>> Search(SearchInput input, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var toSkip = (input.Page - 1) * input.PerPage;
+
+            var query = _videos.AsNoTracking();
+
+            if (!string.IsNullOrWhiteSpace(input.Search))
+                query = query.Where(x => x.Title.Contains(input.Search));
+
+            query = input switch
+            {
+                { Order: SearchOrder.Asc } when input.OrderBy.ToLower() is "title"
+                    => query.OrderBy(video => video.Title).ThenBy(video => video.Id),
+                { Order: SearchOrder.Desc } when input.OrderBy.ToLower() is "title"
+                    => query.OrderByDescending(video => video.Title).ThenByDescending(video => video.Id),
+                { Order: SearchOrder.Asc } when input.OrderBy.ToLower() is "id"
+                    => query.OrderBy(video => video.Id),
+                { Order: SearchOrder.Desc } when input.OrderBy.ToLower() is "id"
+                    => query.OrderByDescending(video => video.Id),
+                { Order: SearchOrder.Asc } when input.OrderBy.ToLower() is "createdat"
+                    => query.OrderBy(video => video.CreatedAt),
+                { Order: SearchOrder.Desc } when input.OrderBy.ToLower() is "createdat"
+                    => query.OrderByDescending(video => video.CreatedAt),
+                _ => query = query.OrderBy(video => video.Title).ThenBy(video => video.Id)
+            };
+
+            var count = query.Count();
+            var items = await query.Skip(toSkip)
+                .Take(input.PerPage)
+                .ToListAsync(cancellationToken);
+
+            return new SearchOutput<Video>(
+                input.Page,
+                input.PerPage,
+                count,
+                items
+            );
         }
 
         public async Task Update(Video video, CancellationToken cancellationToken)

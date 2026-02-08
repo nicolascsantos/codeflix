@@ -1,5 +1,6 @@
 ﻿using FC.Codeflix.Catalog.IntegrationTests.Base;
 using FC.CodeFlix.Catalog.Domain.Enum;
+using FC.CodeFlix.Catalog.Domain.SeedWork.SearchableRepository;
 using System.Linq;
 using DomainEntity = FC.CodeFlix.Catalog.Domain.Entity;
 
@@ -12,9 +13,9 @@ namespace FC.Codeflix.Catalog.IntegrationTests.Infra.Data.EF.Repositories.VideoR
 
     public class VideoRepositoryTestFixture : BaseFixture
     {
-        public DomainEntity.Video GetExampleVideo()
+        public DomainEntity.Video GetExampleVideo(string? title = null)
             => new(
-                GetValidTitle(),
+                title ?? GetValidTitle(),
                 GetValidDescription(),
                 GetValidYearLaunched(),
                 true,
@@ -22,6 +23,28 @@ namespace FC.Codeflix.Catalog.IntegrationTests.Infra.Data.EF.Repositories.VideoR
                 GetValidDuration(),
                 GetRandomRating()
             );
+
+        public List<DomainEntity.Video> GetExampleVideoList(int count = 10)
+            => Enumerable.Range(1, count).Select(_ => GetExampleVideo()).ToList();
+
+        public List<DomainEntity.Video> GetExampleVideoListByTitles(List<string> titles)
+            => titles.Select(title => GetExampleVideo(title: title)).ToList();
+
+        public List<DomainEntity.Video> CloneVideoListOrdered(List<DomainEntity.Video> videosList, string orderBy, SearchOrder order)
+        {
+            var listClone = new List<DomainEntity.Video>(videosList);
+            var orderedEnumerable = (orderBy.ToLower(), order) switch
+            {
+                ("title", SearchOrder.Asc) => listClone.OrderBy(x => x.Title),
+                ("title", SearchOrder.Desc) => listClone.OrderByDescending(x => x.Title),
+                ("id", SearchOrder.Asc) => listClone.OrderBy(x => x.Id),
+                ("id", SearchOrder.Desc) => listClone.OrderByDescending(x => x.Id),
+                ("createdat", SearchOrder.Asc) => listClone.OrderBy(x => x.CreatedAt),
+                ("createdat", SearchOrder.Desc) => listClone.OrderByDescending(x => x.CreatedAt),
+                _ => listClone.OrderBy(x => x.Title)
+            };
+            return orderedEnumerable.ToList();
+        }
 
         public DomainEntity.Video GetValidVideoWithAllProperties()
         {
