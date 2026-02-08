@@ -108,10 +108,11 @@ namespace FC.Codeflix.Catalog.Infra.Data.EF.Repositories
             _ => query.OrderBy(x => x.Name)
         };
 
-        public Task<IReadOnlyList<Guid>> GetIdsListByIds(List<Guid> list, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
+        public async Task<IReadOnlyList<Guid>> GetIdsListByIds(List<Guid> ids, CancellationToken cancellationToken)
+            => await _genres.AsNoTracking()
+                .Where(genre => ids.Contains(genre.Id))
+                .Select(genre => genre.Id)
+                .ToListAsync();
 
         public Task<IReadOnlyList<Video>> GetListByIds(List<Guid> list, CancellationToken cancellationToken)
         {

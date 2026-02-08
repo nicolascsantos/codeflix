@@ -1,4 +1,5 @@
-﻿using FC.Codeflix.Catalog.Infra.Data.EF.Models;
+﻿using FC.Codeflix.Catalog.Infra.Data.EF;
+using FC.Codeflix.Catalog.Infra.Data.EF.Models;
 using FC.CodeFlix.Catalog.Application.Exceptions;
 using FC.CodeFlix.Catalog.Domain.SeedWork.SearchableRepository;
 using FluentAssertions;
@@ -582,6 +583,65 @@ namespace FC.Codeflix.Catalog.IntegrationTests.Infra.Data.EF.Repositories.GenreR
                 outputItem.IsActive.Should().Be(expectedItem.IsActive);
                 outputItem.CreatedAt.Should().Be(expectedItem.CreatedAt);
             }
+        }
+
+        [Fact(DisplayName = nameof(GetIdsListByIds))]
+        [Trait("Integration/Infra.Data", "GenreRepository - Repositories")]
+        public async Task GetIdsListByIds()
+        {
+            CodeflixCatalogDbContext arrangeDbContext = _fixture.CreateDbContext();
+            var exampleGenresList = _fixture.GetExampleListGenres();
+            await arrangeDbContext.AddRangeAsync(exampleGenresList);
+            await arrangeDbContext.SaveChangesAsync();
+
+            var actDbContext = _fixture.CreateDbContext();
+            var repository = new Repository.GenreRepository(actDbContext);
+            var idsToGet = new List<Guid>()
+            {
+                exampleGenresList[2].Id,
+                exampleGenresList[3].Id
+            };
+
+            var result = await repository.GetIdsListByIds(
+                idsToGet,
+                CancellationToken.None
+            );
+
+            result.Should().HaveCount(idsToGet.Count);
+            result.ToList().Should().BeEquivalentTo(idsToGet);
+        }
+
+        [Fact(DisplayName = nameof(GetIdsListByIdsWhenOnlyThreeIdsMatch))]
+        [Trait("Integration/Infra.Data", "GenreRepository - Repositories")]
+        public async Task GetIdsListByIdsWhenOnlyThreeIdsMatch()
+        {
+            var arrangeDbContext = _fixture.CreateDbContext();
+            var exampleGenresList = _fixture.GetExampleListGenres(10);
+            await arrangeDbContext.AddRangeAsync(exampleGenresList);
+            await arrangeDbContext.SaveChangesAsync(CancellationToken.None);
+            var actDbContext = _fixture.CreateDbContext(true);
+            var repository = new Repository.GenreRepository(actDbContext);
+            var idsToGet = new List<Guid>() {
+            exampleGenresList[3].Id,
+            exampleGenresList[4].Id,
+            exampleGenresList[5].Id,
+            Guid.NewGuid(),
+            Guid.NewGuid()
+        };
+            var idsExpectedToReturn = new List<Guid>() {
+            exampleGenresList[3].Id,
+            exampleGenresList[4].Id,
+            exampleGenresList[5].Id
+        };
+
+            var result = await repository.GetIdsListByIds(
+                idsToGet,
+                CancellationToken.None
+            );
+
+            result.Should().HaveCount(idsExpectedToReturn.Count);
+            result.ToList().Should().NotBeEquivalentTo(idsToGet);
+            result.ToList().Should().BeEquivalentTo(idsExpectedToReturn);
         }
     }
 }
