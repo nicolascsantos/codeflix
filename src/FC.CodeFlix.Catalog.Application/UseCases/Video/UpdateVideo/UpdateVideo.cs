@@ -92,6 +92,13 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.UpdateVideo
                     request.CastMembersIds!.ToList().ForEach(video.AddCastMember);
                 }
             }
+
+            if ((request.CastMembersIds?.ToList().Count ?? 0) > 0)
+            {
+                await ValidateCastMembersIds(request, cancellationToken);
+                video.RemoveAllCastMembers();
+                request.CastMembersIds!.ToList().ForEach(video.AddCastMember);
+            }
         }
 
         private async Task ValidateGenresIds(UpdateVideoInput request, CancellationToken cancellationToken)

@@ -258,9 +258,9 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.UpdateVideo
             ), Times.Never);
         }
 
-        [Fact(DisplayName = nameof(UpdateVideosWithCastMembersIds))]
+        [Fact(DisplayName = nameof(UpdateVideosWithCastMemberIds))]
         [Trait("Application", "UpdateVideo - Use Cases")]
-        public async Task UpdateVideosWithCastMembersIds()
+        public async Task UpdateVideosWithCastMemberIds()
         {
             var exampleVideo = _fixture.GetValidVideo();
             var exampleIds = Enumerable.Range(1, 5)
