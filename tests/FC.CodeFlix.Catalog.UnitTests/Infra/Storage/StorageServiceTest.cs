@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+﻿using Google.Apis.Storage.v1;
 using Google.Apis.Upload;
 using Google.Cloud.Storage.V1;
 using Microsoft.Extensions.Options;
@@ -8,8 +8,15 @@ using GcpData = Google.Apis.Storage.v1.Data;
 
 namespace FC.CodeFlix.Catalog.UnitTests.Infra.Storage
 {
+    [Collection(nameof(StorageServiceTestFixture))]
     public class StorageServiceTest
     {
+        private readonly StorageServiceTestFixture _fixture;
+
+        public StorageServiceTest(StorageServiceTestFixture fixture)
+            => _fixture = fixture;
+
+
         [Fact(DisplayName = nameof(Upload))]
         [Trait("Infra.Storage", "StorageService")]
         public async Task Upload()
@@ -28,19 +35,19 @@ namespace FC.CodeFlix.Catalog.UnitTests.Infra.Storage
 
             var storageOptions = new StorageServiceOptions
             {
-                BucketName = "test"
+                BucketName = _fixture.GetBucketName()
             };
             var options = Options.Create(storageOptions);
 
             var service = new StorageService(storageClientMock.Object, options);
 
-            var fileName = "video/test.mp4";
-            var contentStream = Encoding.UTF8.GetBytes("content-example");
+            var fileName = _fixture.GetFileName();
+            var contentStream = Encoding.UTF8.GetBytes(_fixture.GetFileContent());
             var stream = new MemoryStream(contentStream);
-            var contentType = "video/mp4";
+            var contentType = _fixture.GetContentType();
 
             var filePath = await service.Upload(
-                fileName, 
+                fileName,
                 stream,
                 contentType,
                 CancellationToken.None
@@ -55,6 +62,35 @@ namespace FC.CodeFlix.Catalog.UnitTests.Infra.Storage
                 It.IsAny<UploadObjectOptions>(),
                 It.IsAny<CancellationToken>(),
                 It.IsAny<IProgress<IUploadProgress>>()
+            ), Times.Once);
+        }
+
+        [Fact(DisplayName = nameof(Delete))]
+        [Trait("Infra.Storage", "StorageService")]
+        public async Task Delete()
+        {
+            var storageClientMock = new Mock<StorageClient>();
+            storageClientMock.Setup(x => x.DeleteObjectAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<DeleteObjectOptions>(),
+                It.IsAny<CancellationToken>()
+            )).Returns(Task.CompletedTask);
+            var storageOptions = new StorageServiceOptions
+            {
+                BucketName = _fixture.GetBucketName()
+            };
+            var options = Options.Create(storageOptions);
+            var service = new StorageService(storageClientMock.Object, options);
+            var fileName = _fixture.GetFileName();
+
+            await service.Delete(fileName, CancellationToken.None);
+
+            storageClientMock.Verify(x => x.DeleteObjectAsync(
+                storageOptions.BucketName,
+                fileName,
+                It.IsAny<DeleteObjectOptions>(),
+                It.IsAny<CancellationToken>()
             ), Times.Once);
         }
     }
