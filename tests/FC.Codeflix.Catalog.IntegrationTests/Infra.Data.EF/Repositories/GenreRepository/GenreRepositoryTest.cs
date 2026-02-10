@@ -594,7 +594,7 @@ namespace FC.Codeflix.Catalog.IntegrationTests.Infra.Data.EF.Repositories.GenreR
             await arrangeDbContext.AddRangeAsync(exampleGenresList);
             await arrangeDbContext.SaveChangesAsync();
 
-            var actDbContext = _fixture.CreateDbContext();
+            var actDbContext = _fixture.CreateDbContext(true);
             var repository = new Repository.GenreRepository(actDbContext);
             var idsToGet = new List<Guid>()
             {
