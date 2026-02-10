@@ -1,9 +1,17 @@
 ﻿using FC.CodeFlix.Catalog.Application.Interfaces;
+using FC.CodeFlix.Catalog.Infra.Storage.Configuration;
+using Google.Cloud.Storage.V1;
+using Microsoft.Extensions.Options;
 
-namespace FC.Codeflix.Catalog.Infra.Data.EF.Repositories
+namespace FC.CodeFlix.Catalog.Infra.Storage.Services
 {
     public class StorageService : IStorageService
     {
+        public StorageService(StorageClient storageClient, IOptions<StorageServiceOptions> options)
+        {
+            
+        }
+
         public Task Delete(string filePath, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();

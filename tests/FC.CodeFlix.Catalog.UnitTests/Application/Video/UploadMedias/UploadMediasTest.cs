@@ -51,6 +51,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.UploadMedias
             _storageServiceMock.Setup(x => x.Upload(
                 It.IsAny<string>(),
                 It.IsAny<Stream>(),
+                It.IsAny<string>(),
                 It.IsAny<CancellationToken>()
             )).ReturnsAsync(Guid.NewGuid().ToString());
 
@@ -61,6 +62,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.UploadMedias
             _storageServiceMock.Verify(x => x.Upload(
                 It.Is<string>(x => fileNames.Contains(x)),
                 It.IsAny<Stream>(),
+                It.IsAny<string>(),
                 It.IsAny<CancellationToken>())
                 , Times.Exactly(2)
             );
@@ -109,6 +111,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.UploadMedias
                 .Setup(x => x.Upload(
                     It.Is<string>(x => x == videoFileName),
                     It.IsAny<Stream>(),
+                    It.IsAny<string>(),
                     It.IsAny<CancellationToken>())
                 ).ReturnsAsync(videoStoragePath);
 
@@ -116,6 +119,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.UploadMedias
                 .Setup(x => x.Upload(
                     It.Is<string>(x => x == trailerFileName),
                     It.IsAny<Stream>(),
+                    It.IsAny<string>(),
                     It.IsAny<CancellationToken>())
                 ).ThrowsAsync(new Exception("Something went wrong with the upload"));
 
@@ -129,6 +133,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.UploadMedias
                 x.Upload(
                     It.Is<string>(x => fileNames.Contains(x)),
                     It.IsAny<Stream>(),
+                    It.IsAny<string>(),
                     It.IsAny<CancellationToken>()),
                 Times.Exactly(2)
             );
@@ -162,6 +167,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.UploadMedias
                 .Setup(x => x.Upload(
                     It.Is<string>(x => x == videoFileName),
                     It.IsAny<Stream>(),
+                    It.IsAny<string>(),
                     It.IsAny<CancellationToken>())
                 ).ReturnsAsync(videoStoragePath);
 
@@ -169,6 +175,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.UploadMedias
                 .Setup(x => x.Upload(
                     It.Is<string>(x => x == trailerFileName),
                     It.IsAny<Stream>(),
+                    It.IsAny<string>(),
                     It.IsAny<CancellationToken>())
                 ).ReturnsAsync(trailerStoragePath);
 
@@ -185,6 +192,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.UploadMedias
                 x.Upload(
                     It.Is<string>(x => fileNames.Contains(x)),
                     It.IsAny<Stream>(),
+                    It.IsAny<string>(),
                     It.IsAny<CancellationToken>()),
                 Times.Exactly(2)
             );
@@ -216,12 +224,14 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.UploadMedias
                 .Setup(x => x.Upload(
                     It.IsAny<string>(),
                     It.IsAny<Stream>(),
+                    It.IsAny<string>(),
                     It.IsAny<CancellationToken>())
                 ).ReturnsAsync(Guid.NewGuid().ToString());
             _storageServiceMock
                 .Setup(x => x.Upload(
                     It.Is<string>(x => x == videoFileName),
                     It.IsAny<Stream>(),
+                    It.IsAny<string>(),
                     It.IsAny<CancellationToken>())
                 ).ReturnsAsync(videoStoragePath);
             _unitOfWorkMock.Setup(x => x.Commit(It.IsAny<CancellationToken>()))
@@ -237,6 +247,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.UploadMedias
                 x.Upload(
                     It.Is<string>(x => x == videoFileName),
                     It.IsAny<Stream>(),
+                    It.IsAny<string>(),
                     It.IsAny<CancellationToken>()),
                 Times.Exactly(1)
             );
@@ -244,6 +255,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.UploadMedias
                 x.Upload(
                     It.IsAny<string>(),
                     It.IsAny<Stream>(),
+                    It.IsAny<string>(),
                     It.IsAny<CancellationToken>()),
                 Times.Exactly(1)
             );

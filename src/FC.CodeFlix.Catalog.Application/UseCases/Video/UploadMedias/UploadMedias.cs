@@ -60,8 +60,12 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.UploadMedias
                     nameof(video.Trailer),
                     request.TrailerFile.Extension
                 );
-                var uploadedFilePath = await _storageService
-                    .Upload(mediaFileName, request.TrailerFile.FileStream, cancellationToken);
+                var uploadedFilePath = await _storageService.Upload(
+                    mediaFileName,
+                    request.TrailerFile.FileStream,
+                    request.TrailerFile.ContentType,
+                    cancellationToken
+                );
                 video.UpdateTrailer(uploadedFilePath);
             }
         }
@@ -75,8 +79,12 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.UploadMedias
                     nameof(video.Media),
                     request.VideoFile.Extension
                 );
-                var uploadedFilePath = await _storageService
-                    .Upload(mediaFileName, request.VideoFile.FileStream, cancellationToken);
+                var uploadedFilePath = await _storageService.Upload(
+                    mediaFileName,
+                    request.VideoFile.FileStream,
+                    request.VideoFile.ContentType,
+                    cancellationToken
+                );
                 video.UpdateMedia(uploadedFilePath);
             }
         }

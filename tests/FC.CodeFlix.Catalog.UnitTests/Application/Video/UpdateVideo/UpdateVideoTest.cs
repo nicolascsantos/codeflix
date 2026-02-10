@@ -744,6 +744,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.UpdateVideo
                     input.Banner!.Extension)
                 ),
                 It.IsAny<MemoryStream>(),
+                It.IsAny<string>(),
                 It.IsAny<CancellationToken>()
             )).ReturnsAsync(bannerPath);
             
@@ -822,6 +823,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.UpdateVideo
             _storageService.Verify(x => x.Upload(
                 It.IsAny<string>(),
                 It.IsAny<Stream>(),
+                It.IsAny<string>(),
                 It.IsAny<CancellationToken>()
             ), Times.Never);
             _unitOfWorkMock.Verify(x => x.Commit(It.IsAny<CancellationToken>()));
@@ -851,6 +853,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.UpdateVideo
                     input.Thumb!.Extension)
                 ),
                 It.IsAny<MemoryStream>(),
+                It.IsAny<string>(),
                 It.IsAny<CancellationToken>()
             )).ReturnsAsync(thumbPath);
 
@@ -929,6 +932,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.UpdateVideo
             _storageService.Verify(x => x.Upload(
                 It.IsAny<string>(),
                 It.IsAny<Stream>(),
+                It.IsAny<string>(),
                 It.IsAny<CancellationToken>()
             ), Times.Never);
             _unitOfWorkMock.Verify(x => x.Commit(It.IsAny<CancellationToken>()));
@@ -958,6 +962,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.UpdateVideo
                     input.ThumbHalf!.Extension)
                 ),
                 It.IsAny<MemoryStream>(),
+                It.IsAny<string>(),
                 It.IsAny<CancellationToken>()
             )).ReturnsAsync(thumbHalfPath);
 
@@ -1036,6 +1041,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.UpdateVideo
             _storageService.Verify(x => x.Upload(
                 It.IsAny<string>(),
                 It.IsAny<Stream>(),
+                It.IsAny<string>(),
                 It.IsAny<CancellationToken>()
             ), Times.Never);
             _unitOfWorkMock.Verify(x => x.Commit(It.IsAny<CancellationToken>()));

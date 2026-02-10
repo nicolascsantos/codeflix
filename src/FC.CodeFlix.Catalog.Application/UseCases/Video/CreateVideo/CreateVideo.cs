@@ -78,14 +78,23 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.CreateVideo
             if (request.Media is not null)
             {
                 var fileName = StorageName.Create(video.Id, nameof(video.Media), request.Media.Extension);
-                var mediaUrl = await _storageService.Upload(fileName, request.Media.FileStream, cancellationToken);
+                var mediaUrl = await _storageService.Upload(
+                    fileName,
+                    request.Media.FileStream,
+                    request.Media.ContentType,
+                    cancellationToken
+                );
                 video.UpdateMedia(mediaUrl);
             }
 
             if (request.Trailer is not null)
             {
                 var fileName = StorageName.Create(video.Id, nameof(video.Trailer), request.Trailer.Extension);
-                var mediaUrl = await _storageService.Upload(fileName, request.Trailer.FileStream, cancellationToken);
+                var mediaUrl = await _storageService.Upload(
+                    fileName,
+                    request.Trailer.FileStream,
+                    request.Trailer.ContentType,
+                    cancellationToken);
                 video.UpdateTrailer(mediaUrl);
             }
         }
@@ -108,22 +117,33 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.CreateVideo
         {
             if (request.Thumb is not null)
             {
-                var thumbUrl = await _storageService
-                    .Upload($"{video.Id}-thumb.{request.Thumb.Extension}", request.Thumb.FileStream, cancellationToken);
+                var thumbUrl = await _storageService.Upload(
+                    $"{video.Id}-thumb.{request.Thumb.Extension}",
+                    request.Thumb.FileStream,
+                    request.Thumb.ContentType,
+                    cancellationToken
+                );
                 video.UpdateThumb(thumbUrl);
             }
 
             if (request.Banner is not null)
             {
-                var bannerUrl = await _storageService
-                    .Upload($"{video.Id}-banner.{request.Banner.Extension}", request.Banner.FileStream, cancellationToken);
+                var bannerUrl = await _storageService.Upload(
+                    $"{video.Id}-banner.{request.Banner.Extension}",
+                    request.Banner.FileStream,
+                    request.Banner.ContentType,
+                    cancellationToken);
                 video.UpdateBanner(bannerUrl);
             }
 
             if (request.ThumbHalf is not null)
             {
-                var thumbHalfUrl = await _storageService
-                    .Upload($"{video.Id}-thumbhalf.{request.ThumbHalf.Extension}", request.ThumbHalf.FileStream, cancellationToken);
+                var thumbHalfUrl = await _storageService.Upload(
+                    $"{video.Id}-thumbhalf.{request.ThumbHalf.Extension}",
+                    request.ThumbHalf.FileStream,
+                    request.ThumbHalf.ContentType,
+                    cancellationToken
+                );
                 video.UpdateThumbHalf(thumbHalfUrl);
             }
         }

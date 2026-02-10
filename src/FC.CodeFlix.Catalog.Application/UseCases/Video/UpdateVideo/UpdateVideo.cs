@@ -146,6 +146,7 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.UpdateVideo
                 var bannerUrl = await _storageService.Upload(
                     fileName,
                     request.Banner.FileStream,
+                    request.Banner.ContentType,
                     cancellationToken
                 );
                 video.UpdateBanner(bannerUrl);
@@ -157,6 +158,7 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.UpdateVideo
                 var thumbUrl = await _storageService.Upload(
                     fileName,
                     request.Thumb.FileStream,
+                    request.Thumb.ContentType,
                     cancellationToken
                 );
                 video.UpdateThumb(thumbUrl);
@@ -168,6 +170,7 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.UpdateVideo
                 var thumbUrl = await _storageService.Upload(
                     fileName,
                     request.ThumbHalf.FileStream,
+                    request.ThumbHalf.ContentType,
                     cancellationToken
                 );
                 video.UpdateThumbHalf(thumbUrl);

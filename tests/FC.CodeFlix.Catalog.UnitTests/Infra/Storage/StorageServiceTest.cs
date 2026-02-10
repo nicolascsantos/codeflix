@@ -1,10 +1,12 @@
-﻿using Google.Apis.Storage.v1;
+﻿using FC.CodeFlix.Catalog.Infra.Storage.Configuration;
+using Google.Apis.Storage.v1;
 using Google.Apis.Upload;
 using Google.Cloud.Storage.V1;
 using Microsoft.Extensions.Options;
 using Moq;
 using System.Text;
 using GcpData = Google.Apis.Storage.v1.Data;
+using Service = FC.CodeFlix.Catalog.Infra.Storage.Services;
 
 namespace FC.CodeFlix.Catalog.UnitTests.Infra.Storage
 {
@@ -33,13 +35,11 @@ namespace FC.CodeFlix.Catalog.UnitTests.Infra.Storage
                 It.IsAny<IProgress<IUploadProgress>>()
             )).ReturnsAsync(objectMock.Object);
 
-            var storageOptions = new StorageServiceOptions
-            {
-                BucketName = _fixture.GetBucketName()
-            };
+            var storageOptions = new StorageServiceOptions(_fixture.GetBucketName());
+
             var options = Options.Create(storageOptions);
 
-            var service = new StorageService(storageClientMock.Object, options);
+            var service = new Service.StorageService(storageClientMock.Object, options);
 
             var fileName = _fixture.GetFileName();
             var contentStream = Encoding.UTF8.GetBytes(_fixture.GetFileContent());
@@ -76,12 +76,9 @@ namespace FC.CodeFlix.Catalog.UnitTests.Infra.Storage
                 It.IsAny<DeleteObjectOptions>(),
                 It.IsAny<CancellationToken>()
             )).Returns(Task.CompletedTask);
-            var storageOptions = new StorageServiceOptions
-            {
-                BucketName = _fixture.GetBucketName()
-            };
+            var storageOptions = new StorageServiceOptions(_fixture.GetBucketName());
             var options = Options.Create(storageOptions);
-            var service = new StorageService(storageClientMock.Object, options);
+            var service = new Service.StorageService(storageClientMock.Object, options);
             var fileName = _fixture.GetFileName();
 
             await service.Delete(fileName, CancellationToken.None);
