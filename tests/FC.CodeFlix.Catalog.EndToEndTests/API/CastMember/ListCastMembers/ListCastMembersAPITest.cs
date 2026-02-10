@@ -154,6 +154,7 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.CastMember.ListCastMembers
 
         [Theory(DisplayName = nameof(OrderedSearch))]
         [Trait("EndToEnd/API", "CastMember/ListCastMembers")]
+        [InlineData("name", "asc")]
         [InlineData("name", "desc")]
         [InlineData("id", "asc")]
         [InlineData("id", "desc")]
@@ -162,7 +163,7 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.CastMember.ListCastMembers
         [InlineData("", "asc")]
         public async Task OrderedSearch(string orderBy, string order)
         {
-            var searchOrder = order == "asc" ? SearchOrder.Asc : SearchOrder.Desc;
+            var searchOrder = order.ToLower() == "asc" ? SearchOrder.Asc : SearchOrder.Desc;
             var castMemberListExample = _fixture.GetExampleCastMembersList(10);
             await _fixture.Persistence.InsertList(castMemberListExample);
 
@@ -187,7 +188,7 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.CastMember.ListCastMembers
                 exampleItem.Type.Should().Be(outputItem.Type);
             });
 
-            var orderedList = _fixture.CloneCategoriesListOrdered(castMemberListExample, orderBy, searchOrder);
+            var orderedList = _fixture.CloneCastMembersListOrdered(castMemberListExample, orderBy, searchOrder);
             for (int i = 0; i < orderedList.Count; i++)
             {
                 output.Data[i].Id.Should().Be(orderedList[i].Id);

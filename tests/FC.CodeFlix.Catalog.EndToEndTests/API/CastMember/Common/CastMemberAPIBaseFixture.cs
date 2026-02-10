@@ -42,18 +42,18 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.CastMember.Common
                 return example;
             }).ToList();
 
-        public List<DomainEntity.CastMember> CloneCategoriesListOrdered(List<DomainEntity.CastMember> castMembersList, string orderBy, SearchOrder order)
+        public List<DomainEntity.CastMember> CloneCastMembersListOrdered(List<DomainEntity.CastMember> castMembersList, string orderBy, SearchOrder order)
         {
             var listClone = new List<DomainEntity.CastMember>(castMembersList);
             var orderedEnumerable = (orderBy.ToLower(), order) switch
             {
-                ("name", SearchOrder.Asc) => listClone.OrderBy(x => x.Name),
-                ("name", SearchOrder.Desc) => listClone.OrderByDescending(x => x.Name),
+                ("name", SearchOrder.Asc) => listClone.OrderBy(x => x.Name, StringComparer.OrdinalIgnoreCase).ThenBy(x => x.Id),
+                ("name", SearchOrder.Desc) => listClone.OrderByDescending(x => x.Name, StringComparer.OrdinalIgnoreCase).ThenByDescending(x => x.Id),
                 ("id", SearchOrder.Asc) => listClone.OrderBy(x => x.Id),
                 ("id", SearchOrder.Desc) => listClone.OrderByDescending(x => x.Id),
-                ("createdat", SearchOrder.Asc) => listClone.OrderBy(x => x.CreatedAt),
-                ("createdat", SearchOrder.Desc) => listClone.OrderByDescending(x => x.CreatedAt),
-                _ => listClone.OrderBy(x => x.Name)
+                ("createdat", SearchOrder.Asc) => listClone.OrderBy(x => x.CreatedAt).ThenBy(x => x.Id),
+                ("createdat", SearchOrder.Desc) => listClone.OrderByDescending(x => x.CreatedAt).ThenByDescending(x => x.Id),
+                _ => listClone.OrderBy(x => x.Name, StringComparer.OrdinalIgnoreCase).ThenBy(x => x.Id)
             };
             return orderedEnumerable.ToList();
         }

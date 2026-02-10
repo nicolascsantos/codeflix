@@ -72,8 +72,8 @@ namespace FC.Codeflix.Catalog.Infra.Data.EF.Repositories
                 query = query.Where(genre => genre.Name.Contains(input.Search));
 
             var total = await query.CountAsync();
-            var genres = await query.Skip(toSkip).Take(input.PerPage).ToListAsync(cancellationToken);
-            var genresIds = genres.Select(genre => genre.Id).ToList();
+            var items = await query.Skip(toSkip).Take(input.PerPage).ToListAsync(cancellationToken);
+            var genresIds = items.Select(genre => genre.Id).ToList();
             var relations = await _genresCategories
                 .Where(relation => genresIds.Contains(relation.GenreId))
                 .ToListAsync();
@@ -82,7 +82,7 @@ namespace FC.Codeflix.Catalog.Infra.Data.EF.Repositories
 
             relationsByGenreIdGroup.ForEach(relationGroup =>
             {
-                var genre = genres.Find(genre => genre.Id == relationGroup.Key);
+                var genre = items.Find(genre => genre.Id == relationGroup.Key);
                 if (genre is null) return;
                 relationGroup.ToList()
                     .ForEach(relation => genre.AddCategory(relation.CategoryId));
@@ -92,7 +92,7 @@ namespace FC.Codeflix.Catalog.Infra.Data.EF.Repositories
                 input.Page,
                 input.PerPage,
                 total,
-                genres
+                items
             );
         }
 
@@ -108,19 +108,14 @@ namespace FC.Codeflix.Catalog.Infra.Data.EF.Repositories
             _ => query.OrderBy(x => x.Name)
         };
 
-        public Task<IReadOnlyList<Guid>> GetIdsListByIds(List<Guid> list, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
+        public async Task<IReadOnlyList<Guid>> GetIdsListByIds(List<Guid> ids, CancellationToken cancellationToken)
+            => await _genres.AsNoTracking()
+                .Where(genre => ids.Contains(genre.Id))
+                .Select(genre => genre.Id)
+                .ToListAsync(cancellationToken);
 
-        public Task<IReadOnlyList<Video>> GetListByIds(List<Guid> list, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<IReadOnlyList<Genre>> IGenreRepository.GetListByIds(List<Guid> list, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
+        public async Task<IReadOnlyList<Genre>> GetListByIds(List<Guid> list, CancellationToken cancellationToken)
+            => await _genres.Where(x => list.Contains(x.Id))
+                .ToListAsync(cancellationToken);
     }
 }

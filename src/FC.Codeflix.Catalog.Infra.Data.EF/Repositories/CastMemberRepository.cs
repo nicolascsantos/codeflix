@@ -50,23 +50,22 @@ namespace FC.Codeflix.Catalog.Infra.Data.EF.Repositories
          private IQueryable<CastMember> AddOrderToQuery(IQueryable<CastMember> query, string orderProperty, SearchOrder order)
         => (orderProperty.ToLower(), order) switch
         {
-            ("name", SearchOrder.Asc) => query.OrderBy(x => x.Name),
-            ("name", SearchOrder.Desc) => query.OrderByDescending(x => x.Name),
+            ("name", SearchOrder.Asc) => query.OrderBy(x => x.Name).ThenBy(x => x.Id),
+            ("name", SearchOrder.Desc) => query.OrderByDescending(x => x.Name).ThenByDescending(x => x.Id),
             ("id", SearchOrder.Asc) => query.OrderBy(x => x.Id),
             ("id", SearchOrder.Desc) => query.OrderByDescending(x => x.Id),
-            ("createdat", SearchOrder.Asc) => query.OrderBy(x => x.CreatedAt),
-            ("createdat", SearchOrder.Desc) => query.OrderByDescending(x => x.CreatedAt),
-            _ => query.OrderBy(x => x.Name)
+            ("createdat", SearchOrder.Asc) => query.OrderBy(x => x.CreatedAt).ThenBy(x => x.Id),
+            ("createdat", SearchOrder.Desc) => query.OrderByDescending(x => x.CreatedAt).ThenByDescending(x => x.Id),
+            _ => query.OrderBy(x => x.Name).ThenBy(x => x.Id)
         };
 
-        public Task<IReadOnlyList<Guid>> GetIdsListByIds(List<Guid> list, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
+        public async Task<IReadOnlyList<Guid>> GetIdsListByIds(List<Guid> list, CancellationToken cancellationToken)
+            => await _castMembers.Where(x => list.Contains(x.Id))
+                .Select(x => x.Id)
+                .ToListAsync(cancellationToken);
 
-        public Task<IReadOnlyList<CastMember>> GetListByIds(List<Guid> list, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
+        public async Task<IReadOnlyList<CastMember>> GetListByIds(List<Guid> list, CancellationToken cancellationToken)
+            => await _castMembers.Where(x => list.Contains(x.Id))
+                .ToListAsync(cancellationToken);
     }
 }
