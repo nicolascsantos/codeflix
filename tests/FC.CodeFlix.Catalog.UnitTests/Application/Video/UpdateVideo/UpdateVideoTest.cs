@@ -803,7 +803,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.UpdateVideo
             output.Published.Should().Be(input.Published);
             output.Duration.Should().Be(input.Duration);
             output.Rating.Should().Be(input.Rating.ToStringSignal());
-            output.BannerFileUrl.Should().Be(exampleVideo.Banner.Path);
+            output.BannerFileUrl.Should().Be(exampleVideo.Banner!.Path);
             _videoRepositoryMock.VerifyAll();
 
             _videoRepositoryMock.Verify(repository => repository.Update(
