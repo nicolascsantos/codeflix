@@ -287,6 +287,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Domain.Entity.Video
 
             validVideo.Media.Should().NotBeNull();
             validVideo.Media!.FilePath.Should().Be(validMediaPath);
+            validVideo.Events.Should().HaveCount(1);
         }
 
         [Fact(DisplayName = nameof(UpdateTrailer))]

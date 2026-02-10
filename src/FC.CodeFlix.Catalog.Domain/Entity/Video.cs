@@ -1,4 +1,5 @@
 ﻿using FC.CodeFlix.Catalog.Domain.Enum;
+using FC.CodeFlix.Catalog.Domain.Events;
 using FC.CodeFlix.Catalog.Domain.Exceptions;
 using FC.CodeFlix.Catalog.Domain.SeedWork;
 using FC.CodeFlix.Catalog.Domain.Validation;
@@ -92,7 +93,11 @@ namespace FC.CodeFlix.Catalog.Domain.Entity
 
         public void UpdateBanner(string path) => Banner = new Image(path);
 
-        public void UpdateMedia(string validMediaPath) => Media = new Media(validMediaPath);
+        public void UpdateMedia(string validMediaPath)
+        {
+            Media = new Media(validMediaPath);
+            RaiseEvent(new VideoUploadedEvent(Id, validMediaPath));
+        }
 
         public void UpdateTrailer(string validTrailerPath) => Trailer = new Media(validTrailerPath);
 
