@@ -1,4 +1,5 @@
-﻿using FC.CodeFlix.Catalog.Domain.SeedWork;
+﻿using FC.CodeFlix.Catalog.Application;
+using FC.CodeFlix.Catalog.Domain.SeedWork;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 
@@ -21,7 +22,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application
             var domainEventPublisher = new DomainEventPublisher(serviceProvider);
             var @event = new DomainEventToBeHandledFake();
 
-            await domainEventPublisher.PublishAsync(@event);
+            await domainEventPublisher.PublishAsync<DomainEventToBeHandledFake>(@event, CancellationToken.None);
 
             eventHandlerMock1.Verify(x => x.Handle(
                 @event,
@@ -37,6 +38,31 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application
                 It.IsAny<DomainEventToNotBeHandledFake>(),  
                 It.IsAny<CancellationToken>()
             ), Times.Never);
+        }
+
+        [Fact(DisplayName = nameof(NoActionWhenThereIsNoSubscriber))]
+        [Trait("Application", "DomainEventPublisher")]
+        public async Task NoActionWhenThereIsNoSubscriber()
+        {
+            var serviceCollection = new ServiceCollection();
+            var eventHandlerMock1 = new Mock<IDomainEventHandler<DomainEventToNotBeHandledFake>>();
+            var eventHandlerMock2 = new Mock<IDomainEventHandler<DomainEventToNotBeHandledFake>>();
+            serviceCollection.AddSingleton(eventHandlerMock1.Object);
+            serviceCollection.AddSingleton(eventHandlerMock2.Object);
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+            var domainEventPublisher = new DomainEventPublisher(serviceProvider);
+            var @event = new DomainEventToBeHandledFake();
+
+            await domainEventPublisher.PublishAsync< DomainEventToBeHandledFake>(@event, CancellationToken.None);
+
+            eventHandlerMock1.Verify(x => x.Handle(
+                It.IsAny<DomainEventToNotBeHandledFake>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+            eventHandlerMock2.Verify(x => x.Handle(
+                It.IsAny<DomainEventToNotBeHandledFake>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
         }
     }
 }
