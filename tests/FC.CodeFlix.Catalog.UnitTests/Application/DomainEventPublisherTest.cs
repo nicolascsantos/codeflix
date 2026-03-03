@@ -24,17 +24,17 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application
 
             await domainEventPublisher.PublishAsync<DomainEventToBeHandledFake>((dynamic)@event, CancellationToken.None);
 
-            eventHandlerMock1.Verify(x => x.Handle(
+            eventHandlerMock1.Verify(x => x.HandleAsync(
                 (DomainEventToBeHandledFake)@event,
                 It.IsAny<CancellationToken>()
             ), Times.Once);
 
-            eventHandlerMock2.Verify(x => x.Handle(
+            eventHandlerMock2.Verify(x => x.HandleAsync(
                 (DomainEventToBeHandledFake)@event,
                 It.IsAny<CancellationToken>()
             ), Times.Once);
 
-            eventHandlerMock3.Verify(x => x.Handle(
+            eventHandlerMock3.Verify(x => x.HandleAsync(
                 It.IsAny<DomainEventToNotBeHandledFake>(),  
                 It.IsAny<CancellationToken>()
             ), Times.Never);
@@ -57,15 +57,15 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application
 
             await domainEventPublisher.PublishAsync<DomainEventToBeHandledFake>(@event, CancellationToken.None);
 
-            eventHandlerMock1.Verify(x => x.Handle(
+            eventHandlerMock1.Verify(x => x.HandleAsync(
                 @event,
                 It.IsAny<CancellationToken>()),
             Times.Once);
-            eventHandlerMock2.Verify(x => x.Handle(
+            eventHandlerMock2.Verify(x => x.HandleAsync(
                 @event,
                 It.IsAny<CancellationToken>()),
             Times.Once);
-            eventHandlerMock3.Verify(x => x.Handle(
+            eventHandlerMock3.Verify(x => x.HandleAsync(
                 It.IsAny<DomainEventToNotBeHandledFake>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);

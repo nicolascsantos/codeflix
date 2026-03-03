@@ -21,7 +21,7 @@ namespace FC.CodeFlix.Catalog.Application
 
             foreach (var handler in handlers)
             {
-                await handler.Handle((TDomainEvent)domainEvent, cancellationToken);
+                await handler.HandleAsync((TDomainEvent)domainEvent, cancellationToken);
             }
         }
     }
