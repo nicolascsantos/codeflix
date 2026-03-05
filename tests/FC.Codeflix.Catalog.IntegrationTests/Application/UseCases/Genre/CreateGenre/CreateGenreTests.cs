@@ -69,7 +69,7 @@ namespace FC.Codeflix.Catalog.IntegrationTests.Application.UseCases.Genre.Create
             var serviceProvider = serviceCollection.BuildServiceProvider();
             var eventPublisher = new DomainEventPublisher(serviceProvider);
             var unitOfWork = new UnitOfWork(
-                arrangeDbContext,
+                actDbContext,
                 eventPublisher,
                 serviceProvider.GetRequiredService<ILogger<IUnitOfWork>>()
             );

@@ -10,10 +10,10 @@ namespace FC.Codeflix.Catalog.Infra.Data.EF.Configurations
         {
             builder.HasKey(video => video.Id);
 
-            builder.Navigation(x => x.Media)
+            builder.Navigation(video => video.Media)
                 .AutoInclude();
 
-            builder.Navigation(x => x.Trailer)
+            builder.Navigation(video => video.Trailer)
                 .AutoInclude();
 
             builder.Property(video => video.Id)
@@ -40,9 +40,10 @@ namespace FC.Codeflix.Catalog.Infra.Data.EF.Configurations
                     .HasColumnName("BannerPath")
             );
 
-            builder.HasOne(x => x.Media).WithOne().HasForeignKey<Media>();
-            builder.HasOne(x => x.Trailer).WithOne().HasForeignKey<Media>();
+            builder.HasOne(video => video.Media).WithOne().HasForeignKey<Media>();
+            builder.HasOne(video => video.Trailer).WithOne().HasForeignKey<Media>();
 
+            builder.Ignore(video => video.Events);
         }
     }
 }

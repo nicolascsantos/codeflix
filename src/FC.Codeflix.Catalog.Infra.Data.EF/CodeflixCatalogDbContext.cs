@@ -32,6 +32,7 @@ namespace FC.Codeflix.Catalog.Infra.Data.EF
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfiguration(new CategoryConfiguration());
+            modelBuilder.ApplyConfiguration(new CastMemberConfiguration());
             modelBuilder.ApplyConfiguration(new GenreConfiguration());
             modelBuilder.ApplyConfiguration(new GenresCategoriesConfiguration());
             modelBuilder.ApplyConfiguration(new VideoConfiguration());

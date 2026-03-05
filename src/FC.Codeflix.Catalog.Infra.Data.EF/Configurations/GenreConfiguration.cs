@@ -9,6 +9,7 @@ namespace FC.Codeflix.Catalog.Infra.Data.EF.Configurations
         public void Configure(EntityTypeBuilder<Genre> builder)
         {
             builder.HasKey(genre => genre.Id);
+            builder.Ignore(genre => genre.Events);
         }
     }
 }
