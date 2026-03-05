@@ -1,8 +1,12 @@
 ﻿using FC.Codeflix.Catalog.Infra.Data.EF;
 using FC.Codeflix.Catalog.Infra.Data.EF.Repositories;
+using FC.CodeFlix.Catalog.Application;
 using FC.CodeFlix.Catalog.Application.Exceptions;
+using FC.CodeFlix.Catalog.Application.Interfaces;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using UseCase = FC.CodeFlix.Catalog.Application.UseCases.Category.DeleteCategory;
 
 namespace FC.Codeflix.Catalog.IntegrationTests.Application.UseCases.Category.DeleteCategory
@@ -22,7 +26,15 @@ namespace FC.Codeflix.Catalog.IntegrationTests.Application.UseCases.Category.Del
             var dbContext = _fixture.CreateDbContext();
             var categoryExample = _fixture.GetExampleCategory();
             var repository = new CategoryRepository(dbContext);
-            var unitOfWork = new UnitOfWork(dbContext);
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddLogging();
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+            var eventPublisher = new DomainEventPublisher(serviceProvider);
+            var unitOfWork = new UnitOfWork(
+                dbContext,
+                eventPublisher,
+                serviceProvider.GetRequiredService<ILogger<IUnitOfWork>>()
+            );
             var exampleList = _fixture.GetExampleCategoriesList();
             await dbContext.Categories.AddRangeAsync(exampleList);
             var trackingInfo = await dbContext.Categories.AddAsync(categoryExample);
@@ -45,7 +57,15 @@ namespace FC.Codeflix.Catalog.IntegrationTests.Application.UseCases.Category.Del
         {
             var dbContext = _fixture.CreateDbContext();
             var repository = new CategoryRepository(dbContext);
-            var unitOfWork = new UnitOfWork(dbContext);
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddLogging();
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+            var eventPublisher = new DomainEventPublisher(serviceProvider);
+            var unitOfWork = new UnitOfWork(
+                dbContext,
+                eventPublisher,
+                serviceProvider.GetRequiredService<ILogger<IUnitOfWork>>()
+            );
             var exampleList = _fixture.GetExampleCategoriesList();
             await dbContext.Categories.AddRangeAsync(exampleList);
             var guidExample = Guid.NewGuid();

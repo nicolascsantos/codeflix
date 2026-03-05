@@ -1,10 +1,13 @@
 ﻿using FC.Codeflix.Catalog.Infra.Data.EF;
 using FC.Codeflix.Catalog.Infra.Data.EF.Models;
 using FC.Codeflix.Catalog.Infra.Data.EF.Repositories;
+using FC.CodeFlix.Catalog.Application;
 using FC.CodeFlix.Catalog.Application.Exceptions;
 using FC.CodeFlix.Catalog.Application.UseCases.Genre.Common;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using DomainEntity = FC.CodeFlix.Catalog.Domain.Entity;
 using UseCase = FC.CodeFlix.Catalog.Application.UseCases.Genre.UpdateGenre;
 
@@ -31,7 +34,15 @@ namespace FC.Codeflix.Catalog.IntegrationTests.Application.UseCases.Genre.Update
             CodeflixCatalogDbContext actDbContext = _fixture.CreateDbContext(true);
             GenreRepository genreRepository = new GenreRepository(actDbContext);
             CategoryRepository categoryRepository = new CategoryRepository(actDbContext);
-            UnitOfWork unitOfWork = new UnitOfWork(actDbContext);
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddLogging();
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+            var eventPublisher = new DomainEventPublisher(serviceProvider);
+            var unitOfWork = new UnitOfWork(
+                actDbContext,
+                eventPublisher,
+                serviceProvider.GetRequiredService<ILogger<UnitOfWork>>()
+            );
             UseCase.UpdateGenre updateGenre = new UseCase.UpdateGenre(genreRepository, unitOfWork, categoryRepository);
             var input = new UseCase.UpdateGenreInput(targetGenre.Id, _fixture.GetValidGenreName(), !targetGenre.IsActive);
 
@@ -71,7 +82,15 @@ namespace FC.Codeflix.Catalog.IntegrationTests.Application.UseCases.Genre.Update
             CodeflixCatalogDbContext actDbContext = _fixture.CreateDbContext(true);
             GenreRepository genreRepository = new GenreRepository(actDbContext);
             CategoryRepository categoryRepository = new CategoryRepository(actDbContext);
-            UnitOfWork unitOfWork = new UnitOfWork(actDbContext);
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddLogging();
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+            var eventPublisher = new DomainEventPublisher(serviceProvider);
+            var unitOfWork = new UnitOfWork(
+                actDbContext,
+                eventPublisher,
+                serviceProvider.GetRequiredService<ILogger<UnitOfWork>>()
+            );
             UseCase.UpdateGenre updateGenre = new UseCase.UpdateGenre(genreRepository, unitOfWork, categoryRepository);
             var input = new UseCase.UpdateGenreInput(
                 targetGenre.Id,
@@ -126,7 +145,15 @@ namespace FC.Codeflix.Catalog.IntegrationTests.Application.UseCases.Genre.Update
             CodeflixCatalogDbContext actDbContext = _fixture.CreateDbContext(true);
             GenreRepository genreRepository = new GenreRepository(actDbContext);
             CategoryRepository categoryRepository = new CategoryRepository(actDbContext);
-            UnitOfWork unitOfWork = new UnitOfWork(actDbContext);
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddLogging();
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+            var eventPublisher = new DomainEventPublisher(serviceProvider);
+            var unitOfWork = new UnitOfWork(
+                actDbContext,
+                eventPublisher,
+                serviceProvider.GetRequiredService<ILogger<UnitOfWork>>()
+            );
             UseCase.UpdateGenre updateGenre = new UseCase.UpdateGenre(genreRepository, unitOfWork, categoryRepository);
             List<Guid> categoriesIdsToRelate = newRelatedCategories.Select(category => category.Id).ToList();
             Guid invalidCategoryId = Guid.NewGuid();
@@ -158,7 +185,15 @@ namespace FC.Codeflix.Catalog.IntegrationTests.Application.UseCases.Genre.Update
             CodeflixCatalogDbContext actDbContext = _fixture.CreateDbContext(true);
             GenreRepository genreRepository = new GenreRepository(actDbContext);
             CategoryRepository categoryRepository = new CategoryRepository(actDbContext);
-            UnitOfWork unitOfWork = new UnitOfWork(actDbContext);
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddLogging();
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+            var eventPublisher = new DomainEventPublisher(serviceProvider);
+            var unitOfWork = new UnitOfWork(
+                actDbContext,
+                eventPublisher,
+                serviceProvider.GetRequiredService<ILogger<UnitOfWork>>()
+            );
             UseCase.UpdateGenre updateGenre = new UseCase.UpdateGenre(genreRepository, unitOfWork, categoryRepository);
             Guid randomGuid = Guid.NewGuid();
             var input = new UseCase.UpdateGenreInput(randomGuid, _fixture.GetValidGenreName(), true);
@@ -192,7 +227,15 @@ namespace FC.Codeflix.Catalog.IntegrationTests.Application.UseCases.Genre.Update
             CodeflixCatalogDbContext actDbContext = _fixture.CreateDbContext(true);
             GenreRepository genreRepository = new GenreRepository(actDbContext);
             CategoryRepository categoryRepository = new CategoryRepository(actDbContext);
-            UnitOfWork unitOfWork = new UnitOfWork(actDbContext);
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddLogging();
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+            var eventPublisher = new DomainEventPublisher(serviceProvider);
+            var unitOfWork = new UnitOfWork(
+                actDbContext,
+                eventPublisher,
+                serviceProvider.GetRequiredService<ILogger<UnitOfWork>>()
+            );
             UseCase.UpdateGenre updateGenre = new UseCase.UpdateGenre(genreRepository, unitOfWork, categoryRepository);
             var input = new UseCase.UpdateGenreInput(
                 targetGenre.Id,
@@ -246,7 +289,15 @@ namespace FC.Codeflix.Catalog.IntegrationTests.Application.UseCases.Genre.Update
             CodeflixCatalogDbContext actDbContext = _fixture.CreateDbContext(true);
             GenreRepository genreRepository = new GenreRepository(actDbContext);
             CategoryRepository categoryRepository = new CategoryRepository(actDbContext);
-            UnitOfWork unitOfWork = new UnitOfWork(actDbContext);
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddLogging();
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+            var eventPublisher = new DomainEventPublisher(serviceProvider);
+            var unitOfWork = new UnitOfWork(
+                actDbContext,
+                eventPublisher,
+                serviceProvider.GetRequiredService<ILogger<UnitOfWork>>()
+            );
             UseCase.UpdateGenre updateGenre = new UseCase.UpdateGenre(genreRepository, unitOfWork, categoryRepository);
             var input = new UseCase.UpdateGenreInput(
                 targetGenre.Id,

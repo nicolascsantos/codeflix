@@ -1,10 +1,14 @@
 ﻿using FC.Codeflix.Catalog.Infra.Data.EF;
 using FC.Codeflix.Catalog.Infra.Data.EF.Repositories;
+using FC.CodeFlix.Catalog.Application;
 using FC.CodeFlix.Catalog.Application.Exceptions;
+using FC.CodeFlix.Catalog.Application.Interfaces;
 using FC.CodeFlix.Catalog.Application.UseCases.Category.UpdateCategory;
 using FC.CodeFlix.Catalog.Domain.Exceptions;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Moq;
 using DomainEntity = FC.CodeFlix.Catalog.Domain.Entity;
 using UseCase = FC.CodeFlix.Catalog.Application.UseCases.Category.UpdateCategory;
@@ -34,7 +38,15 @@ namespace FC.Codeflix.Catalog.IntegrationTests.Application.UseCases.Category.Upd
             await dbContext.SaveChangesAsync();
             trackingInfo.State = EntityState.Detached;
             var repository = new CategoryRepository(dbContext);
-            var unitOfWork = new UnitOfWork(dbContext);
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddLogging();
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+            var eventPublisher = new DomainEventPublisher(serviceProvider);
+            var unitOfWork = new UnitOfWork(
+                dbContext,
+                eventPublisher,
+                serviceProvider.GetRequiredService<ILogger<IUnitOfWork>>()
+            );
             var useCase = new UseCase.UpdateCategory(repository, unitOfWork);
             var output = await useCase.Handle(input, CancellationToken.None);
             var dbCategory = await (_fixture.CreateDbContext(true)).Categories.FindAsync(output.Id);
@@ -65,7 +77,15 @@ namespace FC.Codeflix.Catalog.IntegrationTests.Application.UseCases.Category.Upd
             await dbContext.SaveChangesAsync();
             trackingInfo.State = EntityState.Detached;
             var repository = new CategoryRepository(dbContext);
-            var unitOfWork = new UnitOfWork(dbContext);
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddLogging();
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+            var eventPublisher = new DomainEventPublisher(serviceProvider);
+            var unitOfWork = new UnitOfWork(
+                dbContext,
+                eventPublisher,
+                serviceProvider.GetRequiredService<ILogger<IUnitOfWork>>()
+            );
             var useCase = new UseCase.UpdateCategory(repository, unitOfWork);
             var output = await useCase.Handle(input, CancellationToken.None);
             var dbCategory = await (_fixture.CreateDbContext(true)).Categories.FindAsync(output.Id);
@@ -86,7 +106,15 @@ namespace FC.Codeflix.Catalog.IntegrationTests.Application.UseCases.Category.Upd
         {
             var dbContext = _fixture.CreateDbContext();
             var repository = new CategoryRepository(dbContext);
-            var unitOfWork = new UnitOfWork(dbContext);
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddLogging();
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+            var eventPublisher = new DomainEventPublisher(serviceProvider);
+            var unitOfWork = new UnitOfWork(
+                dbContext,
+                eventPublisher,
+                serviceProvider.GetRequiredService<ILogger<IUnitOfWork>>()
+            );
             var input = _fixture.GetValidInput();
             var useCase = new UseCase.UpdateCategory(repository, unitOfWork);
             var task = async () => await useCase.Handle(input, CancellationToken.None);
@@ -102,7 +130,15 @@ namespace FC.Codeflix.Catalog.IntegrationTests.Application.UseCases.Category.Upd
             var exampleCategory = _fixture.GetExampleCategory();
             input.Id = exampleCategory.Id;
             var repository = new CategoryRepository(dbContext);
-            var unitOfWork = new UnitOfWork(dbContext);
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddLogging();
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+            var eventPublisher = new DomainEventPublisher(serviceProvider);
+            var unitOfWork = new UnitOfWork(
+                dbContext,
+                eventPublisher,
+                serviceProvider.GetRequiredService<ILogger<IUnitOfWork>>()
+            );
             var useCase = new UseCase.UpdateCategory(repository, unitOfWork);
             var task = async () => await useCase.Handle(input, CancellationToken.None);
             task.Should().ThrowAsync<EntityValidationException>()

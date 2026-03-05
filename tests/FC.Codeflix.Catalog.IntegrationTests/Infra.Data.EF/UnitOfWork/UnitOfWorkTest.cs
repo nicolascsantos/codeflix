@@ -1,5 +1,8 @@
-﻿using FluentAssertions;
+﻿using FC.CodeFlix.Catalog.Application;
+using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using UnitOfWorkInfra = FC.Codeflix.Catalog.Infra.Data.EF;
 
 namespace FC.Codeflix.Catalog.IntegrationTests.Infra.Data.EF.UnitOfWork
@@ -20,7 +23,15 @@ namespace FC.Codeflix.Catalog.IntegrationTests.Infra.Data.EF.UnitOfWork
             var dbContext = _fixture.CreateDbContext();
             var exampleCategoriesList = _fixture.GetExampleCategoriesList();
             await dbContext.AddRangeAsync(exampleCategoriesList);
-            var unitOfWork = new UnitOfWorkInfra.UnitOfWork(dbContext);
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddLogging();
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+            var eventPublisher = new DomainEventPublisher(serviceProvider);
+            var unitOfWork = new UnitOfWorkInfra.UnitOfWork(
+                dbContext,
+                eventPublisher,
+                serviceProvider.GetRequiredService<ILogger<UnitOfWorkInfra.UnitOfWork>>()
+            );
 
             await unitOfWork.Commit(CancellationToken.None);
 
@@ -40,7 +51,15 @@ namespace FC.Codeflix.Catalog.IntegrationTests.Infra.Data.EF.UnitOfWork
             var dbContext = _fixture.CreateDbContext();
             var exampleCategoriesList = _fixture.GetExampleCategoriesList();
             await dbContext.AddRangeAsync(exampleCategoriesList);
-            var unitOfWork = new UnitOfWorkInfra.UnitOfWork(dbContext);
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddLogging();
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+            var eventPublisher = new DomainEventPublisher(serviceProvider);
+            var unitOfWork = new UnitOfWorkInfra.UnitOfWork(
+                dbContext,
+                eventPublisher,
+                serviceProvider.GetRequiredService<ILogger<UnitOfWorkInfra.UnitOfWork>>()
+            );
 
             var task = async () => await unitOfWork.Rollback(CancellationToken.None);
 
