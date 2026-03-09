@@ -27,17 +27,21 @@ namespace FC.Codeflix.Catalog.Infra.Data.EF
                 .Entries<AggregateRoot>()
                 .Where(entry => entry.Entity.Events.Any())
                 .Select(entry => entry.Entity);
-            _logger.LogInformation($"Commit: {aggregateRoots.Count()} agreggate roots with events.");
+            _logger.LogInformation(
+                "Commit: {AggregateCount} agreggate roots with events.", aggregateRoots.Count()
+            );
 
             var events = aggregateRoots.SelectMany(aggregate => aggregate.Events);
 
-            _logger.LogInformation($"Commit: {events.Count()} events raised.");
+            _logger.LogInformation(
+                "Commit: {EventsCount} events raised.", events.Count()
+            );
 
             foreach (var @event in events)
-            {
-                await _publisher.PublishAsync<DomainEvent>(@event, cancellationToken);
-            }
-            
+                await _publisher.PublishAsync((dynamic)@event, cancellationToken);
+
+            foreach (var aggregate in aggregateRoots)
+                aggregate.ClearEvents();
 
             await _context.SaveChangesAsync(cancellationToken);
         }

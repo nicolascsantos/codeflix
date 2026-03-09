@@ -24,7 +24,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Domain.SeedWork
             var aggregate = new AggregateRootFake();
             aggregate.RaiseEvent(domainEvent);
 
-            aggregate.ClearEvent();
+            aggregate.ClearEvents();
 
             aggregate.Events.Should().HaveCount(0);
         }

@@ -11,6 +11,6 @@ namespace FC.CodeFlix.Catalog.Domain.SeedWork
         protected AggregateRoot() : base() { }
 
         public void RaiseEvent(DomainEvent @event) => _events.Add(@event);
-        public void ClearEvent() => _events.Clear();
+        public void ClearEvents() => _events.Clear();
     }
 }

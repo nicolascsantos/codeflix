@@ -12,7 +12,7 @@ namespace FC.CodeFlix.Catalog.Application
             _serviceProvider = serviceProvider;
         }
 
-        public async Task PublishAsync<TDomainEvent>(DomainEvent domainEvent, CancellationToken cancellationToken)
+        public async Task PublishAsync<TDomainEvent>(TDomainEvent domainEvent, CancellationToken cancellationToken)
             where TDomainEvent : DomainEvent
         {
             var handlers = _serviceProvider
@@ -21,7 +21,7 @@ namespace FC.CodeFlix.Catalog.Application
 
             foreach (var handler in handlers)
             {
-                await handler.HandleAsync((TDomainEvent)domainEvent, cancellationToken);
+                await handler.HandleAsync(domainEvent, cancellationToken);
             }
         }
     }
