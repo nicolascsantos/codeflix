@@ -1,7 +1,7 @@
-﻿using FC.CodeFlix.Catalog.API.Extensions.String;
+﻿using FC.CodeFlix.Catalog.Infra.Messaging.Extensions;
 using System.Text.Json;
 
-namespace FC.CodeFlix.Catalog.API.Configurations.Policies
+namespace FC.CodeFlix.Catalog.Infra.Messaging.JsonPolicies
 {
     public class JsonSnakeCasePolicy : JsonNamingPolicy
     {
