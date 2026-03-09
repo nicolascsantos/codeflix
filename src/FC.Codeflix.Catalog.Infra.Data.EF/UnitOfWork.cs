@@ -22,7 +22,25 @@ namespace FC.Codeflix.Catalog.Infra.Data.EF
         }
 
         public async Task Commit(CancellationToken cancellationToken)
-            => await _context.SaveChangesAsync(cancellationToken);
+        {
+            var aggregateRoots = _context.ChangeTracker
+                .Entries<AggregateRoot>()
+                .Where(entry => entry.Entity.Events.Any())
+                .Select(entry => entry.Entity);
+            _logger.LogInformation($"Commit: {aggregateRoots.Count()} agreggate roots with events.");
+
+            var events = aggregateRoots.SelectMany(aggregate => aggregate.Events);
+
+            _logger.LogInformation($"Commit: {events.Count()} events raised.");
+
+            foreach (var @event in events)
+            {
+                await _publisher.PublishAsync<DomainEvent>(@event, cancellationToken);
+            }
+            
+
+            await _context.SaveChangesAsync(cancellationToken);
+        }
 
         public async Task Rollback(CancellationToken cancellationToken)
             => await Task.CompletedTask;
