@@ -7,6 +7,10 @@ using FC.CodeFlix.Catalog.Application.UseCases.Category.GetCategory;
 using FC.CodeFlix.Catalog.Application.UseCases.Category.DeleteCategory;
 using FC.CodeFlix.Catalog.Application.UseCases.Genre.GetGenre;
 using FC.CodeFlix.Catalog.Application.UseCases.CastMember.GetCastMember;
+using FC.CodeFlix.Catalog.Domain.SeedWork;
+using FC.CodeFlix.Catalog.Application;
+using FC.CodeFlix.Catalog.Domain.Events;
+using FC.CodeFlix.Catalog.Application.EventHandlers;
 
 namespace FC.CodeFlix.Catalog.API.Configurations
 {
@@ -20,6 +24,7 @@ namespace FC.CodeFlix.Catalog.API.Configurations
             services.AddMediatR(x => x.RegisterServicesFromAssembly(typeof(GetGenre).Assembly));
             services.AddMediatR(x => x.RegisterServicesFromAssembly(typeof(GetCastMember).Assembly));
             services.AddRepositories();
+            services.AddDomainEvents();
             return services;
         }
 
@@ -27,10 +32,20 @@ namespace FC.CodeFlix.Catalog.API.Configurations
         {
             services.AddTransient<ICategoryRepository, CategoryRepository>();
             services.AddTransient<IGenreRepository, GenreRepository>();
+            services.AddTransient<IVideoRepository, VideoRepository>();
             services.AddTransient<ICastMemberRepository, CastMemberRepository>();
             services.AddTransient<IUnitOfWork, UnitOfWork>();
             return services;
         }
+
+        private static IServiceCollection AddDomainEvents(this IServiceCollection services)
+        {
+            services.AddTransient<IDomainEventPublisher, DomainEventPublisher>();
+            services.AddTransient<IDomainEventHandler<VideoUploadedEvent>, SendToEncoderEventHandler>();
+            return services;
+        }
+
+
         
     }
 }

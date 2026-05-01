@@ -25,6 +25,7 @@
   <ItemGroup>
     <ProjectReference Include="..\FC.Codeflix.Catalog.Infra.Data.EF\FC.Codeflix.Catalog.Infra.Data.EF.csproj" />
     <ProjectReference Include="..\FC.CodeFlix.Catalog.Infra.Messaging\FC.CodeFlix.Catalog.Infra.Messaging.csproj" />
+    <ProjectReference Include="..\FC.CodeFlix.Catalog.Infra.Storage\FC.CodeFlix.Catalog.Infra.Storage.csproj" />
   </ItemGroup>
 
 </Project>

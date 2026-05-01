@@ -2,6 +2,8 @@
 {
     public class StorageServiceOptions
     {
+        public const string ConfigurationSection = "Storage";
+
         public StorageServiceOptions(string bucketName)
         {
             BucketName = bucketName;
