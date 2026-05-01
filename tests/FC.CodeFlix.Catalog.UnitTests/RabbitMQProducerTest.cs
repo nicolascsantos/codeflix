@@ -17,6 +17,12 @@ namespace FC.CodeFlix.Catalog.UnitTests
                 UserName = "adm-videos",
                 Password = "123456"
             };
+
+            var channelOptions = new CreateChannelOptions(
+                publisherConfirmationsEnabled: true,
+                publisherConfirmationTrackingEnabled: true
+            );
+
             var connection = await factory.CreateConnectionAsync();
             var channel = await connection.CreateChannelAsync();
             var options = Options.Create(new RabbitMQConfiguration()
