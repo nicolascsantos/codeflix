@@ -58,6 +58,7 @@ namespace FC.CodeFlix.Catalog.API.Configurations
                 var factory = new ConnectionFactory
                 {
                     HostName = config.Hostname!,
+                    Port = config.Port,
                     UserName = config.Username!,
                     Password = config.Password!
                 };
