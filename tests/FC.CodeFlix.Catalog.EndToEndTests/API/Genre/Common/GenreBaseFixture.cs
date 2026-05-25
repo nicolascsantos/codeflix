@@ -1,4 +1,5 @@
-﻿using FC.Codeflix.Catalog.Infra.Data.EF.Models;
+﻿using FC.Codeflix.Catalog.Infra.Data.EF;
+using FC.Codeflix.Catalog.Infra.Data.EF.Models;
 using FC.CodeFlix.Catalog.Domain.SeedWork.SearchableRepository;
 using FC.CodeFlix.Catalog.EndToEndTests.API.Category.Common;
 using FC.CodeFlix.Catalog.EndToEndTests.Base;
@@ -8,15 +9,17 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Genre.Common
 {
     public class GenreBaseFixture : BaseFixture
     {
+        protected CodeflixCatalogDbContext _dbContext;
+
         public GenrePersistence Persistence { get; set; }
 
         public CategoryPersistence CategoryPersistence { get; set; }
 
         public GenreBaseFixture() : base()
         {
-            var dbContext = CreateDbContext();
-            Persistence = new GenrePersistence(dbContext);
-            CategoryPersistence = new CategoryPersistence(dbContext);
+            _dbContext = CreateDbContext();
+            Persistence = new GenrePersistence(_dbContext);
+            CategoryPersistence = new CategoryPersistence(_dbContext);
         }
 
         public string GetValidGenreName()
