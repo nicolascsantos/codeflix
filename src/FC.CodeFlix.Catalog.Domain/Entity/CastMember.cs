@@ -31,5 +31,9 @@ namespace FC.CodeFlix.Catalog.Domain.Entity
             Type = type;
             Validate();
         }
+
+        public override string ToString()
+            => $"[Id] = {Id}, [Name] = {Name}, [Type] = {Type}, [CreatedAt] = {CreatedAt.ToString("HHmmfffffff")}";
+        
     }
 }

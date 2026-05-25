@@ -7,6 +7,7 @@ using FC.CodeFlix.Catalog.EndToEndTests.Models;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using System.Net;
+using Xunit.Abstractions;
 
 namespace FC.CodeFlix.Catalog.EndToEndTests.API.CastMember.ListCastMembers
 {
@@ -14,9 +15,13 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.CastMember.ListCastMembers
     public class ListCastMembersAPITest : IDisposable
     {
         private readonly CastMemberAPIBaseFixture _fixture;
+        private readonly ITestOutputHelper _output;
 
-        public ListCastMembersAPITest(CastMemberAPIBaseFixture fixture)
-            => _fixture = fixture;
+        public ListCastMembersAPITest(CastMemberAPIBaseFixture fixture, ITestOutputHelper output)
+        {
+            _fixture = fixture;
+            _output = output;
+        }
 
         [Fact(DisplayName = nameof(ListCastMembers))]
         [Trait("EndToEnd/API", "CastMember/ListCastMembers")]
@@ -170,6 +175,11 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.CastMember.ListCastMembers
             var input = new ListCastMembersInput(1, 10, "", orderBy, searchOrder);
             var (response, output) = await _fixture.APIClient
                 .Get<TestAPIResponseList<CastMemberModelOutput>>("/api/CastMember", input);
+
+            _output.WriteLine("Examples: ");
+            _output.WriteLine(string.Join("\n", castMemberListExample));
+            _output.WriteLine("Output: ");
+            _output.WriteLine(string.Join("\n", output!.Data));
 
             response.Should().NotBeNull();
             response.StatusCode.Should().Be((HttpStatusCode)StatusCodes.Status200OK);

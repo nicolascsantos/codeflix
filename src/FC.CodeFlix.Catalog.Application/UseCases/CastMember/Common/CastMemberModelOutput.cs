@@ -23,5 +23,8 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.CastMember.Common
 
         public static CastMemberModelOutput FromCastMember(DomainEntity.CastMember castMember)
             => new CastMemberModelOutput(castMember.Id, castMember.Name, castMember.Type, castMember.CreatedAt);
+
+        public override string ToString()
+            => $"[Id] = {Id}, [Name] = {Name}, [Type] = {Type}, [CreatedAt] = {CreatedAt.ToString("HHmmfffffff")}";
     }
 }

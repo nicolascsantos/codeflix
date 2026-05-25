@@ -7,7 +7,7 @@ using System.Net;
 namespace FC.CodeFlix.Catalog.EndToEndTests.API.CastMember.DeleteCastMember
 {
     [Collection(nameof(CastMemberAPIBaseFixture))]
-    public class DeleteCastMemberAPITest
+    public class DeleteCastMemberAPITest : IDisposable
     {
         private readonly CastMemberAPIBaseFixture _fixture;
 
@@ -51,5 +51,7 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.CastMember.DeleteCastMember
             output.Type.Should().Be("NotFound");
             output.Detail.Should().Be($"Cast member '{randomGuid}' not found."); ;   
         }
+
+        public void Dispose() => _fixture.CleanPersistence();
     }
 }

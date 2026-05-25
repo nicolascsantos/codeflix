@@ -18,9 +18,14 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.CastMember.Common
             Persistence = new CastMemberPersistence(CreateDbContext());
         }
 
-        public List<DomainEntity.CastMember> GetExampleCastMembersList(int length = 10) => Enumerable.Range(1, length).Select(
-           _ => GetExampleCastMember())
-                   .ToList();
+        public List<DomainEntity.CastMember> GetExampleCastMembersList(int length = 10)
+            => Enumerable.Range(1, length)
+                .Select(_ =>
+                {
+                    Thread.Sleep(1);
+                    return GetExampleCastMember();
+                })
+                .ToList();
 
         public DomainEntity.CastMember GetExampleCastMember()
           => new DomainEntity.CastMember(

@@ -10,7 +10,7 @@ using System.Net;
 namespace FC.CodeFlix.Catalog.EndToEndTests.API.CastMember.UpdateCastMember
 {
     [Collection(nameof(CastMemberAPIBaseFixture))]
-    public class UpdateCastMemberAPITest
+    public class UpdateCastMemberAPITest : IDisposable
     {
         private readonly CastMemberAPIBaseFixture _fixture;
 
@@ -99,5 +99,7 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.CastMember.UpdateCastMember
             output.Detail.Should().Be("Name should not be empty or null.");
             output.Status.Should().Be(StatusCodes.Status422UnprocessableEntity);
         }
+
+        public void Dispose() => _fixture.CleanPersistence();
     }
 }
