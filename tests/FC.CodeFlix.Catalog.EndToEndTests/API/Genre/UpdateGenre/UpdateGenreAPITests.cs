@@ -23,7 +23,7 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Genre.UpdateGenre
         {
             var exampleGenres = _fixture.GetExampleListGenres();
             var targetGenre = exampleGenres[5];
-            await _fixture.Persistence.InsertList(exampleGenres);
+            await _fixture.GenrePersistence.InsertList(exampleGenres);
 
             var input = new UpdateGenreAPIInput(
                 _fixture.GetValidGenreName(),
@@ -39,7 +39,7 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Genre.UpdateGenre
             output.Data.Id.Should().Be(targetGenre.Id);
             output.Data.Name.Should().Be(input.Name);
             output.Data.IsActive.Should().Be((bool)input.IsActive!);
-            var genreFromDb = await _fixture.Persistence.GetById(output.Data.Id);
+            var genreFromDb = await _fixture.GenrePersistence.GetById(output.Data.Id);
             genreFromDb.Should().NotBeNull();
             genreFromDb.Name.Should().Be(input.Name);
             genreFromDb.IsActive.Should().Be((bool)input.IsActive!);
@@ -51,7 +51,7 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Genre.UpdateGenre
         {
             var exampleGenres = _fixture.GetExampleListGenres();
             var randomGuid = Guid.NewGuid();
-            await _fixture.Persistence.InsertList(exampleGenres);
+            await _fixture.GenrePersistence.InsertList(exampleGenres);
 
             var input = new UpdateGenreAPIInput(
                 _fixture.GetValidGenreName(),
@@ -114,11 +114,11 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Genre.UpdateGenre
             List<Guid> relatedCategoriesIdsFromOutput =
                 output.Data.Categories.Select(relation => relation.Id).ToList();
             relatedCategoriesIdsFromOutput.Should().BeEquivalentTo(newRelatedCategoriesIds);
-            var genreFromDb = await _fixture.Persistence.GetById(output.Data.Id);
+            var genreFromDb = await _fixture.GenrePersistence.GetById(output.Data.Id);
             genreFromDb.Should().NotBeNull();
             genreFromDb.Name.Should().Be(input.Name);
             genreFromDb.IsActive.Should().Be((bool)input.IsActive!);
-            var genresCategoriesFromDb = await _fixture.Persistence
+            var genresCategoriesFromDb = await _fixture.GenrePersistence
                 .GetGenresCategoriesRelationsByGenreId(targetGenre.Id);
             var relatedCategoriesIdsFromDb = genresCategoriesFromDb.Select(x => x.CategoryId)
                 .ToList();
@@ -132,7 +132,7 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Genre.UpdateGenre
             var exampleGenres = _fixture.GetExampleListGenres();
             var targetGenre = exampleGenres[5];
             var randomGuid = Guid.NewGuid();
-            await _fixture.Persistence.InsertList(exampleGenres);
+            await _fixture.GenrePersistence.InsertList(exampleGenres);
 
             var input = new UpdateGenreAPIInput(
                 _fixture.GetValidGenreName(),
@@ -180,11 +180,11 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Genre.UpdateGenre
             List<Guid> relatedCategoriesIdsFromOutput =
                 output.Data.Categories.Select(relation => relation.Id).ToList();
             relatedCategoriesIdsFromOutput.Should().BeEquivalentTo(targetGenre.Categories);
-            var genreFromDb = await _fixture.Persistence.GetById(output.Data.Id);
+            var genreFromDb = await _fixture.GenrePersistence.GetById(output.Data.Id);
             genreFromDb.Should().NotBeNull();
             genreFromDb.Name.Should().Be(input.Name);
             genreFromDb.IsActive.Should().Be((bool)input.IsActive!);
-            var genresCategoriesFromDb = await _fixture.Persistence
+            var genresCategoriesFromDb = await _fixture.GenrePersistence
                 .GetGenresCategoriesRelationsByGenreId(targetGenre.Id);
             var relatedCategoriesIdsFromDb = genresCategoriesFromDb.Select(x => x.CategoryId)
                 .ToList();

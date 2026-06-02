@@ -33,7 +33,7 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Genre.CreateGenre
             output.Data.Id.Should().NotBeEmpty();
             output.Data.Name.Should().Be(genreApiInput.Name);
             output.Data.IsActive.Should().Be(genreApiInput.IsActive);
-            var genreFromDb = await _fixture.Persistence.GetById(output.Data.Id);
+            var genreFromDb = await _fixture.GenrePersistence.GetById(output.Data.Id);
             genreFromDb.Should().NotBeNull();
             genreFromDb.Id.Should().NotBeEmpty();
             genreFromDb.Name.Should().Be(genreApiInput.Name);
@@ -70,12 +70,12 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Genre.CreateGenre
             output.Data.Categories.Should().HaveCount(relatedCategories.Count);
             var outputRelatedCategoriesIds = output.Data.Categories.Select(x => x.Id).ToList();
             outputRelatedCategoriesIds.Should().BeEquivalentTo(relatedCategories);
-            var genreFromDb = await _fixture.Persistence.GetById(output.Data.Id);
+            var genreFromDb = await _fixture.GenrePersistence.GetById(output.Data.Id);
             genreFromDb.Should().NotBeNull();
             genreFromDb.Id.Should().NotBeEmpty();
             genreFromDb.Name.Should().Be(genreApiInput.Name);
             genreFromDb.IsActive.Should().Be(genreApiInput.IsActive);
-            var relationsFromDb = await _fixture.Persistence
+            var relationsFromDb = await _fixture.GenrePersistence
                 .GetGenresCategoriesRelationsByGenreId(output.Data.Id);
             relationsFromDb.Should().NotBeNull();
             relationsFromDb.Should().HaveCount(relatedCategories.Count);

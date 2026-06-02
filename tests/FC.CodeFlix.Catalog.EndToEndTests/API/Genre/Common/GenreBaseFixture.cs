@@ -11,14 +11,14 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Genre.Common
     {
         protected CodeflixCatalogDbContext _dbContext;
 
-        public GenrePersistence Persistence { get; set; }
+        public GenrePersistence GenrePersistence { get; set; }
 
         public CategoryPersistence CategoryPersistence { get; set; }
 
         public GenreBaseFixture() : base()
         {
             _dbContext = CreateDbContext();
-            Persistence = new GenrePersistence(_dbContext);
+            GenrePersistence = new GenrePersistence(_dbContext);
             CategoryPersistence = new CategoryPersistence(_dbContext);
         }
 
@@ -97,9 +97,9 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Genre.Common
                 )
             );
 
-            await fixture.Persistence.InsertList(genresList);
+            await fixture.GenrePersistence.InsertList(genresList);
             await fixture.CategoryPersistence.InsertList(categoriesList);
-            await fixture.Persistence.InsertGenresCategoriesRelationsList(genresCategoriesList);
+            await fixture.GenrePersistence.InsertGenresCategoriesRelationsList(genresCategoriesList);
         }
 
         public List<DomainEntity.Genre> GetExampleListGenresByNames(List<string> names)

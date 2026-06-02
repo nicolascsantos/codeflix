@@ -22,7 +22,7 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Genre.DeleteGenre
         {
             var dbContext = _fixture.CreateDbContext();
             var exampleGenreList = _fixture.GetExampleListGenres();
-            await _fixture.Persistence.InsertList(exampleGenreList);
+            await _fixture.GenrePersistence.InsertList(exampleGenreList);
             var genreToDelete = exampleGenreList[5];
 
             var (response, output) = await _fixture.APIClient
@@ -31,7 +31,7 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Genre.DeleteGenre
             response.Should().NotBeNull();
             response.StatusCode.Should().Be((HttpStatusCode)StatusCodes.Status204NoContent);
             output.Should().BeNull();
-            var persistenceGenre = await _fixture.Persistence.GetById(genreToDelete.Id);
+            var persistenceGenre = await _fixture.GenrePersistence.GetById(genreToDelete.Id);
             persistenceGenre.Should().BeNull();
         }
 
@@ -41,7 +41,7 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Genre.DeleteGenre
         {
             var dbContext = _fixture.CreateDbContext();
             var exampleGenreList = _fixture.GetExampleListGenres();
-            await _fixture.Persistence.InsertList(exampleGenreList);
+            await _fixture.GenrePersistence.InsertList(exampleGenreList);
             var randomGuid = Guid.NewGuid();
             var (response, output) = await _fixture.APIClient
                 .Delete<ProblemDetails>($"/api/genres/{randomGuid}");
@@ -88,9 +88,9 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Genre.DeleteGenre
                 )
             );
 
-            await _fixture.Persistence.InsertList(exampleGenreList);
+            await _fixture.GenrePersistence.InsertList(exampleGenreList);
             await _fixture.CategoryPersistence.InsertList(exampleCategoriesList);
-            await _fixture.Persistence.InsertGenresCategoriesRelationsList(genresCategories);
+            await _fixture.GenrePersistence.InsertGenresCategoriesRelationsList(genresCategories);
 
             var (response, output) = await _fixture.APIClient
                 .Delete<APIResponse<object>>($"/api/genres/{genreToDelete.Id}");
@@ -98,9 +98,9 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Genre.DeleteGenre
             response.Should().NotBeNull();
             response.StatusCode.Should().Be((HttpStatusCode)StatusCodes.Status204NoContent);
             output.Should().BeNull();
-            var persistenceGenre = await _fixture.Persistence.GetById(genreToDelete.Id);
+            var persistenceGenre = await _fixture.GenrePersistence.GetById(genreToDelete.Id);
             persistenceGenre.Should().BeNull();
-            List<GenresCategories> relations = await _fixture.Persistence
+            List<GenresCategories> relations = await _fixture.GenrePersistence
                 .GetGenresCategoriesRelationsByGenreId(genreToDelete.Id);
             relations.Should().HaveCount(0);
         }

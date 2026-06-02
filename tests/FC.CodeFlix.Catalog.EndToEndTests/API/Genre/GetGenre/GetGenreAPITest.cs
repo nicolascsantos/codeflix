@@ -24,7 +24,7 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Genre.GetGenre
             var dbContext = _fixture.CreateDbContext();
             var exampleGenresList = _fixture.GetExampleListGenres();
             var targetGenre = exampleGenresList[5];
-            await _fixture.Persistence.InsertList(exampleGenresList);
+            await _fixture.GenrePersistence.InsertList(exampleGenresList);
 
             // busca por um genre especifico por rest
             var (response, output) = await _fixture.APIClient
@@ -46,7 +46,7 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Genre.GetGenre
             var dbContext = _fixture.CreateDbContext();
             var exampleGenresList = _fixture.GetExampleListGenres();
             var randomGuid = Guid.NewGuid();
-            await _fixture.Persistence.InsertList(exampleGenresList);
+            await _fixture.GenrePersistence.InsertList(exampleGenresList);
 
             
             var (response, output) = await _fixture.APIClient
@@ -93,9 +93,9 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Genre.GetGenre
                     )
                 )
             );
-            await _fixture.Persistence.InsertList(exampleGenresList);
+            await _fixture.GenrePersistence.InsertList(exampleGenresList);
             await _fixture.CategoryPersistence.InsertList(exampleCategories);
-            await _fixture.Persistence.InsertGenresCategoriesRelationsList(genresCategories);
+            await _fixture.GenrePersistence.InsertGenresCategoriesRelationsList(genresCategories);
 
             // busca por um genre especifico por rest
             var (response, output) = await _fixture.APIClient

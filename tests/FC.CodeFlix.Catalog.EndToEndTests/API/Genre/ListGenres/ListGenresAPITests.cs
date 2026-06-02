@@ -24,7 +24,7 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Genre.ListGenres
         public async Task ListGenres()
         {
             List<DomainEntity.Genre> exampleGenres = _fixture.GetExampleListGenres();
-            await _fixture.Persistence.InsertList(exampleGenres);
+            await _fixture.GenrePersistence.InsertList(exampleGenres);
 
             var input = new ListGenresInput(
                 page: 1,
@@ -89,7 +89,7 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Genre.ListGenres
         {
             List<DomainEntity.Genre> exampleGenres = _fixture
                 .GetExampleListGenres(quantityToGenerate);
-            await _fixture.Persistence.InsertList(exampleGenres);
+            await _fixture.GenrePersistence.InsertList(exampleGenres);
 
             var input = new ListGenresInput(
                 page: page,
@@ -151,7 +151,7 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Genre.ListGenres
                 }
             );
 
-            await _fixture.Persistence.InsertList(exampleGenres);
+            await _fixture.GenrePersistence.InsertList(exampleGenres);
 
             var input = new ListGenresInput(
                 page: page,
@@ -193,7 +193,7 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Genre.ListGenres
         public async Task SearchOrdered(string orderBy, string order)
         {
             var exampleGenres = _fixture.GetExampleListGenres(10);
-            await _fixture.Persistence.InsertList(exampleGenres);
+            await _fixture.GenrePersistence.InsertList(exampleGenres);
 
             var orderEnum = order == "asc" ? SearchOrder.Asc : SearchOrder.Desc;
 
