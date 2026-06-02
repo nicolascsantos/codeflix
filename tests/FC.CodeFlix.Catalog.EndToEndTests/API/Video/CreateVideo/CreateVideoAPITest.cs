@@ -51,5 +51,78 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Video.CreateVideo
             videoFromDb.Duration.Should().Be(input.Duration);
             videoFromDb.Rating.Should().Be(input.Rating);
         }
+
+        [Fact(DisplayName = nameof(CreateVideoWithRelationships))]
+        [Trait("EndToEnd/API", "Video/Create - Endpoints")]
+        public async Task CreateVideoWithRelationships()
+        {
+            var categories = _fixture.GetExampleCategoriesList();
+            await _fixture.CategoryPersistence.InsertList(categories);
+
+            var genres = _fixture.GetExampleListGenres();
+            await _fixture.GenrePersistence.InsertList(genres);
+
+            var castMembers = _fixture.GetExampleCastMembersList();
+            await _fixture.CastMemberPersistence.InsertList(castMembers);
+
+            CreateVideoAPIInput input = _fixture.GetBasicCreateVideoInput();
+            input.CategoriesIds = categories.Select(x => x.Id).ToList();
+            input.GenresIds = genres.Select(x => x.Id).ToList();
+            input.CastMembersIds = castMembers.Select(x => x.Id).ToList();
+
+            var (response, output) = await
+                _fixture.APIClient.Post<APIResponse<VideoModelOutput>>("/api/videos", input);
+
+            response.Should().NotBeNull();
+            response.StatusCode.Should().Be((HttpStatusCode)StatusCodes.Status201Created);
+            output.Should().NotBeNull();
+            output.Data.Should().NotBeNull();
+            output.Data.Id.Should().NotBeEmpty();
+            output.Data.Title.Should().Be(input.Title);
+            output.Data.Description.Should().Be(input.Description);
+            output.Data.YearLaunched.Should().Be(input.YearLaunched);
+            output.Data.Opened.Should().Be(input.Opened);
+            output.Data.Duration.Should().Be(input.Duration);
+            output.Data.Rating.Should().Be(input.Rating.ToStringSignal());
+
+            var outputCategoriesIds = output.Data.Categories.Select(x => x.Id).ToList();
+            outputCategoriesIds.Should().NotBeEmpty();
+            outputCategoriesIds.Should().BeEquivalentTo(input.CategoriesIds);
+
+            var outputGenresIds = output.Data.Genres.Select(x => x.Id).ToList();
+            outputGenresIds.Should().NotBeEmpty();
+            outputGenresIds.Should().BeEquivalentTo(input.GenresIds);
+
+            var outputCastMembersIds = output.Data.CastMembers.Select(x => x.Id).ToList();
+            outputCastMembersIds.Should().NotBeEmpty();
+            outputCastMembersIds.Should().BeEquivalentTo(input.CastMembersIds);
+
+            var videoFromDb = await _fixture.VideoPersistence.GetById(output.Data.Id);
+            videoFromDb.Should().NotBeNull();
+            videoFromDb.Id.Should().NotBeEmpty();
+            videoFromDb.Title.Should().Be(input.Title);
+            videoFromDb.Description.Should().Be(input.Description);
+            videoFromDb.YearLaunched.Should().Be(input.YearLaunched);
+            videoFromDb.Opened.Should().Be(input.Opened);
+            videoFromDb.Duration.Should().Be(input.Duration);
+            videoFromDb.Rating.Should().Be(input.Rating);
+            var categoriesFromDb = await _fixture.VideoPersistence
+                .GetVideosCategories(videoFromDb.Id);
+            categories.Should().NotBeNull();
+            var categoriesIdsFromDb = categoriesFromDb.Select(x => x.CategoryId).ToList();
+            categoriesIdsFromDb.Should().BeEquivalentTo(input.CategoriesIds);
+
+            var genresFromDb = await _fixture.VideoPersistence
+                .GetVideosGenres(videoFromDb.Id);
+            genresFromDb.Should().NotBeNull();
+            var genresIdsFromDb = genresFromDb.Select(x => x.GenreId).ToList();
+            genresIdsFromDb.Should().BeEquivalentTo(input.GenresIds);
+
+            var castMembersFromDb = await _fixture.VideoPersistence
+                .GetVideosCastMembers(videoFromDb.Id);
+            castMembersFromDb.Should().NotBeNull();
+            var castMembersIdsFromDb = castMembersFromDb.Select(x => x.CastMemberId).ToList();
+            castMembersIdsFromDb.Should().BeEquivalentTo(input.CastMembersIds);
+        }
     }
 }
