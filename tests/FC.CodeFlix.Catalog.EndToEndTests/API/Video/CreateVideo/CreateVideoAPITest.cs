@@ -5,6 +5,7 @@ using FC.CodeFlix.Catalog.Domain.Extensions;
 using FC.CodeFlix.Catalog.EndToEndTests.API.Video.Common;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
 namespace FC.CodeFlix.Catalog.EndToEndTests.API.Video.CreateVideo
@@ -123,6 +124,57 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Video.CreateVideo
             castMembersFromDb.Should().NotBeNull();
             var castMembersIdsFromDb = castMembersFromDb.Select(x => x.CastMemberId).ToList();
             castMembersIdsFromDb.Should().BeEquivalentTo(input.CastMembersIds);
+        }
+
+        [Fact(DisplayName = nameof(CreateVideoWithInvalidGenreId))]
+        [Trait("EndToEnd/API", "Video/Create - Endpoints")]
+        public async Task CreateVideoWithInvalidGenreId()
+        {
+            var invalidGenreId = Guid.NewGuid();
+            CreateVideoAPIInput input = _fixture.GetBasicCreateVideoInput();
+            input.GenresIds = new List<Guid> { invalidGenreId };
+            var (response, output) = await
+                _fixture.APIClient.Post<ProblemDetails>("/api/videos", input);
+
+            response.Should().NotBeNull();
+            response.StatusCode.Should().Be((HttpStatusCode)StatusCodes.Status422UnprocessableEntity);
+            output.Should().NotBeNull();
+            output.Type.Should().Be("RelatedAggregate");
+            output.Detail.Should().Be($"Related genre id or ids not found: '{invalidGenreId}'");
+        }
+
+        [Fact(DisplayName = nameof(CreateVideoWithInvalidCategoryId))]
+        [Trait("EndToEnd/API", "Video/Create - Endpoints")]
+        public async Task CreateVideoWithInvalidCategoryId()
+        {
+            var invalidCategoryId = Guid.NewGuid();
+            CreateVideoAPIInput input = _fixture.GetBasicCreateVideoInput();
+            input.CategoriesIds = new List<Guid> { invalidCategoryId };
+            var (response, output) = await
+                _fixture.APIClient.Post<ProblemDetails>("/api/videos", input);
+
+            response.Should().NotBeNull();
+            response.StatusCode.Should().Be((HttpStatusCode)StatusCodes.Status422UnprocessableEntity);
+            output.Should().NotBeNull();
+            output.Type.Should().Be("RelatedAggregate");
+            output.Detail.Should().Be($"Related category id or ids not found: '{invalidCategoryId}'");
+        }
+
+        [Fact(DisplayName = nameof(CreateVideoWithInvalidCastMemberId))]
+        [Trait("EndToEnd/API", "Video/Create - Endpoints")]
+        public async Task CreateVideoWithInvalidCastMemberId()
+        {
+            var invalidCastMemberId = Guid.NewGuid();
+            CreateVideoAPIInput input = _fixture.GetBasicCreateVideoInput();
+            input.CastMembersIds = new List<Guid> { invalidCastMemberId };
+            var (response, output) = await
+                _fixture.APIClient.Post<ProblemDetails>("/api/videos", input);
+
+            response.Should().NotBeNull();
+            response.StatusCode.Should().Be((HttpStatusCode)StatusCodes.Status422UnprocessableEntity);
+            output.Should().NotBeNull();
+            output.Type.Should().Be("RelatedAggregate");
+            output.Detail.Should().Be($"Related cast member id or ids not found: '{invalidCastMemberId}'");
         }
     }
 }
