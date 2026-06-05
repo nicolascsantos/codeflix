@@ -1,8 +1,11 @@
-﻿using FC.CodeFlix.Catalog.Domain.Enum;
+﻿using FC.CodeFlix.Catalog.Application.UseCases.Video.Common;
+using FC.CodeFlix.Catalog.Application.UseCases.Video.CreateVideo;
+using FC.CodeFlix.Catalog.Domain.Enum;
+using MediatR;
 
 namespace FC.CodeFlix.Catalog.API.APIModels.Video
 {
-    public class CreateVideoAPIInput
+    public class CreateVideoAPIInput : IRequest<VideoModelOutput>
     {
         public CreateVideoAPIInput(
             string title,
@@ -11,9 +14,9 @@ namespace FC.CodeFlix.Catalog.API.APIModels.Video
             bool opened,
             bool published,
             int duration,
-            Rating rating, 
+            Rating rating,
             List<Guid>? categoriesIds,
-            List<Guid>? genresIds, 
+            List<Guid>? genresIds,
             List<Guid>? castMembersIds
         )
         {
@@ -48,5 +51,19 @@ namespace FC.CodeFlix.Catalog.API.APIModels.Video
         public List<Guid>? GenresIds { get; set; }
 
         public List<Guid>? CastMembersIds { get; set; }
+
+        public CreateVideoInput ToCreateVideoInput()
+            => new CreateVideoInput(
+                Title,
+                Description,
+                YearLaunched,
+                Opened,
+                Published,
+                Duration,
+                Rating,
+                CategoriesIds?.AsReadOnly(),
+                GenresIds?.AsReadOnly(),
+                CastMembersIds?.AsReadOnly()
+            );
     }
 }

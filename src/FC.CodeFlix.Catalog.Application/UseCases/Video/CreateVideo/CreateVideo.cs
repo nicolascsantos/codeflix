@@ -198,7 +198,7 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.CreateVideo
             {
                 var notFoundIds = request.CastMembersIds.ToList().FindAll(x => !idsInPersistence.Contains(x));
                 var notFoundIdsAsString = string.Join(";", notFoundIds);
-                throw new RelatedAggregateException($"Related genre id or ids not found: '{notFoundIdsAsString}'");
+                throw new RelatedAggregateException($"Related cast member id or ids not found: '{notFoundIdsAsString}'");
             }
         }
     }

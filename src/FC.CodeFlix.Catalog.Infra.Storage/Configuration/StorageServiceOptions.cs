@@ -9,6 +9,8 @@
             BucketName = bucketName;
         }
 
+        public StorageServiceOptions() {}
+
         public string BucketName { get; set; }
     }
 }

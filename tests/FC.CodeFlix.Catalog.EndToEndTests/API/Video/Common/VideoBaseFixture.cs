@@ -1,5 +1,6 @@
 ﻿using FC.CodeFlix.Catalog.API.APIModels.Video;
 using FC.CodeFlix.Catalog.Domain.Enum;
+using FC.CodeFlix.Catalog.Domain.Extensions;
 using FC.CodeFlix.Catalog.EndToEndTests.API.CastMember.Common;
 using FC.CodeFlix.Catalog.EndToEndTests.API.Genre.Common;
 using DomainEntity = FC.CodeFlix.Catalog.Domain.Entity;
