@@ -130,6 +130,9 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Video.ListVideos
            )
         {
             var exampleVideos = _fixture.GetVideoCollection(quantityToGenerate);
+            var exampleCategories = _fixture.GetExampleCategoriesList(3);
+            var exampleGenres = _fixture.GetExampleListGenres(4);
+            var exampleCastMembers = _fixture.GetExampleCastMembersList(5);
             await _fixture.VideoPersistence.InsertList(exampleVideos);
 
             var input = new ListVideosInput
@@ -139,7 +142,7 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Video.ListVideos
             };
 
             var (response, output) = await _fixture.APIClient
-                .Get<TestAPIResponseList<GenreModelOutput>>("/api/genres", input);
+                .Get<TestAPIResponseList<VideoModelOutput>>("/api/genres", input);
 
             response.Should().NotBeNull();
             response.StatusCode.Should().Be((HttpStatusCode)StatusCodes.Status200OK);
@@ -152,9 +155,37 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Video.ListVideos
             output.Data.Count.Should().Be(expectedQuantityItems);
             output.Data.ToList().ForEach(outputItem =>
             {
-                var exampleItem = exampleVideos.Find(x => x.Id == outputItem.Id);
+                var exampleItem = exampleVideos
+                    .Find(x => x.Id == outputItem.Id);
+
                 exampleItem.Should().NotBeNull();
-                outputItem.CreatedAt.TrimMilliseconds().Should().Be(exampleItem.CreatedAt.TrimMilliseconds());
+                outputItem.Id.Should().Be(exampleItem.Id);
+                outputItem.Title.Should().Be(exampleItem.Title);
+                outputItem.Description.Should().Be(exampleItem.Description);
+                outputItem.YearLaunched.Should().Be(exampleItem.YearLaunched);
+                outputItem.Opened.Should().Be(exampleItem.Opened);
+                outputItem.Published.Should().Be(exampleItem.Published);
+                outputItem.Duration.Should().Be(exampleItem.Duration);
+                outputItem.Rating.Should().Be(exampleItem.Rating.ToStringSignal());
+                outputItem.CreatedAt.Should().Be(exampleItem.CreatedAt);
+
+                var expectedCategories = exampleCategories
+                    .Select(category =>
+                        new VideoModelOutputRelatedAggregate(category.Id, category.Name)
+                    );
+                outputItem.Categories.Should().BeEquivalentTo(exampleCategories);
+
+                var expectedGenres = exampleGenres
+                    .Select(genre =>
+                        new VideoModelOutputRelatedAggregate(genre.Id, genre.Name)
+                    );
+                outputItem.Genres.Should().BeEquivalentTo(exampleGenres);
+
+                var expectedCastMembers = exampleCastMembers
+                    .Select(castMember =>
+                        new VideoModelOutputRelatedAggregate(castMember.Id, castMember.Name)
+                    );
+                outputItem.CastMembers.Should().BeEquivalentTo(exampleCastMembers);
             });
         }
 
