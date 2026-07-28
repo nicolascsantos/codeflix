@@ -1,4 +1,6 @@
-﻿namespace FC.CodeFlix.Catalog.Infra.Storage.Configuration
+﻿using FC.CodeFlix.Catalog.Infra.Storage.Enum;
+
+namespace FC.CodeFlix.Catalog.Infra.Storage.Configuration
 {
     public class StorageServiceOptions
     {
@@ -12,5 +14,7 @@
         public StorageServiceOptions() {}
 
         public string BucketName { get; set; }
+
+        public StorageProviderType StorageProvider { get; set; } = StorageProviderType.AWS;
     }
 }
