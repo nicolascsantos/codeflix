@@ -1,13 +1,13 @@
-﻿using FC.CodeFlix.Catalog.Application.UseCases.Genre.Common;
-using FC.CodeFlix.Catalog.Application.UseCases.Video.Common;
+﻿using FC.CodeFlix.Catalog.Application.UseCases.Video.Common;
 using FC.CodeFlix.Catalog.Application.UseCases.Video.ListVideos;
 using FC.CodeFlix.Catalog.Domain.Extensions;
+using FC.CodeFlix.Catalog.Domain.SeedWork.SearchableRepository;
 using FC.CodeFlix.Catalog.EndToEndTests.API.Video.Common;
-using FC.CodeFlix.Catalog.EndToEndTests.Extensions.DateTime;
 using FC.CodeFlix.Catalog.EndToEndTests.Models;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using System.Net;
+using Xunit.Abstractions;
 
 namespace FC.CodeFlix.Catalog.EndToEndTests.API.Video.ListVideos
 {
@@ -15,9 +15,13 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Video.ListVideos
     public class ListVideosAPITests : IDisposable
     {
         private readonly VideoBaseFixture _fixture;
+        private readonly ITestOutputHelper _output;
 
-        public ListVideosAPITests(VideoBaseFixture fixture)
-            => _fixture = fixture;
+        public ListVideosAPITests(VideoBaseFixture fixture, ITestOutputHelper output)
+        {
+            _fixture = fixture;
+            _output = output;
+        }
 
         [Fact(DisplayName = nameof(ListVideos))]
         [Trait("EndToEnd/API", "Video/List - Endpoints")]
@@ -187,6 +191,50 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Video.ListVideos
                     );
                 outputItem.CastMembers.Should().BeEquivalentTo(exampleCastMembers);
             });
+        }
+
+        [Theory(DisplayName = nameof(OrderedList))]
+        [Trait("EndToEnd/API", "Video/List - Endpoints")]
+        [InlineData("title", "asc")]
+        [InlineData("title", "desc")]
+        [InlineData("id", "asc")]
+        [InlineData("id", "desc")]
+        [InlineData("createdat", "asc")]
+        [InlineData("createdat", "desc")]
+        [InlineData("", "asc")]
+        public async Task OrderedList(string orderBy, string order)
+        {
+            var searchOrder = order.ToLower() == "asc" ? SearchOrder.Asc : SearchOrder.Desc;
+            var exampleVideosList = _fixture.GetVideoCollection(10);
+            await _fixture.VideoPersistence.InsertList(exampleVideosList);
+
+            var input = new ListVideosInput(
+                page: 1,
+                perPage: 10,
+                search: "",
+                sort: orderBy,
+                dir: searchOrder
+            );
+
+            var (response, output) = await _fixture.APIClient
+                .Get<TestAPIResponseList<VideoModelOutput>>("api/Video", input);
+
+            _output.WriteLine("Examples: ");
+            _output.WriteLine(string.Join("\n", exampleVideosList));
+            _output.WriteLine("Output: ");
+            _output.WriteLine(string.Join("\n", output!.Data));
+
+
+            response.Should().NotBeNull();
+            response.StatusCode.Should().Be((HttpStatusCode)StatusCodes.Status200OK);
+            output.Should().NotBeNull();
+            output.Meta.Should().NotBeNull();
+            output.Data.Should().NotBeNull();
+            output.Meta.CurrentPage.Should().Be(1);
+            output.Meta.Total.Should().Be(exampleVideosList.Count);
+            output.Data.Should().HaveCount(exampleVideosList.Count);
+            var expectedVideos = _fixture.CloneVideosOrdered(exampleVideosList, orderBy, searchOrder);
+            output.Data.Should().Equal(expectedVideos, (v1, v2) => v1.Id == v2.Id);
         }
 
         public void Dispose()

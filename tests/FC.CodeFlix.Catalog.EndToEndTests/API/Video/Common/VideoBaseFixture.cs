@@ -1,6 +1,6 @@
 ﻿using FC.CodeFlix.Catalog.API.APIModels.Video;
 using FC.CodeFlix.Catalog.Domain.Enum;
-using FC.CodeFlix.Catalog.Domain.Extensions;
+using FC.CodeFlix.Catalog.Domain.SeedWork.SearchableRepository;
 using FC.CodeFlix.Catalog.EndToEndTests.API.CastMember.Common;
 using FC.CodeFlix.Catalog.EndToEndTests.API.Genre.Common;
 using DomainEntity = FC.CodeFlix.Catalog.Domain.Entity;
@@ -79,6 +79,21 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Video.Common
             return video;
         }
 
+        public IEnumerable<DomainEntity.Video> CloneVideosOrdered(List<DomainEntity.Video> videos, string orderBy, SearchOrder searchOrder)
+        {
+            var clone = new List<DomainEntity.Video>(videos);
+            return (orderBy.ToLower(), searchOrder) switch
+            {
+                ("title", SearchOrder.Asc) => clone.OrderBy(x => x.Title).ThenBy(x => x.Id),
+                ("title", SearchOrder.Desc) => clone.OrderByDescending(x => x.Title).ThenByDescending(x => x.Id),
+                ("id", SearchOrder.Asc) => clone.OrderBy(x => x.Id),
+                ("id", SearchOrder.Desc) => clone.OrderByDescending(x => x.Id),
+                ("createdat", SearchOrder.Asc) => clone.OrderBy(x => x.CreatedAt),
+                ("createdat", SearchOrder.Desc) => clone.OrderByDescending(x => x.CreatedAt),
+                _ => clone.OrderBy(x => x.Title).ThenBy(x => x.Id)
+            };
+        }
+
         public string GetValidImagePath()
        => Faker.Image.PlaceImgUrl();
 
@@ -101,14 +116,16 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Video.Common
         public List<DomainEntity.Video> GetVideoCollection(int count = 10)
        => Enumerable
            .Range(1, count)
-           .Select(_ => {
+           .Select(_ =>
+           {
                Thread.Sleep(1);
                return GetValidVideoWithAllProperties();
            }).ToList();
 
         public List<DomainEntity.Video> GetVideoCollection(IEnumerable<string> titles)
             => titles
-                .Select(title => {
+                .Select(title =>
+                {
                     Thread.Sleep(1);
                     return GetValidVideoWithAllProperties(title);
                 }).ToList();
