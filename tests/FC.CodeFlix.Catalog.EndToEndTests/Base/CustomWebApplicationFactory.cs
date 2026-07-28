@@ -1,10 +1,12 @@
-﻿using FC.Codeflix.Catalog.Infra.Data.EF;
+﻿using FC.CodeFlix.Catalog.Application.Interfaces;
+using FC.Codeflix.Catalog.Infra.Data.EF;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace FC.CodeFlix.Catalog.EndToEndTests.Base
 {
@@ -15,6 +17,9 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.Base
             builder.UseEnvironment("EndToEndTest");
             builder.ConfigureServices(services =>
             {
+                services.RemoveAll<IStorageService>();
+                services.AddTransient<IStorageService, FakeStorageService>();
+
                 var serviceProvider = services.BuildServiceProvider();
                 using (var scope = serviceProvider.CreateScope())
                 {

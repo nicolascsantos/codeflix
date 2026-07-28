@@ -57,8 +57,62 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Video.Common
             return enumValues[random.Next(enumValues.Length)];
         }
 
+        public DomainEntity.Video GetValidVideoWithAllProperties(string? title = null)
+        {
+            var video = new DomainEntity.Video(
+                title ?? GetValidTitle(),
+                GetValidDescription(),
+                GetValidYearLaunched(),
+                GetRandomBoolean(),
+                GetRandomBoolean(),
+                GetValidDuration(),
+                GetRandomRating()
+            );
+
+            video.UpdateBanner(GetValidImagePath());
+            video.UpdateThumb(GetValidImagePath());
+            video.UpdateThumbHalf(GetValidImagePath());
+
+            video.UpdateMedia(GetValidMediaPath());
+            video.UpdateTrailer(GetValidMediaPath());
+
+            return video;
+        }
+
+        public string GetValidImagePath()
+       => Faker.Image.PlaceImgUrl();
+
+        public string GetValidMediaPath()
+        {
+            var exampleMedias = new string[]
+            {
+            "https://www.googlestorage.com/file-example.mp4",
+            "https://www.storage.com/another-example-of-video.mp4",
+            "https://www.S3.com.br/example.mp4",
+            "https://www.glg.io/file.mp4"
+            };
+            var random = new Random();
+            return exampleMedias[random.Next(exampleMedias.Length)];
+        }
+
         public int GetValidDuration()
             => (new Random()).Next(100, 300);
+
+        public List<DomainEntity.Video> GetVideoCollection(int count = 10)
+       => Enumerable
+           .Range(1, count)
+           .Select(_ => {
+               Thread.Sleep(1);
+               return GetValidVideoWithAllProperties();
+           }).ToList();
+
+        public List<DomainEntity.Video> GetVideoCollection(IEnumerable<string> titles)
+            => titles
+                .Select(title => {
+                    Thread.Sleep(1);
+                    return GetValidVideoWithAllProperties(title);
+                }).ToList();
+
 
         #endregion
 
