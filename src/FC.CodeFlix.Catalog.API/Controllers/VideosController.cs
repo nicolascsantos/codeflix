@@ -1,6 +1,9 @@
 ﻿using FC.CodeFlix.Catalog.API.APIModels.Response;
 using FC.CodeFlix.Catalog.API.APIModels.Video;
+using FC.CodeFlix.Catalog.Application.UseCases.Genre.Common;
+using FC.CodeFlix.Catalog.Application.UseCases.Genre.GetGenre;
 using FC.CodeFlix.Catalog.Application.UseCases.Video.Common;
+using FC.CodeFlix.Catalog.Application.UseCases.Video.GetVideo;
 using FC.CodeFlix.Catalog.Application.UseCases.Video.ListVideos;
 using FC.CodeFlix.Catalog.Domain.SeedWork.SearchableRepository;
 using MediatR;
@@ -16,7 +19,15 @@ namespace FC.CodeFlix.Catalog.API.Controllers
 
         public VideosController(IMediator mediator)
             => _mediator = mediator;
-        
+
+        [HttpGet("{id:guid}")]
+        [ProducesResponseType(typeof(APIResponse<VideoModelOutput>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Get([FromRoute] Guid id, CancellationToken cancellationToken)
+        {
+            var output = await _mediator.Send(new GetVideoInput(id), cancellationToken);
+            return Ok(new APIResponse<VideoModelOutput>(output));
+        }
 
         [HttpPost]
         [ProducesResponseType(201, Type = typeof(APIResponse<VideoModelOutput>), StatusCode = StatusCodes.Status201Created)]
