@@ -277,7 +277,7 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Video.ListVideos
             };
 
             var (response, output) = await _fixture.APIClient
-                .Get<TestAPIResponseList<VideoModelOutput>>("/api/genres", input);
+                .Get<TestAPIResponseList<VideoModelOutput>>("/api/videos", input);
 
             response.Should().NotBeNull();
             response.StatusCode.Should().Be((HttpStatusCode)StatusCodes.Status200OK);
