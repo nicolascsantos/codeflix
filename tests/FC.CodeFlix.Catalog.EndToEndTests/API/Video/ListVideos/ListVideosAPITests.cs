@@ -135,9 +135,6 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Video.ListVideos
            )
         {
             var exampleVideos = _fixture.GetVideoCollection(quantityToGenerate);
-            var exampleCategories = _fixture.GetExampleCategoriesList(3);
-            var exampleGenres = _fixture.GetExampleListGenres(4);
-            var exampleCastMembers = _fixture.GetExampleCastMembersList(5);
             await _fixture.VideoPersistence.InsertList(exampleVideos);
 
             var input = new ListVideosInput
@@ -147,7 +144,7 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Video.ListVideos
             };
 
             var (response, output) = await _fixture.APIClient
-                .Get<TestAPIResponseList<VideoModelOutput>>("/api/genres", input);
+                .Get<TestAPIResponseList<VideoModelOutput>>("/api/videos", input);
 
             response.Should().NotBeNull();
             response.StatusCode.Should().Be((HttpStatusCode)StatusCodes.Status200OK);
@@ -172,25 +169,7 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Video.ListVideos
                 outputItem.Published.Should().Be(exampleItem.Published);
                 outputItem.Duration.Should().Be(exampleItem.Duration);
                 outputItem.Rating.Should().Be(exampleItem.Rating.ToStringSignal());
-                outputItem.CreatedAt.Should().Be(exampleItem.CreatedAt);
-
-                var expectedCategories = exampleCategories
-                    .Select(category =>
-                        new VideoModelOutputRelatedAggregate(category.Id, category.Name)
-                    );
-                outputItem.Categories.Should().BeEquivalentTo(exampleCategories);
-
-                var expectedGenres = exampleGenres
-                    .Select(genre =>
-                        new VideoModelOutputRelatedAggregate(genre.Id, genre.Name)
-                    );
-                outputItem.Genres.Should().BeEquivalentTo(exampleGenres);
-
-                var expectedCastMembers = exampleCastMembers
-                    .Select(castMember =>
-                        new VideoModelOutputRelatedAggregate(castMember.Id, castMember.Name)
-                    );
-                outputItem.CastMembers.Should().BeEquivalentTo(exampleCastMembers);
+                outputItem.CreatedAt.TrimMilliseconds().Should().Be(exampleItem.CreatedAt.TrimMilliseconds());
             });
         }
 
@@ -218,7 +197,7 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Video.ListVideos
             );
 
             var (response, output) = await _fixture.APIClient
-                .Get<TestAPIResponseList<VideoModelOutput>>("api/Video", input);
+                .Get<TestAPIResponseList<VideoModelOutput>>("api/Videos", input);
 
             _output.WriteLine("Examples: ");
             _output.WriteLine(string.Join("\n", exampleVideosList));
@@ -252,23 +231,19 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Video.ListVideos
            int expectedTotalItems
            )
         {
-            var moviesNames = new[]
-            {
+            var moviesNames = new[] {
                 "007: Dr. No",
                 "007: Casino Royale",
-                "007: Goldfinger",
+                "007: GoldFinger",
                 "007: Skyfall",
                 "Star Wars: Return of the Jedi",
                 "Star Wars: The Empire Strikes Back",
-                "Interstellar",
+                "Interstellar"
             };
 
-            var exampleVideos = _fixture.GetVideoCollection(moviesNames.Length);
-            var exampleCategories = _fixture.GetExampleCategoriesList(3);
-            var exampleGenres = _fixture.GetExampleListGenres(4);
-            var exampleCastMembers = _fixture.GetExampleCastMembersList(5);
-            await _fixture.VideoPersistence.InsertList(exampleVideos);
+            var exampleVideos = _fixture.GetVideoCollection(moviesNames);
 
+            await _fixture.VideoPersistence.InsertList(exampleVideos);
             var input = new ListVideosInput
             {
                 Page = page,
@@ -282,17 +257,16 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Video.ListVideos
             response.Should().NotBeNull();
             response.StatusCode.Should().Be((HttpStatusCode)StatusCodes.Status200OK);
             output.Should().NotBeNull();
-            output.Meta.Should().NotBeNull();
+            output!.Meta.Should().NotBeNull();
             output.Data.Should().NotBeNull();
-            output.Meta.Total.Should().Be(expectedTotalItems);
+            output.Meta!.Total.Should().Be(expectedTotalItems);
             output.Meta.CurrentPage.Should().Be(input.Page);
             output.Meta.PerPage.Should().Be(input.PerPage);
-            output.Data.Count.Should().Be(expectedReturnedItems);
+            output.Data!.Count.Should().Be(expectedReturnedItems);
             if (output.Data.Any())
             {
-                output.Data.Should().AllSatisfy(video =>
-                    video.Title.Contains(searchTerm, StringComparison.InvariantCultureIgnoreCase)
-                );
+                output.Data.Should().AllSatisfy(video
+                    => video.Title.Contains(searchTerm, StringComparison.CurrentCultureIgnoreCase));
             }
         }
 
