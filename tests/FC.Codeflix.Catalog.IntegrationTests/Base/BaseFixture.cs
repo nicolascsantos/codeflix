@@ -19,5 +19,12 @@ namespace FC.Codeflix.Catalog.IntegrationTests.Base
                 context.Database.EnsureDeleted();
             return context;
         }
+
+        public void CleanPersistence()
+        {
+            var context = CreateDbContext();
+            context.Database.EnsureDeleted();
+            context.Database.EnsureCreated();
+        }
     }
 }

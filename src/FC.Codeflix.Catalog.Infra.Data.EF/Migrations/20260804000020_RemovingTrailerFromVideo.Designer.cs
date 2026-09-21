@@ -4,6 +4,7 @@ using FC.Codeflix.Catalog.Infra.Data.EF;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FC.Codeflix.Catalog.Infra.Data.EF.Migrations
 {
     [DbContext(typeof(CodeflixCatalogDbContext))]
-    partial class CodeflixCatalogDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260804000020_RemovingTrailerFromVideo")]
+    partial class RemovingTrailerFromVideo
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -94,7 +97,6 @@ namespace FC.Codeflix.Catalog.Infra.Data.EF.Migrations
             modelBuilder.Entity("FC.CodeFlix.Catalog.Domain.Entity.Media", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
                     b.Property<string>("EncodedPath")
@@ -128,9 +130,6 @@ namespace FC.Codeflix.Catalog.Infra.Data.EF.Migrations
                     b.Property<int>("Duration")
                         .HasColumnType("int");
 
-                    b.Property<Guid?>("MediaId")
-                        .HasColumnType("char(36)");
-
                     b.Property<bool>("Opened")
                         .HasColumnType("tinyint(1)");
 
@@ -145,19 +144,10 @@ namespace FC.Codeflix.Catalog.Infra.Data.EF.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("varchar(255)");
 
-                    b.Property<Guid?>("TrailerId")
-                        .HasColumnType("char(36)");
-
                     b.Property<int>("YearLaunched")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("MediaId")
-                        .IsUnique();
-
-                    b.HasIndex("TrailerId")
-                        .IsUnique();
 
                     b.ToTable("Videos");
                 });
@@ -222,16 +212,17 @@ namespace FC.Codeflix.Catalog.Infra.Data.EF.Migrations
                     b.ToTable("VideosGenres");
                 });
 
+            modelBuilder.Entity("FC.CodeFlix.Catalog.Domain.Entity.Media", b =>
+                {
+                    b.HasOne("FC.CodeFlix.Catalog.Domain.Entity.Video", null)
+                        .WithOne("Media")
+                        .HasForeignKey("FC.CodeFlix.Catalog.Domain.Entity.Media", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("FC.CodeFlix.Catalog.Domain.Entity.Video", b =>
                 {
-                    b.HasOne("FC.CodeFlix.Catalog.Domain.Entity.Media", "Media")
-                        .WithOne()
-                        .HasForeignKey("FC.CodeFlix.Catalog.Domain.Entity.Video", "MediaId");
-
-                    b.HasOne("FC.CodeFlix.Catalog.Domain.Entity.Media", "Trailer")
-                        .WithOne()
-                        .HasForeignKey("FC.CodeFlix.Catalog.Domain.Entity.Video", "TrailerId");
-
                     b.OwnsOne("FC.CodeFlix.Catalog.Domain.ValueObject.Image", "Banner", b1 =>
                         {
                             b1.Property<Guid>("VideoId")
@@ -288,13 +279,9 @@ namespace FC.Codeflix.Catalog.Infra.Data.EF.Migrations
 
                     b.Navigation("Banner");
 
-                    b.Navigation("Media");
-
                     b.Navigation("Thumb");
 
                     b.Navigation("ThumbHalf");
-
-                    b.Navigation("Trailer");
                 });
 
             modelBuilder.Entity("FC.Codeflix.Catalog.Infra.Data.EF.Models.GenresCategories", b =>
@@ -371,6 +358,11 @@ namespace FC.Codeflix.Catalog.Infra.Data.EF.Migrations
                     b.Navigation("Genre");
 
                     b.Navigation("Video");
+                });
+
+            modelBuilder.Entity("FC.CodeFlix.Catalog.Domain.Entity.Video", b =>
+                {
+                    b.Navigation("Media");
                 });
 #pragma warning restore 612, 618
         }

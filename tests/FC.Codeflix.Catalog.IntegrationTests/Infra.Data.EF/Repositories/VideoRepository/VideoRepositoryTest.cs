@@ -12,7 +12,7 @@ using Repository = FC.Codeflix.Catalog.Infra.Data.EF.Repositories;
 namespace FC.Codeflix.Catalog.IntegrationTests.Infra.Data.EF.Repositories.VideoRepository
 {
     [Collection(nameof(VideoRepositoryTestFixture))]
-    public class VideoRepositoryTest
+    public class VideoRepositoryTest : IDisposable
     {
         private readonly VideoRepositoryTestFixture _fixture;
 
@@ -858,5 +858,8 @@ namespace FC.Codeflix.Catalog.IntegrationTests.Infra.Data.EF.Repositories.VideoR
                 outputItem.Description.Should().Be(expectedItem.Description);
             }
         }
+
+        public void Dispose()
+            => _fixture.CleanPersistence();
     }
 }

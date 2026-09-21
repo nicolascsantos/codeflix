@@ -16,6 +16,12 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Video.Common
         public async Task InsertList(List<DomainEntity.Video> videos)
         {
             await _context.Videos.AddRangeAsync(videos);
+            await _context.VideosCategories.AddRangeAsync(videos.SelectMany(video =>
+                video.Categories.Select(categoryId => new VideosCategories(video.Id, categoryId))));
+            await _context.VideosGenres.AddRangeAsync(videos.SelectMany(video =>
+                video.Genres.Select(genreId => new VideosGenres(video.Id, genreId))));
+            await _context.VideosCastMembers.AddRangeAsync(videos.SelectMany(video =>
+                video.CastMembers.Select(castMemberId => new VideosCastMembers(video.Id, castMemberId))));
             await _context.SaveChangesAsync();
         }
 

@@ -123,12 +123,12 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Video.Common
            }).ToList();
 
         public List<DomainEntity.Video> GetVideoCollection(IEnumerable<string> titles)
-            => titles
-                .Select(title =>
-                {
-                    Thread.Sleep(1);
-                    return GetValidVideoWithAllProperties(title);
-                }).ToList();
+           => titles
+               .Select(title =>
+               {
+                   Thread.Sleep(1);
+                   return GetValidVideoWithAllProperties(title);
+               }).ToList();
 
 
         #endregion
