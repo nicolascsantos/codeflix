@@ -34,10 +34,10 @@ namespace FC.CodeFlix.Catalog.API.Controllers
         public async Task<IActionResult> List(
             CancellationToken cancellationToken,
             [FromQuery] int? page = null,
-            [FromQuery] int? perPage = null,
+            [FromQuery(Name = "per_page")] int? perPage = null,
             [FromQuery] string? search = null,
             [FromQuery] string? sort = null,
-            [FromBody] SearchOrder? dir = null
+            [FromQuery] SearchOrder? dir = null
         )
         {
             var input = new ListVideosInput();
