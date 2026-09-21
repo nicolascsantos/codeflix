@@ -207,16 +207,16 @@ namespace FC.Codeflix.Catalog.IntegrationTests.Infra.Data.EF.Repositories.VideoR
             // Arrange
             Context.CodeflixCatalogDbContext dbContextArrange = _fixture.CreateDbContext();
             var exampleVideo = _fixture.GetExampleVideo();
+            exampleVideo.UpdateTrailer(_fixture.GetValidMediaPath());
             await dbContextArrange.AddAsync(exampleVideo);
             await dbContextArrange.SaveChangesAsync();
-            var videoNewValues = _fixture.GetExampleVideo();
-            var dbContextAct = _fixture.CreateDbContext(true);
             var updatedThumb = _fixture.GetValidImagePath();
             var updatedThumbHalf = _fixture.GetValidImagePath();
             var updatedBanner = _fixture.GetValidImagePath();
             var updatedMedia = _fixture.GetValidImagePath();
             var updatedMediaEncoded = _fixture.GetValidImagePath();
             var updatedTrailer = _fixture.GetValidImagePath();
+            var dbContextAct = _fixture.CreateDbContext(true);
             IVideoRepository videoRepository = new Repository.VideoRepository(dbContextAct);
             var savedVideo = dbContextAct.Videos.Single(video => video.Id == exampleVideo.Id);
 
