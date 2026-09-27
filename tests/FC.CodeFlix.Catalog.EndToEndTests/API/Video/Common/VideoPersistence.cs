@@ -1,5 +1,6 @@
 ﻿using FC.Codeflix.Catalog.Infra.Data.EF;
 using FC.Codeflix.Catalog.Infra.Data.EF.Models;
+using FC.CodeFlix.Catalog.Domain.Entity;
 using Microsoft.EntityFrameworkCore;
 using DomainEntity = FC.CodeFlix.Catalog.Domain.Entity;
 
@@ -45,5 +46,8 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Video.Common
                 .AsNoTracking()
                 .Where(x => x.VideoId == videoId)
                 .ToListAsync();
+
+        public async Task<int> GetMediaCount()
+            => await _context.Set<Media>().CountAsync();
     }
 }
