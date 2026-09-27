@@ -67,19 +67,19 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Video.GetVideo
 
             var expectedCategories = exampleCategories
                 .Select(category =>
-                    new VideoModelOutputRelatedAggregate(category.Id, category.Name)
+                    new VideoModelOutputRelatedAggregate(category.Id)
                 );
             output.Data.Categories.Should().BeEquivalentTo(expectedCategories);
 
             var expectedGenres = exampleGenres
                 .Select(genre =>
-                    new VideoModelOutputRelatedAggregate(genre.Id, genre.Name)
+                    new VideoModelOutputRelatedAggregate(genre.Id)
                 );
             output.Data.Genres.Should().BeEquivalentTo(expectedGenres);
 
             var expectedCastMembers = exampleCastMembers
                 .Select(castMember =>
-                    new VideoModelOutputRelatedAggregate(castMember.Id, castMember.Name)
+                    new VideoModelOutputRelatedAggregate(castMember.Id)
                 );
             output.Data.CastMembers.Should().BeEquivalentTo(expectedCastMembers);
         }

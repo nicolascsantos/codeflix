@@ -1,7 +1,5 @@
 ﻿using FC.CodeFlix.Catalog.API.APIModels.Response;
 using FC.CodeFlix.Catalog.API.APIModels.Video;
-using FC.CodeFlix.Catalog.Application.UseCases.Genre.Common;
-using FC.CodeFlix.Catalog.Application.UseCases.Genre.GetGenre;
 using FC.CodeFlix.Catalog.Application.UseCases.Video.Common;
 using FC.CodeFlix.Catalog.Application.UseCases.Video.GetVideo;
 using FC.CodeFlix.Catalog.Application.UseCases.Video.ListVideos;
@@ -59,6 +57,16 @@ namespace FC.CodeFlix.Catalog.API.Controllers
             if (dir is not null) input.Dir = dir.Value;
             var output = await _mediator.Send(input, cancellationToken);
             return Ok(new APIResponseList<VideoModelOutput>(output));
+        }
+
+        [HttpPut("{id:guid}")]
+        [ProducesResponseType(200, Type = typeof(APIResponseList<VideoModelOutput>), StatusCode = StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+        public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateVideoAPIInput request, CancellationToken cancellationToken)
+        {
+            var output = await _mediator.Send(request.ToInput(id), cancellationToken);
+            return Ok(new APIResponse<VideoModelOutput>(output));
         }
     }
 }

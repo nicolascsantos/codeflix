@@ -33,5 +33,11 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Genre.Common
                 .AsNoTracking()
                 .Where(x => x.GenreId == id)
                 .ToListAsync();
+
+        public async Task<List<VideosGenres>> GetVideosGenres(Guid videoId)
+            => await _context.VideosGenres
+                .AsNoTracking()
+                .Where(x => x.VideoId == videoId)
+                .ToListAsync();
     }
 }
