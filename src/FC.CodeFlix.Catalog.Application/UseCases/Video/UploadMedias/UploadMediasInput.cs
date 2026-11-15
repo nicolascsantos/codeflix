@@ -3,5 +3,11 @@ using MediatR;
 
 namespace FC.CodeFlix.Catalog.Application.UseCases.Video.UploadMedias
 {
-    public record UploadMediasInput(Guid VideoId, FileInput? VideoFile, FileInput? TrailerFile) : IRequest<Unit>;
+    public record UploadMediasInput(
+        Guid VideoId,
+        FileInput? VideoFile,
+        FileInput? TrailerFile,
+        FileInput? BannerFile,
+        FileInput? ThumbFile,
+        FileInput? ThumbHalfFile) : IRequest<Unit>;
 }

@@ -28,6 +28,7 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.UploadMedias
             {
                 await UploadVideo(request, video, cancellationToken);
                 await UploadTrailer(request, video, cancellationToken);
+                await UploadImages(request, video, cancellationToken);
 
                 await _videoRepository.Update(video, cancellationToken);
                 await _unitOfWork.Commit(cancellationToken);
@@ -49,6 +50,18 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.UploadMedias
             if (request.TrailerFile is not null && video.Trailer is not null)
                 await _storageService
                     .Delete(video.Trailer.FilePath, cancellationToken);
+
+            if (request.BannerFile is not null && video.Banner is not null)
+                await _storageService
+                    .Delete(video.Banner.Path, cancellationToken);
+
+            if (request.ThumbFile is not null && video.Thumb is not null)
+                await _storageService
+                    .Delete(video.Thumb.Path, cancellationToken);
+
+            if (request.ThumbHalfFile is not null && video.ThumbHalf is not null)
+                await _storageService
+                    .Delete(video.ThumbHalf.Path, cancellationToken);
         }
 
         private async Task UploadTrailer(UploadMediasInput request, Domain.Entity.Video video, CancellationToken cancellationToken)
@@ -86,6 +99,63 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.UploadMedias
                     cancellationToken
                 );
                 video.UpdateMedia(uploadedFilePath);
+            }
+        }
+
+        private async Task UploadImages(UploadMediasInput request, Domain.Entity.Video video, CancellationToken cancellationToken)
+        {
+            if (request.BannerFile is not null)
+            {
+                var mediaName = StorageName.Create(
+                    video.Id,
+                    nameof(video.Banner),
+                    request.BannerFile.Extension
+                );
+
+                var uploadedFilePath = await _storageService.Upload(
+                    mediaName,
+                    request.BannerFile.FileStream,
+                    request.BannerFile.ContentType,
+                    cancellationToken
+                );
+
+                video.UpdateBanner(uploadedFilePath);
+            }
+
+            if (request.ThumbFile is not null)
+            {
+                var mediaName = StorageName.Create(
+                    video.Id,
+                    nameof(video.Thumb),
+                    request.ThumbFile.Extension
+                );
+
+                var uploadedFilePath = await _storageService.Upload(
+                    mediaName,
+                    request.ThumbFile.FileStream,
+                    request.ThumbFile.ContentType,
+                    cancellationToken
+                );
+
+                video.UpdateThumb(uploadedFilePath);
+            }
+
+            if (request.ThumbHalfFile is not null)
+            {
+                var mediaName = StorageName.Create(
+                    video.Id,
+                    nameof(video.Thumb),
+                    request.ThumbHalfFile.Extension
+                );
+
+                var uploadedFilePath = await _storageService.Upload(
+                    mediaName,
+                    request.ThumbHalfFile.FileStream,
+                    request.ThumbHalfFile.ContentType,
+                    cancellationToken
+                );
+
+                video.UpdateThumbHalf(uploadedFilePath);
             }
         }
     }

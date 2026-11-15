@@ -4,7 +4,6 @@ using FC.CodeFlix.Catalog.Application.Interfaces;
 using FC.CodeFlix.Catalog.Domain.Repository;
 using FluentAssertions;
 using Moq;
-using System.ComponentModel.DataAnnotations;
 using UseCases = FC.CodeFlix.Catalog.Application.UseCases.Video.UploadMedias;
 
 namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.UploadMedias
@@ -40,8 +39,11 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.UploadMedias
             List<string> fileNames = new()
             {
                 StorageName.Create(videoExample.Id, nameof(videoExample.Media), validInput.VideoFile!.Extension),
-                StorageName.Create(videoExample.Id, nameof(videoExample.Trailer), validInput.TrailerFile!.Extension)
-            }; 
+                StorageName.Create(videoExample.Id, nameof(videoExample.Trailer), validInput.TrailerFile!.Extension),
+                StorageName.Create(videoExample.Id, nameof(videoExample.Banner), validInput.BannerFile!.Extension),
+                StorageName.Create(videoExample.Id, nameof(videoExample.Thumb), validInput.ThumbFile!.Extension),
+                StorageName.Create(videoExample.Id, nameof(videoExample.ThumbHalf), validInput.ThumbHalfFile!.Extension)
+            };
 
             _videoRepositoryMock.Setup(x => x.Get(
                 It.Is<Guid>(x => x == videoExample.Id),
@@ -64,7 +66,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.UploadMedias
                 It.IsAny<Stream>(),
                 It.IsAny<string>(),
                 It.IsAny<CancellationToken>())
-                , Times.Exactly(2)
+                , Times.Exactly(5)
             );
             _unitOfWorkMock.Verify(x => x.Commit(It.IsAny<CancellationToken>()));
         }
@@ -86,7 +88,7 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.UploadMedias
                 It.IsAny<CancellationToken>()
             )).ThrowsAsync(new NotFoundException("Video not found."));
 
-            var action = async () => await _useCase.Handle(validInput, CancellationToken.None);  
+            var action = async () => await _useCase.Handle(validInput, CancellationToken.None);
 
             await action.Should().ThrowAsync<NotFoundException>()
                 .WithMessage("Video not found.");
@@ -153,12 +155,37 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.UploadMedias
         {
             var video = _fixture.GetValidVideo();
             var validInput = _fixture.GetValidUploadMediasInput(videoId: video.Id);
+
             var videoFileName = StorageName.Create(video.Id, nameof(video.Media), validInput.VideoFile!.Extension);
             var trailerFileName = StorageName.Create(video.Id, nameof(video.Trailer), validInput.TrailerFile!.Extension);
+            var bannerFileName = StorageName.Create(video.Id, nameof(video.Banner), validInput.BannerFile!.Extension);
+            var thumbFileName = StorageName.Create(video.Id, nameof(video.Thumb), validInput.ThumbFile!.Extension);
+            var thumbHalfFileName = StorageName.Create(video.Id, nameof(video.ThumbHalf), validInput.ThumbHalfFile!.Extension);
+
             var videoStoragePath = $"storage/{videoFileName}";
             var trailerStoragePath = $"storage/{trailerFileName}";
-            var fileNames = new List<string>() { videoFileName, trailerFileName };
-            var filePathNames = new List<string>() { videoStoragePath, trailerStoragePath };
+            var bannerStoragePath = $"storage/{bannerFileName}";
+            var thumbStoragePath = $"storage/{thumbFileName}";
+            var thumbHalfStoragePath = $"storage/{thumbHalfFileName}";
+
+            var fileNames = new List<string>() 
+            { 
+                videoFileName,
+                trailerFileName,
+                bannerFileName,
+                thumbFileName,
+                thumbHalfFileName 
+            };
+
+            var filePathNames = new List<string>() 
+            { 
+                videoStoragePath,
+                trailerStoragePath,
+                bannerStoragePath,
+                thumbStoragePath,
+                thumbHalfStoragePath
+            };
+
             _videoRepositoryMock.Setup(x => x.Get(
                 It.Is<Guid>(x => x == video.Id),
                 It.IsAny<CancellationToken>())
@@ -179,6 +206,30 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.UploadMedias
                     It.IsAny<CancellationToken>())
                 ).ReturnsAsync(trailerStoragePath);
 
+            _storageServiceMock
+                .Setup(x => x.Upload(
+                    It.Is<string>(x => x == bannerFileName),
+                    It.IsAny<Stream>(),
+                    It.IsAny<string>(),
+                    It.IsAny<CancellationToken>())
+                ).ReturnsAsync(bannerStoragePath);
+
+            _storageServiceMock
+                .Setup(x => x.Upload(
+                    It.Is<string>(x => x == thumbFileName),
+                    It.IsAny<Stream>(),
+                    It.IsAny<string>(),
+                    It.IsAny<CancellationToken>())
+                ).ReturnsAsync(thumbStoragePath);
+
+            _storageServiceMock
+                .Setup(x => x.Upload(
+                    It.Is<string>(x => x == thumbHalfFileName),
+                    It.IsAny<Stream>(),
+                    It.IsAny<string>(),
+                    It.IsAny<CancellationToken>())
+                ).ReturnsAsync(thumbHalfStoragePath);
+
             _unitOfWorkMock.Setup(x => x.Commit(It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new Exception("Something went wrong with the commit."));
 
@@ -194,16 +245,16 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.UploadMedias
                     It.IsAny<Stream>(),
                     It.IsAny<string>(),
                     It.IsAny<CancellationToken>()),
-                Times.Exactly(2)
+                Times.Exactly(5)
             );
             _storageServiceMock.Verify(x =>
                 x.Delete(
                     It.Is<string>(fileName => filePathNames.Contains(fileName)),
                     It.IsAny<CancellationToken>()
-                ), Times.Exactly(2));
+                ), Times.Exactly(5));
             _storageServiceMock.Verify(x =>
                 x.Delete(It.IsAny<string>(), It.IsAny<CancellationToken>()),
-                    Times.Exactly(2));
+                    Times.Exactly(5));
         }
 
         [Fact(DisplayName = nameof(ClearOnlyOneFileInStorageInCommitErrorCaseIfProvidedOnlyOneFile))]
@@ -213,7 +264,13 @@ namespace FC.CodeFlix.Catalog.UnitTests.Application.Video.UploadMedias
             var video = _fixture.GetValidVideo();
             video.UpdateTrailer(_fixture.GetValidMediaPath());
             video.UpdateMedia(_fixture.GetValidMediaPath());
-            var validInput = _fixture.GetValidUploadMediasInput(videoId: video.Id, withTrailerFile: false);
+            var validInput = _fixture.GetValidUploadMediasInput(
+                videoId: video.Id,
+                withTrailerFile: false,
+                withBannerFile: false,
+                withThumbFile: false,
+                withThumbHalfFile: false
+            );
             var videoFileName = StorageName.Create(video.Id, nameof(video.Media), validInput.VideoFile!.Extension);
             var videoStoragePath = $"storage/{videoFileName}";
             _videoRepositoryMock.Setup(x => x.Get(
