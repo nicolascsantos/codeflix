@@ -29,7 +29,10 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Video.DeleteVideo
             var allMedias = new[]
             {
                 video.Trailer!.FilePath,
-                video.Media!.FilePath
+                video.Media!.FilePath,
+                video.Banner!.Path,
+                video.Thumb!.Path,
+                video.ThumbHalf!.Path
             };
 
 
@@ -49,7 +52,14 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Video.DeleteVideo
                 It.Is<string>(fileName => allMedias.Contains(fileName)),
                 It.IsAny<DeleteObjectOptions>(),
                 It.IsAny<CancellationToken>()
-            ), Times.Exactly(2));
+            ), Times.Exactly(5));
+
+            _fixture.WebAppFactory.StorageClient.Verify(x => x.DeleteObjectAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<DeleteObjectOptions>(),
+                It.IsAny<CancellationToken>()
+            ), Times.Exactly(5));
         }
 
         [Fact(DisplayName = nameof(DeleteVideoWithRelationships))]
@@ -87,9 +97,12 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Video.DeleteVideo
             var video = exampleVideos.ElementAt(7);
             var targetVideoId = video.Id;
             var allMedias = new[]
-            {
+             {
                 video.Trailer!.FilePath,
-                video.Media!.FilePath
+                video.Media!.FilePath,
+                video.Banner!.Path,
+                video.Thumb!.Path,
+                video.ThumbHalf!.Path
             };
 
             var (response, output) = await _fixture.APIClient
@@ -122,7 +135,14 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Video.DeleteVideo
                 It.Is<string>(fileName => allMedias.Contains(fileName)),
                 It.IsAny<DeleteObjectOptions>(),
                 It.IsAny<CancellationToken>()
-            ), Times.Exactly(2));
+            ), Times.Exactly(5));
+
+            _fixture.WebAppFactory.StorageClient.Verify(x => x.DeleteObjectAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<DeleteObjectOptions>(),
+                It.IsAny<CancellationToken>()
+            ), Times.Exactly(5));
         }
 
         [Fact(DisplayName = nameof(Error404WhenVideoidNotFound))]

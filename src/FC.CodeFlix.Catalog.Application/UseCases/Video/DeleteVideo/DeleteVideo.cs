@@ -23,20 +23,36 @@ namespace FC.CodeFlix.Catalog.Application.UseCases.Video.DeleteVideo
             var video = await _videoRepository.Get(request.VideoId, cancellationToken);
             var trailerFilePath = video.Trailer?.FilePath;
             var mediaFilePath = video.Media?.FilePath;
+            var bannerFilePath = video.Banner?.Path;
+            var thumbFilePath = video.Thumb?.Path;
+            var thumbHalfFilePath = video.ThumbHalf?.Path;
 
             await DeleteMedias(trailerFilePath, mediaFilePath, cancellationToken);
+            await ClearImageMedia(bannerFilePath, thumbFilePath, thumbHalfFilePath, cancellationToken);
             await _videoRepository.Delete(video, cancellationToken);
             await _unitOfWork.Commit(cancellationToken);
             return Unit.Value;
         }
 
-        private async Task DeleteMedias(string trailerFilePath, string mediaFilePath, CancellationToken cancellationToken)
+        private async Task DeleteMedias(string? trailerFilePath, string? mediaFilePath, CancellationToken cancellationToken)
         {
             if (trailerFilePath is not null)
                 await _storageService.Delete(trailerFilePath, cancellationToken);
 
             if (mediaFilePath is not null)
                 await _storageService.Delete(mediaFilePath, cancellationToken);
+        }
+
+        private async Task ClearImageMedia(string? bannerFilePath, string? thumbFilePath, string? thumbHalfFilePath, CancellationToken cancellationToken)
+        {
+            if (!string.IsNullOrEmpty(bannerFilePath))
+                await _storageService.Delete(bannerFilePath, cancellationToken);
+
+            if (!string.IsNullOrEmpty(thumbFilePath))
+                await _storageService.Delete(thumbFilePath, cancellationToken);
+
+            if (!string.IsNullOrEmpty(thumbHalfFilePath))
+                await _storageService.Delete(thumbHalfFilePath, cancellationToken);
         }
     }
 }
