@@ -14,7 +14,7 @@ namespace FC.CodeFlix.Catalog.API.Configurations
             var section = configuration.GetSection(StorageServiceOptions.ConfigurationSection);
             services.Configure<StorageServiceOptions>(section);
 
-            var provider = section.Get<StorageServiceOptions>()?.StorageProvider ?? StorageProviderType.AWS;
+            var provider = section.Get<StorageServiceOptions>()?.StorageProvider ?? StorageProviderType.GCP;
 
             if (provider == StorageProviderType.AWS)
             {

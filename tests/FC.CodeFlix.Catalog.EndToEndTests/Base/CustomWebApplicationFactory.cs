@@ -1,10 +1,9 @@
-﻿using FC.CodeFlix.Catalog.Application.Interfaces;
-using FC.Codeflix.Catalog.Infra.Data.EF;
-using Microsoft.AspNetCore.Builder;
+﻿using FC.Codeflix.Catalog.Infra.Data.EF;
+using FC.CodeFlix.Catalog.Application.Interfaces;
+using Google.Cloud.Storage.V1;
+using Moq;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.AspNetCore.TestHost;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -12,13 +11,21 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.Base
 {
     public class CustomWebApplicationFactory<TStartup> : WebApplicationFactory<TStartup> where TStartup : class
     {
+        public Mock<StorageClient> StorageClient { get; private set; }
+
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
             builder.UseEnvironment("EndToEndTest");
             builder.ConfigureServices(services =>
             {
-                services.RemoveAll<IStorageService>();
-                services.AddTransient<IStorageService, FakeStorageService>();
+                var descriptor = services.First(s =>
+                    s.ServiceType == typeof(StorageClient));
+                services.Remove(descriptor);
+                services.AddScoped(sp =>
+                {
+                    StorageClient = new Mock<StorageClient>();
+                    return StorageClient.Object;
+                });
 
                 var serviceProvider = services.BuildServiceProvider();
                 using (var scope = serviceProvider.CreateScope())

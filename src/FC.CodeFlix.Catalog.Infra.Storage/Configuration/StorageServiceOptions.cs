@@ -15,6 +15,6 @@ namespace FC.CodeFlix.Catalog.Infra.Storage.Configuration
 
         public string BucketName { get; set; }
 
-        public StorageProviderType StorageProvider { get; set; } = StorageProviderType.AWS;
+        public StorageProviderType StorageProvider { get; set; } = StorageProviderType.GCP;
     }
 }

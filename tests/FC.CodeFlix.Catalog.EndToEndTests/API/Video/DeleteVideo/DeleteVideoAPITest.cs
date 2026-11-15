@@ -1,6 +1,8 @@
 ﻿using FC.CodeFlix.Catalog.EndToEndTests.API.Video.Common;
 using FluentAssertions;
+using Google.Cloud.Storage.V1;
 using Microsoft.AspNetCore.Mvc;
+using Moq;
 using System.Net;
 
 namespace FC.CodeFlix.Catalog.EndToEndTests.API.Video.DeleteVideo
@@ -22,8 +24,14 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Video.DeleteVideo
             await _fixture.VideoPersistence.InsertList(exampleVideos);
             var mediasCount = await _fixture.VideoPersistence.GetMediaCount();
             var expectedMediaCount = mediasCount - 2;
+            var video = exampleVideos.ElementAt(5);
+            var targetVideoId = video.Id;
+            var allMedias = new[]
+            {
+                video.Trailer!.FilePath,
+                video.Media!.FilePath
+            };
 
-            var targetVideoId = exampleVideos.ElementAt(5).Id;
 
             var (response, output) = await _fixture.APIClient
                 .Delete<object>($"/api/videos/{targetVideoId}");
@@ -36,6 +44,12 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Video.DeleteVideo
             videoFromDb.Should().BeNull();
             var actualMediaCount = await _fixture.VideoPersistence.GetMediaCount();
             actualMediaCount.Should().Be(expectedMediaCount);
+            _fixture.WebAppFactory.StorageClient.Verify(x => x.DeleteObjectAsync(
+                It.IsAny<string>(),
+                It.Is<string>(fileName => allMedias.Contains(fileName)),
+                It.IsAny<DeleteObjectOptions>(),
+                It.IsAny<CancellationToken>()
+            ), Times.Exactly(2));
         }
 
         [Fact(DisplayName = nameof(DeleteVideoWithRelationships))]
@@ -46,7 +60,7 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Video.DeleteVideo
             var exampleGenres = _fixture.GetExampleListGenres(4);
             var exampleCastMembers = _fixture.GetExampleCastMembersList(5);
             var exampleVideos = _fixture.GetVideoCollection(10);
-           
+
 
             exampleVideos.ForEach(video =>
             {
@@ -70,7 +84,13 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Video.DeleteVideo
             var mediasCount = await _fixture.VideoPersistence.GetMediaCount();
             var expectedMediaCount = mediasCount - 2;
 
-            var targetVideoId = exampleVideos.ElementAt(7).Id;
+            var video = exampleVideos.ElementAt(7);
+            var targetVideoId = video.Id;
+            var allMedias = new[]
+            {
+                video.Trailer!.FilePath,
+                video.Media!.FilePath
+            };
 
             var (response, output) = await _fixture.APIClient
                 .Delete<object>($"/api/videos/{targetVideoId}");
@@ -96,6 +116,13 @@ namespace FC.CodeFlix.Catalog.EndToEndTests.API.Video.DeleteVideo
 
             var actualMediaCount = await _fixture.VideoPersistence.GetMediaCount();
             actualMediaCount.Should().Be(expectedMediaCount);
+
+            _fixture.WebAppFactory.StorageClient.Verify(x => x.DeleteObjectAsync(
+                It.IsAny<string>(),
+                It.Is<string>(fileName => allMedias.Contains(fileName)),
+                It.IsAny<DeleteObjectOptions>(),
+                It.IsAny<CancellationToken>()
+            ), Times.Exactly(2));
         }
 
         [Fact(DisplayName = nameof(Error404WhenVideoidNotFound))]

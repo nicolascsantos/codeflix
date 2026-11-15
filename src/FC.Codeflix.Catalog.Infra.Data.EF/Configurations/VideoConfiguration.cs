@@ -42,10 +42,12 @@ namespace FC.Codeflix.Catalog.Infra.Data.EF.Configurations
 
             builder.HasOne(video => video.Media)
                 .WithOne()
-                .HasForeignKey<Video>("MediaId");
+                .HasForeignKey<Video>("MediaId").
+                OnDelete(DeleteBehavior.ClientNoAction);
             builder.HasOne(video => video.Trailer)
                 .WithOne()
-                .HasForeignKey<Video>("TrailerId");
+                .HasForeignKey<Video>("TrailerId")
+                .OnDelete(DeleteBehavior.ClientNoAction);
             builder.Ignore(video => video.Events);
         }
     }
